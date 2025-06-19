@@ -245,26 +245,199 @@ public class ConfigurationLoader {
                 }
                 yield builder.build();
             }
-            case LISTING -> ListingBlock.builder()
-                .name(name)
-                .severity(severity)
-                .occurrence(occurrence)
-                .build();
-            case TABLE -> TableBlock.builder()
-                .name(name)
-                .severity(severity)
-                .occurrence(occurrence)
-                .build();
-            case IMAGE -> ImageBlock.builder()
-                .name(name)
-                .severity(severity)
-                .occurrence(occurrence)
-                .build();
-            case VERSE -> VerseBlock.builder()
-                .name(name)
-                .severity(severity)
-                .occurrence(occurrence)
-                .build();
+            case LISTING -> {
+                ListingBlock.Builder builder = ListingBlock.builder()
+                    .name(name)
+                    .severity(severity)
+                    .occurrence(occurrence);
+                
+                // Parse language attribute
+                if (blockData.containsKey("language")) {
+                    Map<String, Object> langRaw = (Map<String, Object>) blockData.get("language");
+                    ListingBlock.LanguageRule.LanguageRuleBuilder langBuilder = ListingBlock.LanguageRule.builder()
+                        .required(Boolean.TRUE.equals(langRaw.get("required")))
+                        .allowed((List<String>) langRaw.get("allowed"))
+                        .severity(parseSeverity((String) langRaw.get("severity")));
+                    builder.language(langBuilder.build());
+                }
+                
+                // Parse title attribute
+                if (blockData.containsKey("title")) {
+                    Map<String, Object> titleRaw = (Map<String, Object>) blockData.get("title");
+                    ListingBlock.TitleRule.TitleRuleBuilder titleBuilder = ListingBlock.TitleRule.builder()
+                        .required(Boolean.TRUE.equals(titleRaw.get("required")))
+                        .pattern((String) titleRaw.get("pattern"))
+                        .severity(parseSeverity((String) titleRaw.get("severity")));
+                    builder.title(titleBuilder.build());
+                }
+                
+                // Parse callouts attribute
+                if (blockData.containsKey("callouts")) {
+                    Map<String, Object> calloutsRaw = (Map<String, Object>) blockData.get("callouts");
+                    ListingBlock.CalloutsRule.CalloutsRuleBuilder calloutsBuilder = ListingBlock.CalloutsRule.builder()
+                        .allowed(Boolean.TRUE.equals(calloutsRaw.get("allowed")))
+                        .max((Integer) calloutsRaw.get("max"))
+                        .severity(parseSeverity((String) calloutsRaw.get("severity")));
+                    builder.callouts(calloutsBuilder.build());
+                }
+                
+                // Lines were already parsed above
+                if (lines != null) {
+                    builder.lines(lines);
+                }
+                
+                yield builder.build();
+            }
+            case TABLE -> {
+                TableBlock.Builder builder = TableBlock.builder()
+                    .name(name)
+                    .severity(severity)
+                    .occurrence(occurrence);
+                
+                // Parse columns attribute
+                if (blockData.containsKey("columns")) {
+                    Map<String, Object> colsRaw = (Map<String, Object>) blockData.get("columns");
+                    TableBlock.DimensionRule.DimensionRuleBuilder colsBuilder = TableBlock.DimensionRule.builder()
+                        .min((Integer) colsRaw.get("min"))
+                        .max((Integer) colsRaw.get("max"))
+                        .severity(parseSeverity((String) colsRaw.get("severity")));
+                    builder.columns(colsBuilder.build());
+                }
+                
+                // Parse rows attribute
+                if (blockData.containsKey("rows")) {
+                    Map<String, Object> rowsRaw = (Map<String, Object>) blockData.get("rows");
+                    TableBlock.DimensionRule.DimensionRuleBuilder rowsBuilder = TableBlock.DimensionRule.builder()
+                        .min((Integer) rowsRaw.get("min"))
+                        .max((Integer) rowsRaw.get("max"))
+                        .severity(parseSeverity((String) rowsRaw.get("severity")));
+                    builder.rows(rowsBuilder.build());
+                }
+                
+                // Parse header attribute
+                if (blockData.containsKey("header")) {
+                    Map<String, Object> headerRaw = (Map<String, Object>) blockData.get("header");
+                    TableBlock.HeaderRule.HeaderRuleBuilder headerBuilder = TableBlock.HeaderRule.builder()
+                        .required(Boolean.TRUE.equals(headerRaw.get("required")))
+                        .pattern((String) headerRaw.get("pattern"))
+                        .severity(parseSeverity((String) headerRaw.get("severity")));
+                    builder.header(headerBuilder.build());
+                }
+                
+                // Parse caption attribute
+                if (blockData.containsKey("caption")) {
+                    Map<String, Object> captionRaw = (Map<String, Object>) blockData.get("caption");
+                    TableBlock.CaptionRule.CaptionRuleBuilder captionBuilder = TableBlock.CaptionRule.builder()
+                        .required(Boolean.TRUE.equals(captionRaw.get("required")))
+                        .pattern((String) captionRaw.get("pattern"))
+                        .minLength((Integer) captionRaw.get("minLength"))
+                        .maxLength((Integer) captionRaw.get("maxLength"))
+                        .severity(parseSeverity((String) captionRaw.get("severity")));
+                    builder.caption(captionBuilder.build());
+                }
+                
+                // Parse format attribute
+                if (blockData.containsKey("format")) {
+                    Map<String, Object> formatRaw = (Map<String, Object>) blockData.get("format");
+                    TableBlock.FormatRule.FormatRuleBuilder formatBuilder = TableBlock.FormatRule.builder()
+                        .style((String) formatRaw.get("style"))
+                        .borders((Boolean) formatRaw.get("borders"))
+                        .severity(parseSeverity((String) formatRaw.get("severity")));
+                    builder.format(formatBuilder.build());
+                }
+                
+                yield builder.build();
+            }
+            case IMAGE -> {
+                ImageBlock.Builder builder = ImageBlock.builder()
+                    .name(name)
+                    .severity(severity)
+                    .occurrence(occurrence);
+                
+                // Parse url attribute
+                if (blockData.containsKey("url")) {
+                    Map<String, Object> urlRaw = (Map<String, Object>) blockData.get("url");
+                    ImageBlock.UrlRule.UrlRuleBuilder urlBuilder = ImageBlock.UrlRule.builder()
+                        .required(Boolean.TRUE.equals(urlRaw.get("required")))
+                        .pattern((String) urlRaw.get("pattern"));
+                    builder.url(urlBuilder.build());
+                }
+                
+                // Parse height attribute
+                if (blockData.containsKey("height")) {
+                    Map<String, Object> heightRaw = (Map<String, Object>) blockData.get("height");
+                    ImageBlock.DimensionRule.DimensionRuleBuilder heightBuilder = ImageBlock.DimensionRule.builder()
+                        .required(Boolean.TRUE.equals(heightRaw.get("required")))
+                        .minValue((Integer) heightRaw.get("minValue"))
+                        .maxValue((Integer) heightRaw.get("maxValue"));
+                    builder.height(heightBuilder.build());
+                }
+                
+                // Parse width attribute
+                if (blockData.containsKey("width")) {
+                    Map<String, Object> widthRaw = (Map<String, Object>) blockData.get("width");
+                    ImageBlock.DimensionRule.DimensionRuleBuilder widthBuilder = ImageBlock.DimensionRule.builder()
+                        .required(Boolean.TRUE.equals(widthRaw.get("required")))
+                        .minValue((Integer) widthRaw.get("minValue"))
+                        .maxValue((Integer) widthRaw.get("maxValue"));
+                    builder.width(widthBuilder.build());
+                }
+                
+                // Parse alt attribute
+                if (blockData.containsKey("alt")) {
+                    Map<String, Object> altRaw = (Map<String, Object>) blockData.get("alt");
+                    ImageBlock.AltTextRule.AltTextRuleBuilder altBuilder = ImageBlock.AltTextRule.builder()
+                        .required(Boolean.TRUE.equals(altRaw.get("required")))
+                        .minLength((Integer) altRaw.get("minLength"))
+                        .maxLength((Integer) altRaw.get("maxLength"));
+                    builder.alt(altBuilder.build());
+                }
+                
+                yield builder.build();
+            }
+            case VERSE -> {
+                VerseBlock.Builder builder = VerseBlock.builder()
+                    .name(name)
+                    .severity(severity)
+                    .occurrence(occurrence);
+                
+                // Parse author attribute
+                if (blockData.containsKey("author")) {
+                    Map<String, Object> authorRaw = (Map<String, Object>) blockData.get("author");
+                    VerseBlock.AuthorRule.AuthorRuleBuilder authorBuilder = VerseBlock.AuthorRule.builder()
+                        .defaultValue((String) authorRaw.get("defaultValue"))
+                        .minLength((Integer) authorRaw.get("minLength"))
+                        .maxLength((Integer) authorRaw.get("maxLength"))
+                        .pattern((String) authorRaw.get("pattern"))
+                        .required(Boolean.TRUE.equals(authorRaw.get("required")));
+                    builder.author(authorBuilder.build());
+                }
+                
+                // Parse attribution attribute
+                if (blockData.containsKey("attribution")) {
+                    Map<String, Object> attrRaw = (Map<String, Object>) blockData.get("attribution");
+                    VerseBlock.AttributionRule.AttributionRuleBuilder attrBuilder = VerseBlock.AttributionRule.builder()
+                        .defaultValue((String) attrRaw.get("defaultValue"))
+                        .minLength((Integer) attrRaw.get("minLength"))
+                        .maxLength((Integer) attrRaw.get("maxLength"))
+                        .pattern((String) attrRaw.get("pattern"))
+                        .required(Boolean.TRUE.equals(attrRaw.get("required")));
+                    builder.attribution(attrBuilder.build());
+                }
+                
+                // Parse content attribute
+                if (blockData.containsKey("content")) {
+                    Map<String, Object> contentRaw = (Map<String, Object>) blockData.get("content");
+                    VerseBlock.ContentRule.ContentRuleBuilder contentBuilder = VerseBlock.ContentRule.builder()
+                        .minLength((Integer) contentRaw.get("minLength"))
+                        .maxLength((Integer) contentRaw.get("maxLength"))
+                        .pattern((String) contentRaw.get("pattern"))
+                        .required(Boolean.TRUE.equals(contentRaw.get("required")));
+                    builder.content(contentBuilder.build());
+                }
+                
+                yield builder.build();
+            }
         };
     }
     

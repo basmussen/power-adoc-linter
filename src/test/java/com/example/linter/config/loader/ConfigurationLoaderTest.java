@@ -479,4 +479,630 @@ class ConfigurationLoaderTest {
             assertEquals(Severity.WARN, authorAttr.severity());
         }
     }
+    
+    @Nested
+    @DisplayName("ImageBlock Loading")
+    class ImageBlockTest {
+        
+        @Test
+        @DisplayName("should load ImageBlock in section and subsection")
+        void shouldLoadImageBlockInSectionAndSubsection() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: main-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - image:
+                            name: section-image
+                            severity: warn
+                            occurrence:
+                              min: 0
+                              max: 3
+                            url:
+                              required: true
+                              pattern: "^https?://.*\\\\.(jpg|jpeg|png|gif|svg)$"
+                            height:
+                              required: false
+                              minValue: 100
+                              maxValue: 2000
+                            width:
+                              required: false
+                              minValue: 100
+                              maxValue: 3000
+                            alt:
+                              required: true
+                              minLength: 10
+                              maxLength: 200
+                      subsections:
+                        - name: sub-section
+                          level: 2
+                          min: 1
+                          max: 2
+                          allowedBlocks:
+                            - image:
+                                name: subsection-image
+                                severity: info
+                                occurrence:
+                                  min: 1
+                                  max: 5
+                                url:
+                                  required: true
+                                  pattern: ".*\\\\.(jpg|png)$"
+                                alt:
+                                  required: true
+                                  minLength: 5
+                                  maxLength: 100
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then - Section level image block
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var mainSection = sections.get(0);
+            assertEquals("main-section", mainSection.name());
+            assertEquals(1, mainSection.allowedBlocks().size());
+            
+            var sectionImage = (ImageBlock) mainSection.allowedBlocks().get(0);
+            assertEquals("section-image", sectionImage.getName());
+            assertEquals(Severity.WARN, sectionImage.getSeverity());
+            assertEquals(0, sectionImage.getOccurrence().min());
+            assertEquals(3, sectionImage.getOccurrence().max());
+            
+            // URL validation
+            assertNotNull(sectionImage.getUrl());
+            assertTrue(sectionImage.getUrl().isRequired());
+            assertEquals("^https?://.*\\.(jpg|jpeg|png|gif|svg)$", sectionImage.getUrl().getPattern().pattern());
+            
+            // Dimension validation
+            assertNotNull(sectionImage.getHeight());
+            assertFalse(sectionImage.getHeight().isRequired());
+            assertEquals(100, sectionImage.getHeight().getMinValue());
+            assertEquals(2000, sectionImage.getHeight().getMaxValue());
+            
+            assertNotNull(sectionImage.getWidth());
+            assertFalse(sectionImage.getWidth().isRequired());
+            assertEquals(100, sectionImage.getWidth().getMinValue());
+            assertEquals(3000, sectionImage.getWidth().getMaxValue());
+            
+            // Alt text validation
+            assertNotNull(sectionImage.getAlt());
+            assertTrue(sectionImage.getAlt().isRequired());
+            assertEquals(10, sectionImage.getAlt().getMinLength());
+            assertEquals(200, sectionImage.getAlt().getMaxLength());
+            
+            // Then - Subsection level image block
+            var subsections = mainSection.subsections();
+            assertEquals(1, subsections.size());
+            
+            var subSection = subsections.get(0);
+            assertEquals("sub-section", subSection.name());
+            assertEquals(1, subSection.allowedBlocks().size());
+            
+            var subsectionImage = (ImageBlock) subSection.allowedBlocks().get(0);
+            assertEquals("subsection-image", subsectionImage.getName());
+            assertEquals(Severity.INFO, subsectionImage.getSeverity());
+            assertEquals(1, subsectionImage.getOccurrence().min());
+            assertEquals(5, subsectionImage.getOccurrence().max());
+            
+            // Subsection image validation rules
+            assertTrue(subsectionImage.getUrl().isRequired());
+            assertEquals(".*\\.(jpg|png)$", subsectionImage.getUrl().getPattern().pattern());
+            assertTrue(subsectionImage.getAlt().isRequired());
+            assertEquals(5, subsectionImage.getAlt().getMinLength());
+            assertEquals(100, subsectionImage.getAlt().getMaxLength());
+        }
+    }
+    
+    @Nested
+    @DisplayName("ListingBlock Loading")
+    class ListingBlockTest {
+        
+        @Test
+        @DisplayName("should load ListingBlock in section and subsection")
+        void shouldLoadListingBlockInSectionAndSubsection() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: code-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - listing:
+                            name: main-code
+                            severity: error
+                            occurrence:
+                              min: 1
+                              max: 10
+                            language:
+                              required: true
+                              allowed: ["java", "python", "javascript"]
+                              severity: error
+                            lines:
+                              min: 5
+                              max: 200
+                            title:
+                              required: true
+                              pattern: "^Listing \\\\d+:.*"
+                              severity: warn
+                            callouts:
+                              allowed: true
+                              max: 15
+                              severity: info
+                      subsections:
+                        - name: examples
+                          level: 2
+                          min: 1
+                          max: 3
+                          allowedBlocks:
+                            - listing:
+                                name: example-code
+                                severity: warn
+                                occurrence:
+                                  min: 1
+                                  max: 5
+                                language:
+                                  required: false
+                                  allowed: ["yaml", "json", "xml"]
+                                  severity: warn
+                                lines:
+                                  min: 1
+                                  max: 50
+                                title:
+                                  required: false
+                                  pattern: "^Example.*"
+                                  severity: info
+                                callouts:
+                                  allowed: false
+                                  severity: error
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then - Section level listing block
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var codeSection = sections.get(0);
+            assertEquals("code-section", codeSection.name());
+            assertEquals(1, codeSection.allowedBlocks().size());
+            
+            var mainListing = (ListingBlock) codeSection.allowedBlocks().get(0);
+            assertEquals("main-code", mainListing.getName());
+            assertEquals(Severity.ERROR, mainListing.getSeverity());
+            assertEquals(1, mainListing.getOccurrence().min());
+            assertEquals(10, mainListing.getOccurrence().max());
+            
+            // Language validation
+            assertNotNull(mainListing.getLanguage());
+            assertTrue(mainListing.getLanguage().isRequired());
+            assertEquals(3, mainListing.getLanguage().getAllowed().size());
+            assertTrue(mainListing.getLanguage().getAllowed().contains("java"));
+            assertTrue(mainListing.getLanguage().getAllowed().contains("python"));
+            assertTrue(mainListing.getLanguage().getAllowed().contains("javascript"));
+            assertEquals(Severity.ERROR, mainListing.getLanguage().getSeverity());
+            
+            // Lines validation
+            assertNotNull(mainListing.getLines());
+            assertEquals(5, mainListing.getLines().min());
+            assertEquals(200, mainListing.getLines().max());
+            
+            // Title validation
+            assertNotNull(mainListing.getTitle());
+            assertTrue(mainListing.getTitle().isRequired());
+            assertEquals("^Listing \\d+:.*", mainListing.getTitle().getPattern().pattern());
+            assertEquals(Severity.WARN, mainListing.getTitle().getSeverity());
+            
+            // Callouts validation
+            assertNotNull(mainListing.getCallouts());
+            assertTrue(mainListing.getCallouts().isAllowed());
+            assertEquals(15, mainListing.getCallouts().getMax());
+            assertEquals(Severity.INFO, mainListing.getCallouts().getSeverity());
+            
+            // Then - Subsection level listing block
+            var subsections = codeSection.subsections();
+            assertEquals(1, subsections.size());
+            
+            var examplesSection = subsections.get(0);
+            assertEquals("examples", examplesSection.name());
+            assertEquals(1, examplesSection.allowedBlocks().size());
+            
+            var exampleListing = (ListingBlock) examplesSection.allowedBlocks().get(0);
+            assertEquals("example-code", exampleListing.getName());
+            assertEquals(Severity.WARN, exampleListing.getSeverity());
+            
+            // Subsection listing validation rules
+            assertFalse(exampleListing.getLanguage().isRequired());
+            assertEquals(3, exampleListing.getLanguage().getAllowed().size());
+            assertTrue(exampleListing.getLanguage().getAllowed().contains("yaml"));
+            assertEquals(1, exampleListing.getLines().min());
+            assertEquals(50, exampleListing.getLines().max());
+            assertFalse(exampleListing.getTitle().isRequired());
+            assertFalse(exampleListing.getCallouts().isAllowed());
+        }
+    }
+    
+    @Nested
+    @DisplayName("ParagraphBlock Loading")
+    class ParagraphBlockTest {
+        
+        @Test
+        @DisplayName("should load ParagraphBlock in section and subsection")
+        void shouldLoadParagraphBlockInSectionAndSubsection() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: intro-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - paragraph:
+                            name: intro-paragraph
+                            severity: warn
+                            occurrence:
+                              min: 1
+                              max: 5
+                              severity: error
+                            lines:
+                              min: 3
+                              max: 20
+                      subsections:
+                        - name: details
+                          level: 2
+                          min: 0
+                          max: 3
+                          allowedBlocks:
+                            - paragraph:
+                                name: detail-paragraph
+                                severity: info
+                                occurrence:
+                                  min: 1
+                                  max: 10
+                                lines:
+                                  min: 1
+                                  max: 15
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then - Section level paragraph block
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var introSection = sections.get(0);
+            assertEquals("intro-section", introSection.name());
+            assertEquals(1, introSection.allowedBlocks().size());
+            
+            var introParagraph = (ParagraphBlock) introSection.allowedBlocks().get(0);
+            assertEquals("intro-paragraph", introParagraph.getName());
+            assertEquals(Severity.WARN, introParagraph.getSeverity());
+            assertEquals(1, introParagraph.getOccurrence().min());
+            assertEquals(5, introParagraph.getOccurrence().max());
+            assertEquals(Severity.ERROR, introParagraph.getOccurrence().severity());
+            
+            // Lines validation
+            assertNotNull(introParagraph.getLines());
+            assertEquals(3, introParagraph.getLines().min());
+            assertEquals(20, introParagraph.getLines().max());
+            
+            // Then - Subsection level paragraph block
+            var subsections = introSection.subsections();
+            assertEquals(1, subsections.size());
+            
+            var detailsSection = subsections.get(0);
+            assertEquals("details", detailsSection.name());
+            assertEquals(1, detailsSection.allowedBlocks().size());
+            
+            var detailParagraph = (ParagraphBlock) detailsSection.allowedBlocks().get(0);
+            assertEquals("detail-paragraph", detailParagraph.getName());
+            assertEquals(Severity.INFO, detailParagraph.getSeverity());
+            assertEquals(1, detailParagraph.getOccurrence().min());
+            assertEquals(10, detailParagraph.getOccurrence().max());
+            
+            // Subsection paragraph lines validation
+            assertEquals(1, detailParagraph.getLines().min());
+            assertEquals(15, detailParagraph.getLines().max());
+        }
+    }
+    
+    @Nested
+    @DisplayName("TableBlock Loading")
+    class TableBlockTest {
+        
+        @Test
+        @DisplayName("should load TableBlock in section and subsection")
+        void shouldLoadTableBlockInSectionAndSubsection() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: data-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - table:
+                            name: main-table
+                            severity: error
+                            occurrence:
+                              min: 1
+                              max: 3
+                            columns:
+                              min: 2
+                              max: 10
+                              severity: error
+                            rows:
+                              min: 1
+                              max: 100
+                              severity: warn
+                            header:
+                              required: true
+                              pattern: "^[A-Z].*"
+                              severity: error
+                            caption:
+                              required: true
+                              pattern: "^Table \\\\d+:.*"
+                              minLength: 10
+                              maxLength: 200
+                              severity: warn
+                            format:
+                              style: "grid"
+                              borders: true
+                              severity: info
+                      subsections:
+                        - name: summary
+                          level: 2
+                          min: 0
+                          max: 2
+                          allowedBlocks:
+                            - table:
+                                name: summary-table
+                                severity: warn
+                                occurrence:
+                                  min: 0
+                                  max: 5
+                                columns:
+                                  min: 2
+                                  max: 5
+                                  severity: warn
+                                rows:
+                                  min: 1
+                                  max: 50
+                                  severity: info
+                                header:
+                                  required: false
+                                  pattern: ".*"
+                                  severity: info
+                                caption:
+                                  required: false
+                                  minLength: 5
+                                  maxLength: 100
+                                  severity: info
+                                format:
+                                  style: "simple"
+                                  borders: false
+                                  severity: info
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then - Section level table block
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var dataSection = sections.get(0);
+            assertEquals("data-section", dataSection.name());
+            assertEquals(1, dataSection.allowedBlocks().size());
+            
+            var mainTable = (TableBlock) dataSection.allowedBlocks().get(0);
+            assertEquals("main-table", mainTable.getName());
+            assertEquals(Severity.ERROR, mainTable.getSeverity());
+            assertEquals(1, mainTable.getOccurrence().min());
+            assertEquals(3, mainTable.getOccurrence().max());
+            
+            // Columns validation
+            assertNotNull(mainTable.getColumns());
+            assertEquals(2, mainTable.getColumns().getMin());
+            assertEquals(10, mainTable.getColumns().getMax());
+            assertEquals(Severity.ERROR, mainTable.getColumns().getSeverity());
+            
+            // Rows validation
+            assertNotNull(mainTable.getRows());
+            assertEquals(1, mainTable.getRows().getMin());
+            assertEquals(100, mainTable.getRows().getMax());
+            assertEquals(Severity.WARN, mainTable.getRows().getSeverity());
+            
+            // Header validation
+            assertNotNull(mainTable.getHeader());
+            assertTrue(mainTable.getHeader().isRequired());
+            assertEquals("^[A-Z].*", mainTable.getHeader().getPattern().pattern());
+            assertEquals(Severity.ERROR, mainTable.getHeader().getSeverity());
+            
+            // Caption validation
+            assertNotNull(mainTable.getCaption());
+            assertTrue(mainTable.getCaption().isRequired());
+            assertEquals("^Table \\d+:.*", mainTable.getCaption().getPattern().pattern());
+            assertEquals(10, mainTable.getCaption().getMinLength());
+            assertEquals(200, mainTable.getCaption().getMaxLength());
+            assertEquals(Severity.WARN, mainTable.getCaption().getSeverity());
+            
+            // Format validation
+            assertNotNull(mainTable.getFormat());
+            assertEquals("grid", mainTable.getFormat().getStyle());
+            assertTrue(mainTable.getFormat().getBorders());
+            assertEquals(Severity.INFO, mainTable.getFormat().getSeverity());
+            
+            // Then - Subsection level table block
+            var subsections = dataSection.subsections();
+            assertEquals(1, subsections.size());
+            
+            var summarySection = subsections.get(0);
+            assertEquals("summary", summarySection.name());
+            assertEquals(1, summarySection.allowedBlocks().size());
+            
+            var summaryTable = (TableBlock) summarySection.allowedBlocks().get(0);
+            assertEquals("summary-table", summaryTable.getName());
+            assertEquals(Severity.WARN, summaryTable.getSeverity());
+            
+            // Subsection table validation rules
+            assertEquals(2, summaryTable.getColumns().getMin());
+            assertEquals(5, summaryTable.getColumns().getMax());
+            assertEquals(50, summaryTable.getRows().getMax());
+            assertFalse(summaryTable.getHeader().isRequired());
+            assertFalse(summaryTable.getCaption().isRequired());
+            assertEquals("simple", summaryTable.getFormat().getStyle());
+            assertFalse(summaryTable.getFormat().getBorders());
+        }
+    }
+    
+    @Nested
+    @DisplayName("VerseBlock Loading")
+    class VerseBlockTest {
+        
+        @Test
+        @DisplayName("should load VerseBlock in section and subsection")
+        void shouldLoadVerseBlockInSectionAndSubsection() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: quotes-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - verse:
+                            name: main-verse
+                            severity: warn
+                            occurrence:
+                              min: 0
+                              max: 3
+                            author:
+                              defaultValue: "Unknown"
+                              minLength: 3
+                              maxLength: 50
+                              pattern: "^[A-Z][a-zA-Z\\\\s\\\\.]+$"
+                              required: true
+                            attribution:
+                              defaultValue: "Source Unknown"
+                              minLength: 5
+                              maxLength: 100
+                              pattern: "^[A-Za-z0-9\\\\s,\\\\.]+$"
+                              required: false
+                            content:
+                              minLength: 20
+                              maxLength: 500
+                              pattern: ".*\\\\n.*"
+                              required: true
+                      subsections:
+                        - name: poetry
+                          level: 2
+                          min: 0
+                          max: 5
+                          allowedBlocks:
+                            - verse:
+                                name: poetry-verse
+                                severity: info
+                                occurrence:
+                                  min: 1
+                                  max: 10
+                                author:
+                                  minLength: 2
+                                  maxLength: 40
+                                  required: false
+                                attribution:
+                                  minLength: 3
+                                  maxLength: 80
+                                  required: false
+                                content:
+                                  minLength: 10
+                                  maxLength: 300
+                                  required: true
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then - Section level verse block
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var quotesSection = sections.get(0);
+            assertEquals("quotes-section", quotesSection.name());
+            assertEquals(1, quotesSection.allowedBlocks().size());
+            
+            var mainVerse = (VerseBlock) quotesSection.allowedBlocks().get(0);
+            assertEquals("main-verse", mainVerse.getName());
+            assertEquals(Severity.WARN, mainVerse.getSeverity());
+            assertEquals(0, mainVerse.getOccurrence().min());
+            assertEquals(3, mainVerse.getOccurrence().max());
+            
+            // Author validation
+            assertNotNull(mainVerse.getAuthor());
+            assertEquals("Unknown", mainVerse.getAuthor().getDefaultValue());
+            assertEquals(3, mainVerse.getAuthor().getMinLength());
+            assertEquals(50, mainVerse.getAuthor().getMaxLength());
+            assertEquals("^[A-Z][a-zA-Z\\s\\.]+$", mainVerse.getAuthor().getPattern().pattern());
+            assertTrue(mainVerse.getAuthor().isRequired());
+            
+            // Attribution validation
+            assertNotNull(mainVerse.getAttribution());
+            assertEquals("Source Unknown", mainVerse.getAttribution().getDefaultValue());
+            assertEquals(5, mainVerse.getAttribution().getMinLength());
+            assertEquals(100, mainVerse.getAttribution().getMaxLength());
+            assertEquals("^[A-Za-z0-9\\s,\\.]+$", mainVerse.getAttribution().getPattern().pattern());
+            assertFalse(mainVerse.getAttribution().isRequired());
+            
+            // Content validation
+            assertNotNull(mainVerse.getContent());
+            assertEquals(20, mainVerse.getContent().getMinLength());
+            assertEquals(500, mainVerse.getContent().getMaxLength());
+            assertEquals(".*\\n.*", mainVerse.getContent().getPattern().pattern());
+            assertTrue(mainVerse.getContent().isRequired());
+            
+            // Then - Subsection level verse block
+            var subsections = quotesSection.subsections();
+            assertEquals(1, subsections.size());
+            
+            var poetrySection = subsections.get(0);
+            assertEquals("poetry", poetrySection.name());
+            assertEquals(1, poetrySection.allowedBlocks().size());
+            
+            var poetryVerse = (VerseBlock) poetrySection.allowedBlocks().get(0);
+            assertEquals("poetry-verse", poetryVerse.getName());
+            assertEquals(Severity.INFO, poetryVerse.getSeverity());
+            assertEquals(1, poetryVerse.getOccurrence().min());
+            assertEquals(10, poetryVerse.getOccurrence().max());
+            
+            // Subsection verse validation rules
+            assertEquals(2, poetryVerse.getAuthor().getMinLength());
+            assertEquals(40, poetryVerse.getAuthor().getMaxLength());
+            assertFalse(poetryVerse.getAuthor().isRequired());
+            assertEquals(10, poetryVerse.getContent().getMinLength());
+            assertEquals(300, poetryVerse.getContent().getMaxLength());
+        }
+    }
 }
