@@ -115,6 +115,22 @@ document:
               min: 0                 # Bilder sind optional
               max: 1                 # Maximal 1 Bild
               # Kein severity = verwendet Block-Severity (info)
+            # Image-spezifische Attribute
+            url:
+              required: true         # URL ist Pflicht
+              pattern: "^https?://.*\\.(jpg|jpeg|png|gif|svg)$"  # Nur sichere Bildformate
+            height:
+              required: false        # Höhe ist optional
+              minValue: 50           # Mindestens 50 Pixel
+              maxValue: 2000         # Maximal 2000 Pixel
+            width:
+              required: false        # Breite ist optional
+              minValue: 50           # Mindestens 50 Pixel
+              maxValue: 3000         # Maximal 3000 Pixel
+            alt:
+              required: true         # Alt-Text ist Pflicht (Barrierefreiheit)
+              minLength: 10          # Mindestens 10 Zeichen
+              maxLength: 200         # Maximal 200 Zeichen
           
       # Erlaubte Unterabschnitte
       subsections:
@@ -191,6 +207,22 @@ document:
               min: 0
               max: 5
               # Kein severity = verwendet Block-Severity (warn)
+            # Image-spezifische Attribute für Diagramme
+            url:
+              required: true         # URL ist Pflicht
+              pattern: "^(https?://|\\./|/|assets/).*\\.(jpg|jpeg|png|gif|svg)$"  # Auch relative Pfade erlaubt
+            height:
+              required: false        # Höhe ist optional
+              minValue: 100          # Mindestens 100 Pixel für Diagramme
+              maxValue: 1500         # Maximal 1500 Pixel
+            width:
+              required: false        # Breite ist optional
+              minValue: 200          # Mindestens 200 Pixel für Diagramme
+              maxValue: 2000         # Maximal 2000 Pixel
+            alt:
+              required: true         # Alt-Text ist Pflicht
+              minLength: 15          # Mindestens 15 Zeichen für Diagrammbeschreibung
+              maxLength: 300         # Maximal 300 Zeichen
           
       # Verschachtelte Struktur bis Level 3
       subsections:
@@ -217,6 +249,22 @@ document:
                   min: 0
                   max: 1
                   # Kein severity = verwendet Block-Severity (info)
+                # Einfache Bilder in Übersichts-Abschnitten
+                url:
+                  required: true         # URL ist Pflicht
+                  pattern: ".*\\.(jpg|jpeg|png|gif|svg)$"  # Alle Bildformate erlaubt
+                height:
+                  required: false        # Dimensionen optional
+                  minValue: 50
+                  maxValue: 1000
+                width:
+                  required: false
+                  minValue: 50
+                  maxValue: 1500
+                alt:
+                  required: true         # Alt-Text ist Pflicht
+                  minLength: 5           # Mindestens 5 Zeichen
+                  maxLength: 150         # Maximal 150 Zeichen
                 
         # Weiterer spezifischer Unterabschnitt
         - name: "implementation"
