@@ -1,0 +1,26 @@
+document:
+  sections:
+    - name: poetry
+      title:
+        pattern: "^Poetry.*"
+      allowedBlocks:
+        - verse:
+            severity: warn
+            occurrence:
+              min: 1
+              max: 5
+            author:
+              required: true
+              minLength: 3
+              maxLength: 50
+              pattern: "^[A-Z][a-zA-Z\\s\\.]+$"
+            attribution:
+              required: false
+              minLength: 5
+              maxLength: 100
+              pattern: "^[A-Za-z0-9\\s,\\.]+$"
+            content:
+              required: true
+              minLength: 20
+              maxLength: 500
+              pattern: ".*\\n.*"
