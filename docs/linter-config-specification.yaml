@@ -216,6 +216,29 @@ document:
               min: 0
               max: 3
               # Kein severity = verwendet Block-Severity (info)
+            # Table-spezifische Attribute
+            columns:
+              min: 2                 # Mindestens 2 Spalten
+              max: 10                # Maximal 10 Spalten
+              severity: error        # Strenge Vorgabe für Spaltenanzahl
+            rows:
+              min: 1                 # Mindestens 1 Zeile
+              max: 100               # Maximal 100 Zeilen
+              severity: warn         # Warnung bei zu vielen Zeilen
+            header:
+              required: true         # Header ist Pflicht
+              pattern: "^[A-Z].*"    # Header muss mit Großbuchstabe beginnen
+              severity: error        # Strenge Vorgabe
+            caption:
+              required: true         # Caption ist Pflicht
+              pattern: "^Table \\d+: .*"  # Format: "Table 1: Beschreibung"
+              minLength: 10          # Mindestens 10 Zeichen
+              maxLength: 200         # Maximal 200 Zeichen
+              severity: warn         # Warnung bei falscher Caption
+            format:
+              style: "grid"          # Table-Style (z.B. grid, simple, borderless)
+              borders: true          # Rahmen anzeigen
+              severity: info         # Nur Hinweis
           
         - image:
             name: "diagrams"            # Optional: Benannter Block
@@ -330,6 +353,29 @@ document:
                   min: 0
                   max: 1
                   # Kein severity = verwendet Block-Severity (info)
+                # Table-spezifische Attribute für Implementierungs-Tabellen
+                columns:
+                  min: 2             # Mindestens 2 Spalten (z.B. Parameter/Beschreibung)
+                  max: 6             # Maximal 6 Spalten für Übersichtlichkeit
+                  severity: warn     # Warnung bei zu vielen Spalten
+                rows:
+                  min: 2             # Mindestens 2 Zeilen für sinnvolle Tabelle
+                  max: 50            # Maximal 50 Zeilen pro Tabelle
+                  severity: info     # Nur Hinweis
+                header:
+                  required: true     # Header ist Pflicht für Verständlichkeit
+                  pattern: "^[A-Z][a-zA-Z\\s]+$"  # Muss mit Großbuchstabe beginnen
+                  severity: error    # Strenge Vorgabe
+                caption:
+                  required: false    # Caption optional für Implementierungs-Tabellen
+                  pattern: "^(Table|Tabelle) \\d+:.*"  # Falls vorhanden: standardisiert
+                  minLength: 15      # Mindestens 15 Zeichen für aussagekräftige Caption
+                  maxLength: 150     # Maximal 150 Zeichen
+                  severity: info     # Nur Hinweis
+                format:
+                  style: "grid"      # Grid-Style für klare Struktur
+                  borders: true      # Mit Rahmen für bessere Lesbarkeit
+                  severity: info     # Nur Hinweis
               
           # Unter-Unterabschnitte für implementation
           subsections:
