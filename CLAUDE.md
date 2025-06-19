@@ -12,14 +12,36 @@ mvn clean compile
 mvn test
 
 # Run a specific test class
-mvn test -Dtest=YamlConfigurationLoaderTest
+mvn test -Dtest=ConfigurationLoaderTest
+mvn test -Dtest=TableBlockTest
+
+# Run tests from a specific package
+mvn test -Dtest="com.example.linter.config.blocks.*"
 
 # Package the application
 mvn clean package
 
 # Check for dependency updates
 mvn versions:display-dependency-updates
+
+# Run build without tests
+mvn clean install -DskipTests
 ```
+
+## Project Information
+
+**Power AsciiDoc Linter** is a tool for checking and validating AsciiDoc documents.
+
+### Prerequisites
+
+- Java 17 or higher (Note: This project specifically requires Java 17, overriding the general Java 11+ requirement)
+- Maven 3.6 or higher
+
+### Technologies
+
+- Java 17
+- Maven
+- AsciidoctorJ 2.5.13
 
 ## Architecture Overview
 
@@ -50,14 +72,21 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 1. **LinterConfiguration**: Root configuration object containing document rules
 2. **DocumentConfiguration**: Defines metadata requirements and section structure
 3. **SectionConfiguration**: Hierarchical section definitions with allowed blocks
-4. **ValidationRule**: Base class for all validation rules with severity levels (ERROR, WARN, INFO)
+4. **Block Types**: 
+   - `ParagraphBlock`: Basic text blocks with line count validation
+   - `ListingBlock`: Code blocks with language, title, and callout support
+   - `TableBlock`: Tables with column/row counts, headers, captions
+   - `ImageBlock`: Images with URL pattern, dimensions, alt text validation
+   - `VerseBlock`: Quote/verse blocks with author and attribution
+5. **Severity Levels**: ERROR, WARN, INFO for all validation rules
 
 ### Testing Strategy
 
-- JUnit 5 for all tests
-- Test resources in `src/test/resources/config/`
-- Comprehensive test coverage including error cases
-- Integration test loads the full specification
+- JUnit 5 with nested test classes for organization
+- Test naming pattern: "should..." with @DisplayName annotations
+- Given-When-Then structure in test methods
+- Comprehensive equals/hashCode testing for all domain objects
+- Builder pattern validation (null checks, required fields)
 
 ## Development Guidelines
 
@@ -78,9 +107,21 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 
 ### Adding New Features
 
-1. **New Block Types**: Extend `AbstractBlock` and follow existing patterns
-2. **New Validation Rules**: Create specific rule classes extending base rules
-3. **Configuration Extensions**: Update YAML loader and add corresponding tests
+1. **New Block Types**: 
+   - Extend `AbstractBlock`
+   - Create inner classes for type-specific rules
+   - Implement proper builders with `Objects.requireNonNull` checks
+   - Add comprehensive test class with nested test structure
+
+2. **New Validation Rules**: 
+   - Create inner classes within the block type
+   - Use builder pattern with required severity field
+   - Implement equals/hashCode properly (handle Pattern objects specially)
+
+3. **Configuration Extensions**: 
+   - Update `ConfigurationLoader` to parse new attributes
+   - Add test cases in `ConfigurationLoaderTest`
+   - Update `linter-config-specification.yaml` with examples
 
 ### Prototype Development Approach
 
@@ -91,10 +132,17 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 
 ## Current Implementation Status
 
-- ✅ YAML configuration parser
-- ✅ Hierarchical configuration structure  
-- ✅ Type-specific block classes
-- ✅ Validation rules framework
-- ⏳ AsciiDoc document parsing
+- ✅ YAML configuration parser with SnakeYAML 2.3
+- ✅ Hierarchical configuration structure (Document → Sections → Blocks)
+- ✅ Type-specific block classes with inner rule classes
+- ✅ Validation rules framework with severity levels
+- ✅ JSON Schema definitions for block types (in `src/main/resources/schemas/blocks/`)
+- ⏳ AsciiDoc document parsing with AsciidoctorJ
 - ⏳ Rule execution engine
 - ⏳ CLI interface
+
+## Important Files
+
+- **Configuration Specification**: `docs/linter-config-specification.yaml` - Full example configuration
+- **Schema Definitions**: `src/main/resources/schemas/blocks/*.yaml` - JSON Schema 2020-12 for each block type
+- **Test Examples**: `src/test/java/com/example/linter/config/loader/ConfigurationLoaderTest.java` - Shows YAML configuration patterns
