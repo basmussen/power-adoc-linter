@@ -1,5 +1,7 @@
 package com.example.linter.config;
 
+import com.example.linter.rule.SectionRule;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

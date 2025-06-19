@@ -1,5 +1,6 @@
-package com.example.linter.config;
+package com.example.linter.rule;
 
+import com.example.linter.config.Severity;
 import java.util.Objects;
 
 public final class LineRule {

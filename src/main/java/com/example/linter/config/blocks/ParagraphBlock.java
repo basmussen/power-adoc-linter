@@ -1,8 +1,8 @@
 package com.example.linter.config.blocks;
 
 import com.example.linter.config.BlockType;
-import com.example.linter.config.LineRule;
 import com.example.linter.config.Severity;
+import com.example.linter.rule.LineRule;
 
 import java.util.Objects;
 

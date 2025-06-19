@@ -1,4 +1,4 @@
-package com.example.linter.config;
+package com.example.linter.rule;
 
 import java.util.Objects;
 

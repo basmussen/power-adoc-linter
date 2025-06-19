@@ -1,5 +1,7 @@
 package com.example.linter.config;
 
+import com.example.linter.rule.AttributeRule;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
