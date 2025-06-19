@@ -44,64 +44,71 @@ class MetadataValidatorTest {
 
     @Test
     @DisplayName("should build validator from configuration")
-    void shouldBuildValidatorFromConfiguration() {
+    void shouldBuildValidatorWhenGivenConfiguration() {
+        // Given
+        // testConfig is already set up in @BeforeEach
+        
+        // When
         MetadataValidator validator = MetadataValidator.fromConfiguration(testConfig).build();
+        
+        // Then
         assertNotNull(validator);
     }
 
     @Test
-    @DisplayName("should validate with mock document")
-    void shouldValidateWithMockDocument() {
-        // Create a simple test document using AsciidoctorJ
+    @DisplayName("should validate document with valid metadata")
+    void shouldPassValidationWhenDocumentHasValidMetadata() {
+        // Given
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-        
         String content = """
             = Test Document
             :author: Test Author
             
             Content here.
             """;
-        
         Document document = asciidoctor.load(content, org.asciidoctor.Options.builder().build());
         MetadataValidator validator = MetadataValidator.fromConfiguration(testConfig).build();
         
+        // When
         ValidationResult result = validator.validate(document);
         
+        // Then
         assertNotNull(result);
         assertFalse(result.hasErrors());
     }
 
     @Test
     @DisplayName("should detect missing title")
-    void shouldDetectMissingTitle() throws IOException {
+    void shouldReportErrorWhenTitleIsMissing() throws IOException {
+        // Given
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-        
         String content = """
             :author: Test Author
             
             Document without title.
             """;
-        
         Path tempFile = Files.createTempFile("test", ".adoc");
         Files.writeString(tempFile, content);
-        
         Document document = asciidoctor.loadFile(tempFile.toFile(), org.asciidoctor.Options.builder().build());
         MetadataValidator validator = MetadataValidator.fromConfiguration(testConfig).build();
         
+        // When
         ValidationResult result = validator.validate(document);
         
+        // Then
         assertTrue(result.hasErrors());
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("Missing required attribute 'title'")));
         
+        // Cleanup
         Files.deleteIfExists(tempFile);
     }
 
     @Test
     @DisplayName("should properly extract line numbers")
-    void shouldProperlyExtractLineNumbers() {
+    void shouldIncludeLineNumbersWhenReportingValidationMessages() {
+        // Given
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-        
         String content = """
             = Test Title
             :author: John Doe
@@ -109,9 +116,7 @@ class MetadataValidatorTest {
             
             Content.
             """;
-        
         Document document = asciidoctor.load(content, org.asciidoctor.Options.builder().build());
-        
         MetadataConfiguration config = MetadataConfiguration.builder()
             .attributes(Arrays.asList(
                 AttributeRule.builder()
@@ -126,12 +131,13 @@ class MetadataValidatorTest {
                     .build()
             ))
             .build();
-        
         MetadataValidator validator = MetadataValidator.fromConfiguration(config).build();
+        
+        // When
         ValidationResult result = validator.validate(document);
         
+        // Then
         assertNotNull(result);
-        // Check that messages have proper line information
         result.getMessages().forEach(msg -> {
             assertNotNull(msg.getLocation());
             assertTrue(msg.getLocation().getStartLine() > 0);

@@ -76,7 +76,8 @@ class MetadataValidatorIntegrationTest {
 
     @Test
     @DisplayName("should validate valid document without errors")
-    void shouldValidateValidDocumentWithoutErrors() throws IOException {
+    void shouldPassValidationWhenDocumentHasAllValidMetadata() throws IOException {
+        // Given
         String content = """
             = Valid Document Title
             :author: John Doe
@@ -87,12 +88,13 @@ class MetadataValidatorIntegrationTest {
             == Introduction
             This is a valid document.
             """;
-        
         File docFile = createTempFile("valid-doc.adoc", content);
         Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
         
+        // When
         ValidationResult result = validator.validate(document);
         
+        // Then
         assertFalse(result.hasErrors());
         assertFalse(result.hasWarnings());
         assertEquals(0, result.getMessages().size());
@@ -100,22 +102,23 @@ class MetadataValidatorIntegrationTest {
 
     @Test
     @DisplayName("should detect missing required attributes")
-    void shouldDetectMissingRequiredAttributes() throws IOException {
+    void shouldReportErrorsWhenRequiredAttributesAreMissing() throws IOException {
+        // Given
         String content = """
             = Valid Title
             :email: test@example.com
             
             Content without required metadata.
             """;
-        
         File docFile = createTempFile("missing-attrs.adoc", content);
         Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
         
+        // When
         ValidationResult result = validator.validate(document);
         
+        // Then
         assertTrue(result.hasErrors());
         assertEquals(3, result.getErrorCount()); // missing author, revdate, version
-        
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("Missing required attribute 'author'")));
         assertTrue(result.getMessages().stream()
@@ -126,7 +129,8 @@ class MetadataValidatorIntegrationTest {
 
     @Test
     @DisplayName("should detect invalid patterns")
-    void shouldDetectInvalidPatterns() throws IOException {
+    void shouldReportViolationsWhenAttributesDontMatchPatterns() throws IOException {
+        // Given
         String content = """
             = invalid title
             :author: john
@@ -136,31 +140,27 @@ class MetadataValidatorIntegrationTest {
             
             Content with invalid metadata patterns.
             """;
-        
         File docFile = createTempFile("invalid-patterns.adoc", content);
         Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
         
+        // When
         ValidationResult result = validator.validate(document);
         
+        // Then
         assertTrue(result.hasErrors());
         assertTrue(result.hasWarnings());
-        
         // Title pattern error
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("'title' does not match required pattern")));
-        
         // Author pattern and length errors
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("'author'")));
-        
         // Date format error
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("'revdate' does not match required pattern")));
-        
         // Version format error
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("'version' does not match required pattern")));
-        
         // Email warning
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("'email' does not match required pattern") &&
@@ -169,7 +169,8 @@ class MetadataValidatorIntegrationTest {
 
     @Test
     @DisplayName("should detect length violations")
-    void shouldDetectLengthViolations() throws IOException {
+    void shouldReportErrorsWhenAttributesViolateLengthConstraints() throws IOException {
+        // Given
         String content = """
             = Doc
             :author: Jo
@@ -178,18 +179,17 @@ class MetadataValidatorIntegrationTest {
             
             Short title and author.
             """;
-        
         File docFile = createTempFile("length-violations.adoc", content);
         Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
         
+        // When
         ValidationResult result = validator.validate(document);
         
+        // Then
         assertTrue(result.hasErrors());
-        
         // Title too short
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("'title' is too short")));
-        
         // Author too short
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("'author' is too short")));
@@ -197,7 +197,8 @@ class MetadataValidatorIntegrationTest {
 
     @Test
     @DisplayName("should detect order violations")
-    void shouldDetectOrderViolations() throws IOException {
+    void shouldReportErrorsWhenAttributesAreInWrongOrder() throws IOException {
+        // Given
         String content = """
             = Valid Document Title
             :version: 1.0.0
@@ -206,49 +207,49 @@ class MetadataValidatorIntegrationTest {
             
             Attributes in wrong order.
             """;
-        
         File docFile = createTempFile("order-violations.adoc", content);
         Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
         
+        // When
         ValidationResult result = validator.validate(document);
         
+        // Then
         assertTrue(result.hasErrors());
-        
-        // Check for order violations
         assertTrue(result.getMessages().stream()
             .anyMatch(msg -> msg.getMessage().contains("should appear before")));
     }
 
     @Test
     @DisplayName("should handle empty document")
-    void shouldHandleEmptyDocument() throws IOException {
+    void shouldReportAllMissingAttributesWhenDocumentIsEmpty() throws IOException {
+        // Given
         String content = "";
-        
         File docFile = createTempFile("empty.adoc", content);
         Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
         
+        // When
         ValidationResult result = validator.validate(document);
         
+        // Then
         assertTrue(result.hasErrors());
         assertEquals(4, result.getErrorCount()); // All required attributes missing
     }
 
     @Test
     @DisplayName("should generate readable validation report")
-    void shouldGenerateReadableValidationReport() throws IOException {
+    void shouldGenerateReadableReportWhenPrintingValidationResult() throws IOException {
+        // Given
         String content = """
             = test
             :author: j
             
             Invalid document.
             """;
-        
         File docFile = createTempFile("report-test.adoc", content);
         Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
-        
         ValidationResult result = validator.validate(document);
         
-        // Capture report output
+        // When
         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         java.io.PrintStream ps = new java.io.PrintStream(baos);
         java.io.PrintStream old = System.out;
@@ -259,6 +260,7 @@ class MetadataValidatorIntegrationTest {
         System.out.flush();
         System.setOut(old);
         
+        // Then
         String report = baos.toString();
         assertTrue(report.contains("Validation Report"));
         assertTrue(report.contains("[ERROR]"));
