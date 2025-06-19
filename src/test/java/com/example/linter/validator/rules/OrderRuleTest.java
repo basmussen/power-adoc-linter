@@ -99,9 +99,8 @@ class OrderRuleTest {
             // Then
             assertFalse(messages.isEmpty());
             
-            boolean foundTitleError = messages.stream()
-                .anyMatch(m -> m.getMessage().contains("'title' should appear before 'author'"));
-            assertTrue(foundTitleError);
+            assertTrue(messages.stream()
+                .anyMatch(m -> m.getMessage().equals("Attribute 'title' should appear before 'author'")));
         }
         
         @Test
@@ -194,8 +193,8 @@ class OrderRuleTest {
             
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.ERROR, message.getSeverity());
-            assertTrue(message.getActualValue().get().contains("Line 5"));
-            assertTrue(message.getExpectedValue().get().contains("Before line 2"));
+            assertEquals("Line 5", message.getActualValue().get());
+            assertEquals("Before line 2", message.getExpectedValue().get());
         }
     }
     

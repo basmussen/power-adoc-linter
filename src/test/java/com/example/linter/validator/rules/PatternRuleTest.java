@@ -102,8 +102,8 @@ class PatternRuleTest {
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.ERROR, message.getSeverity());
             assertEquals("metadata.pattern", message.getRuleId());
-            assertTrue(message.getActualValue().get().contains("my document title"));
-            assertTrue(message.getExpectedValue().get().contains("^[A-Z].*"));
+            assertEquals("my document title", message.getActualValue().get());
+            assertEquals("Pattern '^[A-Z].*'", message.getExpectedValue().get());
         }
     }
 

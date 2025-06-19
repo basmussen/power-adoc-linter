@@ -117,11 +117,11 @@ class MetadataValidatorIntegrationTest {
         assertTrue(result.hasErrors());
         assertEquals(3, result.getErrorCount()); // missing author, revdate, version
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("Missing required attribute 'author'")));
+            .anyMatch(msg -> msg.getMessage().equals("Missing required attribute 'author'")));
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("Missing required attribute 'revdate'")));
+            .anyMatch(msg -> msg.getMessage().equals("Missing required attribute 'revdate'")));
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("Missing required attribute 'version'")));
+            .anyMatch(msg -> msg.getMessage().equals("Missing required attribute 'version'")));
     }
 
     @Test
@@ -148,19 +148,20 @@ class MetadataValidatorIntegrationTest {
         assertTrue(result.hasWarnings());
         // Title pattern error
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("'title' does not match required pattern")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'title' does not match required pattern")));
         // Author pattern and length errors
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("'author'")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'author' does not match required pattern") ||
+                       msg.getMessage().equals("Attribute 'author' is too short")));
         // Date format error
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("'revdate' does not match required pattern")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'revdate' does not match required pattern")));
         // Version format error
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("'version' does not match required pattern")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'version' does not match required pattern")));
         // Email warning
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("'email' does not match required pattern") &&
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'email' does not match required pattern") &&
                        msg.getSeverity() == Severity.WARN));
     }
 
@@ -186,10 +187,10 @@ class MetadataValidatorIntegrationTest {
         assertTrue(result.hasErrors());
         // Title too short
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("'title' is too short")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'title' is too short")));
         // Author too short
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("'author' is too short")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'author' is too short")));
     }
 
     @Test

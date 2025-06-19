@@ -140,9 +140,9 @@ class LengthRuleTest {
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.ERROR, message.getSeverity());
             assertEquals("metadata.length.min", message.getRuleId());
-            assertTrue(message.getMessage().contains("too short"));
-            assertTrue(message.getActualValue().get().contains("2 characters"));
-            assertTrue(message.getExpectedValue().get().contains("Minimum 5"));
+            assertEquals("Attribute 'title' is too short", message.getMessage());
+            assertEquals("Hi (2 characters)", message.getActualValue().get());
+            assertEquals("Minimum 5 characters", message.getExpectedValue().get());
         }
     }
 
@@ -186,8 +186,8 @@ class LengthRuleTest {
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.ERROR, message.getSeverity());
             assertEquals("metadata.length.max", message.getRuleId());
-            assertTrue(message.getMessage().contains("too long"));
-            assertTrue(message.getExpectedValue().get().contains("Maximum 50"));
+            assertEquals("Attribute 'author' is too long", message.getMessage());
+            assertEquals("Maximum 50 characters", message.getExpectedValue().get());
         }
     }
 
@@ -269,7 +269,7 @@ class LengthRuleTest {
             
             // Then
             assertEquals(1, messages.size());
-            assertTrue(messages.get(0).getActualValue().get().contains("0 characters"));
+            assertEquals(" (0 characters)", messages.get(0).getActualValue().get());
         }
     }
 }
