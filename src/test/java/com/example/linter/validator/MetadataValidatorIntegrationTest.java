@@ -148,20 +148,20 @@ class MetadataValidatorIntegrationTest {
         assertTrue(result.hasWarnings());
         // Title pattern error
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().startsWith("Attribute 'title' does not match required pattern: actual")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'title' does not match required pattern: actual 'invalid title', expected pattern '^[A-Z].*'")));
         // Author pattern and length errors
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().startsWith("Attribute 'author' does not match required pattern: actual") ||
-                       msg.getMessage().startsWith("Attribute 'author' is too short: actual")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'author' does not match required pattern: actual 'john', expected pattern '^[A-Z][a-zA-Z\\s\\.]+$'") ||
+                       msg.getMessage().equals("Attribute 'author' is too short: actual 'john' (4 characters), expected minimum 5 characters")));
         // Date format error
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().startsWith("Attribute 'revdate' does not match required pattern: actual")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'revdate' does not match required pattern: actual '15.01.2024', expected pattern '^\\d{4}-\\d{2}-\\d{2}$'")));
         // Version format error
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().startsWith("Attribute 'version' does not match required pattern: actual")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'version' does not match required pattern: actual '1.0-SNAPSHOT', expected pattern '^\\d+\\.\\d+(\\.\\d+)?$'")));
         // Email warning
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().startsWith("Attribute 'email' does not match required pattern: actual") &&
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'email' does not match required pattern: actual 'invalid-email', expected pattern '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'") &&
                        msg.getSeverity() == Severity.WARN));
     }
 
@@ -187,10 +187,10 @@ class MetadataValidatorIntegrationTest {
         assertTrue(result.hasErrors());
         // Title too short
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().startsWith("Attribute 'title' is too short: actual")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'title' is too short: actual 'Doc' (3 characters), expected minimum 5 characters")));
         // Author too short
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().startsWith("Attribute 'author' is too short: actual")));
+            .anyMatch(msg -> msg.getMessage().equals("Attribute 'author' is too short: actual 'Jo' (2 characters), expected minimum 5 characters")));
     }
 
     @Test
