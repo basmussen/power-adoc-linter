@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,9 +66,7 @@ class ConfigurationLoaderTest {
                           max: 1
             """;
         
-        LinterConfiguration config = loader.loadConfiguration(
-            new ByteArrayInputStream(yaml.getBytes())
-        );
+        LinterConfiguration config = loader.loadConfiguration(yaml);
         
         assertNotNull(config);
         assertNotNull(config.document());
@@ -147,7 +144,7 @@ class ConfigurationLoaderTest {
         String yaml = "";
         
         assertThrows(ConfigurationException.class, () -> 
-            loader.loadConfiguration(new ByteArrayInputStream(yaml.getBytes()))
+            loader.loadConfiguration(yaml)
         );
         }
         
@@ -159,7 +156,7 @@ class ConfigurationLoaderTest {
             """;
         
         ConfigurationException exception = assertThrows(ConfigurationException.class, () -> 
-            loader.loadConfiguration(new ByteArrayInputStream(yaml.getBytes()))
+            loader.loadConfiguration(yaml)
         );
         
         assertTrue(exception.getMessage().contains("Missing required 'document' section"));
@@ -177,7 +174,7 @@ class ConfigurationLoaderTest {
             """;
         
         assertThrows(ConfigurationException.class, () -> 
-            loader.loadConfiguration(new ByteArrayInputStream(yaml.getBytes()))
+            loader.loadConfiguration(yaml)
         );
         }
         
@@ -195,7 +192,7 @@ class ConfigurationLoaderTest {
             """;
         
         assertThrows(ConfigurationException.class, () -> 
-            loader.loadConfiguration(new ByteArrayInputStream(yaml.getBytes()))
+            loader.loadConfiguration(yaml)
         );
         }
         
@@ -221,9 +218,7 @@ class ConfigurationLoaderTest {
                           max: 5
             """;
         
-        LinterConfiguration config = loader.loadConfiguration(
-            new ByteArrayInputStream(yaml.getBytes())
-        );
+        LinterConfiguration config = loader.loadConfiguration(yaml);
         
         var mainSection = config.document().sections().get(0);
         assertEquals(1, mainSection.subsections().size());
@@ -280,9 +275,7 @@ class ConfigurationLoaderTest {
                   sections: []
                 """;
             
-            LinterConfiguration config = loader.loadConfiguration(
-                new ByteArrayInputStream(yaml.getBytes())
-            );
+            LinterConfiguration config = loader.loadConfiguration(yaml);
             
             assertNotNull(config);
             assertNotNull(config.document());

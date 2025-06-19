@@ -37,6 +37,21 @@ public class ConfigurationLoader {
         }
     }
     
+    public LinterConfiguration loadConfiguration(String yamlContent) {
+        try {
+            Map<String, Object> rawConfig = yaml.load(yamlContent);
+            if (rawConfig == null || rawConfig.isEmpty()) {
+                throw new ConfigurationException("Configuration is empty");
+            }
+            return parseConfiguration(rawConfig);
+        } catch (Exception e) {
+            if (e instanceof ConfigurationException) {
+                throw e;
+            }
+            throw new ConfigurationException("Failed to parse YAML configuration: " + e.getMessage(), e);
+        }
+    }
+    
     public LinterConfiguration loadConfiguration(InputStream inputStream) {
         try {
             Map<String, Object> rawConfig = yaml.load(inputStream);
