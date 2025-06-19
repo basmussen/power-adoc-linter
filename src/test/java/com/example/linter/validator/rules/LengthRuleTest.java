@@ -32,11 +32,15 @@ class LengthRuleTest {
         @Test
         @DisplayName("should build rule with min and max constraints")
         void shouldBuildRuleWithMinAndMaxConstraints() {
-            LengthRule rule = LengthRule.builder()
+            // Given
+            LengthRule.Builder builder = LengthRule.builder()
                 .addLengthConstraint("title", 5, 100, Severity.ERROR)
-                .addLengthConstraint("author", 3, 50, Severity.ERROR)
-                .build();
+                .addLengthConstraint("author", 3, 50, Severity.ERROR);
             
+            // When
+            LengthRule rule = builder.build();
+            
+            // Then
             assertEquals("metadata.length", rule.getRuleId());
             assertTrue(rule.isApplicable("title"));
             assertTrue(rule.isApplicable("author"));
@@ -46,28 +50,38 @@ class LengthRuleTest {
         @Test
         @DisplayName("should build rule with only min constraint")
         void shouldBuildRuleWithOnlyMinConstraint() {
-            LengthRule rule = LengthRule.builder()
-                .addLengthConstraint("description", 10, null, Severity.WARN)
-                .build();
+            // Given
+            LengthRule.Builder builder = LengthRule.builder()
+                .addLengthConstraint("description", 10, null, Severity.WARN);
             
+            // When
+            LengthRule rule = builder.build();
+            
+            // Then
             assertTrue(rule.isApplicable("description"));
         }
         
         @Test
         @DisplayName("should build rule with only max constraint")
         void shouldBuildRuleWithOnlyMaxConstraint() {
-            LengthRule rule = LengthRule.builder()
-                .addLengthConstraint("keywords", null, 200, Severity.INFO)
-                .build();
+            // Given
+            LengthRule.Builder builder = LengthRule.builder()
+                .addLengthConstraint("keywords", null, 200, Severity.INFO);
             
+            // When
+            LengthRule rule = builder.build();
+            
+            // Then
             assertTrue(rule.isApplicable("keywords"));
         }
         
         @Test
         @DisplayName("should reject when neither min nor max specified")
         void shouldRejectWhenNeitherMinNorMaxSpecified() {
+            // Given
             LengthRule.Builder builder = LengthRule.builder();
             
+            // When/Then
             assertThrows(IllegalArgumentException.class, () ->
                 builder.addLengthConstraint("invalid", null, null, Severity.ERROR)
             );
@@ -76,8 +90,10 @@ class LengthRuleTest {
         @Test
         @DisplayName("should reject when min greater than max")
         void shouldRejectWhenMinGreaterThanMax() {
+            // Given
             LengthRule.Builder builder = LengthRule.builder();
             
+            // When/Then
             assertThrows(IllegalArgumentException.class, () ->
                 builder.addLengthConstraint("invalid", 100, 50, Severity.ERROR)
             );
@@ -100,15 +116,26 @@ class LengthRuleTest {
         @Test
         @DisplayName("should pass when value meets minimum length")
         void shouldPassWhenValueMeetsMinimumLength() {
-            List<ValidationMessage> messages = rule.validate("title", "Valid Title", testLocation);
+            // Given
+            String validTitle = "Valid Title";
+            
+            // When
+            List<ValidationMessage> messages = rule.validate("title", validTitle, testLocation);
+            
+            // Then
             assertTrue(messages.isEmpty());
         }
         
         @Test
         @DisplayName("should fail when value is too short")
         void shouldFailWhenValueIsTooShort() {
-            List<ValidationMessage> messages = rule.validate("title", "Hi", testLocation);
+            // Given
+            String shortTitle = "Hi";
             
+            // When
+            List<ValidationMessage> messages = rule.validate("title", shortTitle, testLocation);
+            
+            // Then
             assertEquals(1, messages.size());
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.ERROR, message.getSeverity());
@@ -135,16 +162,26 @@ class LengthRuleTest {
         @Test
         @DisplayName("should pass when value within maximum length")
         void shouldPassWhenValueWithinMaximumLength() {
-            List<ValidationMessage> messages = rule.validate("author", "John Doe", testLocation);
+            // Given
+            String validAuthor = "John Doe";
+            
+            // When
+            List<ValidationMessage> messages = rule.validate("author", validAuthor, testLocation);
+            
+            // Then
             assertTrue(messages.isEmpty());
         }
         
         @Test
         @DisplayName("should fail when value is too long")
         void shouldFailWhenValueIsTooLong() {
+            // Given
             String longName = "This is a very long author name that exceeds the maximum allowed length";
+            
+            // When
             List<ValidationMessage> messages = rule.validate("author", longName, testLocation);
             
+            // Then
             assertEquals(1, messages.size());
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.ERROR, message.getSeverity());
@@ -170,19 +207,31 @@ class LengthRuleTest {
         @Test
         @DisplayName("should pass when value is within range")
         void shouldPassWhenValueIsWithinRange() {
-            List<ValidationMessage> messages = rule.validate("title", "Perfect Title", testLocation);
+            // Given
+            String validTitle = "Perfect Title";
+            
+            // When
+            List<ValidationMessage> messages = rule.validate("title", validTitle, testLocation);
+            
+            // Then
             assertTrue(messages.isEmpty());
         }
         
         @Test
         @DisplayName("should fail with both min and max messages when applicable")
         void shouldFailWithBothMinAndMaxMessagesWhenApplicable() {
-            List<ValidationMessage> tooShort = rule.validate("title", "Hi", testLocation);
+            // Given
+            String shortTitle = "Hi";
+            String veryLongTitle = "A".repeat(150);
+            
+            // When
+            List<ValidationMessage> tooShort = rule.validate("title", shortTitle, testLocation);
+            List<ValidationMessage> tooLong = rule.validate("title", veryLongTitle, testLocation);
+            
+            // Then
             assertEquals(1, tooShort.size());
             assertEquals("metadata.length.min", tooShort.get(0).getRuleId());
             
-            String veryLongTitle = "A".repeat(150);
-            List<ValidationMessage> tooLong = rule.validate("title", veryLongTitle, testLocation);
             assertEquals(1, tooLong.size());
             assertEquals("metadata.length.max", tooLong.get(0).getRuleId());
         }
@@ -195,22 +244,30 @@ class LengthRuleTest {
         @Test
         @DisplayName("should skip validation for null values")
         void shouldSkipValidationForNullValues() {
+            // Given
             LengthRule rule = LengthRule.builder()
                 .addLengthConstraint("title", 5, 100, Severity.ERROR)
                 .build();
             
+            // When
             List<ValidationMessage> messages = rule.validate("title", null, testLocation);
+            
+            // Then
             assertTrue(messages.isEmpty());
         }
         
         @Test
         @DisplayName("should validate empty string as zero length")
         void shouldValidateEmptyStringAsZeroLength() {
+            // Given
             LengthRule rule = LengthRule.builder()
                 .addLengthConstraint("title", 1, 100, Severity.ERROR)
                 .build();
             
+            // When
             List<ValidationMessage> messages = rule.validate("title", "", testLocation);
+            
+            // Then
             assertEquals(1, messages.size());
             assertTrue(messages.get(0).getActualValue().get().contains("0 characters"));
         }

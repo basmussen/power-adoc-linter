@@ -32,12 +32,16 @@ class PatternRuleTest {
         @Test
         @DisplayName("should build rule with valid patterns")
         void shouldBuildRuleWithValidPatterns() {
-            PatternRule rule = PatternRule.builder()
+            // Given
+            PatternRule.Builder builder = PatternRule.builder()
                 .addPattern("title", "^[A-Z].*", Severity.ERROR)
                 .addPattern("version", "^\\d+\\.\\d+(\\.\\d+)?$", Severity.ERROR)
-                .addPattern("email", "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", Severity.WARN)
-                .build();
+                .addPattern("email", "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", Severity.WARN);
             
+            // When
+            PatternRule rule = builder.build();
+            
+            // Then
             assertEquals("metadata.pattern", rule.getRuleId());
             assertTrue(rule.isApplicable("title"));
             assertTrue(rule.isApplicable("version"));
@@ -48,8 +52,10 @@ class PatternRuleTest {
         @Test
         @DisplayName("should reject invalid regex pattern")
         void shouldRejectInvalidRegexPattern() {
+            // Given
             PatternRule.Builder builder = PatternRule.builder();
             
+            // When/Then
             assertThrows(IllegalArgumentException.class, () ->
                 builder.addPattern("invalid", "[", Severity.ERROR)
             );
@@ -72,15 +78,26 @@ class PatternRuleTest {
         @Test
         @DisplayName("should pass when title starts with uppercase")
         void shouldPassWhenTitleStartsWithUppercase() {
-            List<ValidationMessage> messages = rule.validate("title", "My Document Title", testLocation);
+            // Given
+            String titleValue = "My Document Title";
+            
+            // When
+            List<ValidationMessage> messages = rule.validate("title", titleValue, testLocation);
+            
+            // Then
             assertTrue(messages.isEmpty());
         }
         
         @Test
         @DisplayName("should fail when title starts with lowercase")
         void shouldFailWhenTitleStartsWithLowercase() {
-            List<ValidationMessage> messages = rule.validate("title", "my document title", testLocation);
+            // Given
+            String titleValue = "my document title";
             
+            // When
+            List<ValidationMessage> messages = rule.validate("title", titleValue, testLocation);
+            
+            // Then
             assertEquals(1, messages.size());
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.ERROR, message.getSeverity());
@@ -106,18 +123,25 @@ class PatternRuleTest {
         @Test
         @DisplayName("should accept semantic version format")
         void shouldAcceptSemanticVersionFormat() {
-            assertTrue(rule.validate("version", "1.0", testLocation).isEmpty());
-            assertTrue(rule.validate("version", "1.0.0", testLocation).isEmpty());
-            assertTrue(rule.validate("version", "2.15.3", testLocation).isEmpty());
+            // Given
+            String[] validVersions = {"1.0", "1.0.0", "2.15.3"};
+            
+            // When/Then
+            for (String version : validVersions) {
+                assertTrue(rule.validate("version", version, testLocation).isEmpty());
+            }
         }
         
         @Test
         @DisplayName("should reject invalid version format")
         void shouldRejectInvalidVersionFormat() {
-            assertFalse(rule.validate("version", "1", testLocation).isEmpty());
-            assertFalse(rule.validate("version", "1.0.0.0", testLocation).isEmpty());
-            assertFalse(rule.validate("version", "v1.0.0", testLocation).isEmpty());
-            assertFalse(rule.validate("version", "1.0-SNAPSHOT", testLocation).isEmpty());
+            // Given
+            String[] invalidVersions = {"1", "1.0.0.0", "v1.0.0", "1.0-SNAPSHOT"};
+            
+            // When/Then
+            for (String version : invalidVersions) {
+                assertFalse(rule.validate("version", version, testLocation).isEmpty());
+            }
         }
     }
 
@@ -137,18 +161,25 @@ class PatternRuleTest {
         @Test
         @DisplayName("should accept valid email formats")
         void shouldAcceptValidEmailFormats() {
-            assertTrue(rule.validate("email", "user@example.com", testLocation).isEmpty());
-            assertTrue(rule.validate("email", "john.doe@company.co.uk", testLocation).isEmpty());
-            assertTrue(rule.validate("email", "test+tag@domain.org", testLocation).isEmpty());
+            // Given
+            String[] validEmails = {"user@example.com", "john.doe@company.co.uk", "test+tag@domain.org"};
+            
+            // When/Then
+            for (String email : validEmails) {
+                assertTrue(rule.validate("email", email, testLocation).isEmpty());
+            }
         }
         
         @Test
         @DisplayName("should reject invalid email formats")
         void shouldRejectInvalidEmailFormats() {
-            assertFalse(rule.validate("email", "invalid", testLocation).isEmpty());
-            assertFalse(rule.validate("email", "@example.com", testLocation).isEmpty());
-            assertFalse(rule.validate("email", "user@", testLocation).isEmpty());
-            assertFalse(rule.validate("email", "user@domain", testLocation).isEmpty());
+            // Given
+            String[] invalidEmails = {"invalid", "@example.com", "user@", "user@domain"};
+            
+            // When/Then
+            for (String email : invalidEmails) {
+                assertFalse(rule.validate("email", email, testLocation).isEmpty());
+            }
         }
     }
 
@@ -159,22 +190,30 @@ class PatternRuleTest {
         @Test
         @DisplayName("should skip validation for null values")
         void shouldSkipValidationForNullValues() {
+            // Given
             PatternRule rule = PatternRule.builder()
                 .addPattern("title", "^[A-Z].*", Severity.ERROR)
                 .build();
             
+            // When
             List<ValidationMessage> messages = rule.validate("title", null, testLocation);
+            
+            // Then
             assertTrue(messages.isEmpty());
         }
         
         @Test
         @DisplayName("should skip validation for empty values")
         void shouldSkipValidationForEmptyValues() {
+            // Given
             PatternRule rule = PatternRule.builder()
                 .addPattern("title", "^[A-Z].*", Severity.ERROR)
                 .build();
             
+            // When
             List<ValidationMessage> messages = rule.validate("title", "", testLocation);
+            
+            // Then
             assertTrue(messages.isEmpty());
         }
     }
