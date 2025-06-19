@@ -7,41 +7,15 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public final class VerseBlock extends AbstractBlock {
-    private final String author;
-    private final Integer authorMinLength;
-    private final Integer authorMaxLength;
-    private final Pattern authorPattern;
-    private final boolean authorRequired;
-    
-    private final String attribution;
-    private final Integer attributionMinLength;
-    private final Integer attributionMaxLength;
-    private final Pattern attributionPattern;
-    private final boolean attributionRequired;
-    
-    private final Integer contentMinLength;
-    private final Integer contentMaxLength;
-    private final Pattern contentPattern;
-    private final boolean contentRequired;
+    private final AuthorRule author;
+    private final AttributionRule attribution;
+    private final ContentRule content;
     
     private VerseBlock(Builder builder) {
         super(builder);
         this.author = builder.author;
-        this.authorMinLength = builder.authorMinLength;
-        this.authorMaxLength = builder.authorMaxLength;
-        this.authorPattern = builder.authorPattern;
-        this.authorRequired = builder.authorRequired;
-        
         this.attribution = builder.attribution;
-        this.attributionMinLength = builder.attributionMinLength;
-        this.attributionMaxLength = builder.attributionMaxLength;
-        this.attributionPattern = builder.attributionPattern;
-        this.attributionRequired = builder.attributionRequired;
-        
-        this.contentMinLength = builder.contentMinLength;
-        this.contentMaxLength = builder.contentMaxLength;
-        this.contentPattern = builder.contentPattern;
-        this.contentRequired = builder.contentRequired;
+        this.content = builder.content;
     }
     
     @Override
@@ -49,166 +23,326 @@ public final class VerseBlock extends AbstractBlock {
         return BlockType.VERSE;
     }
     
-    public String getAuthor() {
+    public AuthorRule getAuthor() {
         return author;
     }
     
-    public Integer getAuthorMinLength() {
-        return authorMinLength;
-    }
-    
-    public Integer getAuthorMaxLength() {
-        return authorMaxLength;
-    }
-    
-    public Pattern getAuthorPattern() {
-        return authorPattern;
-    }
-    
-    public boolean isAuthorRequired() {
-        return authorRequired;
-    }
-    
-    public String getAttribution() {
+    public AttributionRule getAttribution() {
         return attribution;
     }
     
-    public Integer getAttributionMinLength() {
-        return attributionMinLength;
-    }
-    
-    public Integer getAttributionMaxLength() {
-        return attributionMaxLength;
-    }
-    
-    public Pattern getAttributionPattern() {
-        return attributionPattern;
-    }
-    
-    public boolean isAttributionRequired() {
-        return attributionRequired;
-    }
-    
-    public Integer getContentMinLength() {
-        return contentMinLength;
-    }
-    
-    public Integer getContentMaxLength() {
-        return contentMaxLength;
-    }
-    
-    public Pattern getContentPattern() {
-        return contentPattern;
-    }
-    
-    public boolean isContentRequired() {
-        return contentRequired;
+    public ContentRule getContent() {
+        return content;
     }
     
     public static Builder builder() {
         return new Builder();
     }
     
+    public static class AuthorRule {
+        private final String defaultValue;
+        private final Integer minLength;
+        private final Integer maxLength;
+        private final Pattern pattern;
+        private final boolean required;
+        
+        private AuthorRule(AuthorRuleBuilder builder) {
+            this.defaultValue = builder.defaultValue;
+            this.minLength = builder.minLength;
+            this.maxLength = builder.maxLength;
+            this.pattern = builder.pattern;
+            this.required = builder.required;
+        }
+        
+        public String getDefaultValue() {
+            return defaultValue;
+        }
+        
+        public Integer getMinLength() {
+            return minLength;
+        }
+        
+        public Integer getMaxLength() {
+            return maxLength;
+        }
+        
+        public Pattern getPattern() {
+            return pattern;
+        }
+        
+        public boolean isRequired() {
+            return required;
+        }
+        
+        public static AuthorRuleBuilder builder() {
+            return new AuthorRuleBuilder();
+        }
+        
+        public static class AuthorRuleBuilder {
+            private String defaultValue;
+            private Integer minLength;
+            private Integer maxLength;
+            private Pattern pattern;
+            private boolean required;
+            
+            public AuthorRuleBuilder defaultValue(String defaultValue) {
+                this.defaultValue = defaultValue;
+                return this;
+            }
+            
+            public AuthorRuleBuilder minLength(Integer minLength) {
+                this.minLength = minLength;
+                return this;
+            }
+            
+            public AuthorRuleBuilder maxLength(Integer maxLength) {
+                this.maxLength = maxLength;
+                return this;
+            }
+            
+            public AuthorRuleBuilder pattern(Pattern pattern) {
+                this.pattern = pattern;
+                return this;
+            }
+            
+            public AuthorRuleBuilder pattern(String pattern) {
+                this.pattern = pattern != null ? Pattern.compile(pattern) : null;
+                return this;
+            }
+            
+            public AuthorRuleBuilder required(boolean required) {
+                this.required = required;
+                return this;
+            }
+            
+            public AuthorRule build() {
+                return new AuthorRule(this);
+            }
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof AuthorRule that)) return false;
+            return required == that.required &&
+                   Objects.equals(defaultValue, that.defaultValue) &&
+                   Objects.equals(minLength, that.minLength) &&
+                   Objects.equals(maxLength, that.maxLength) &&
+                   Objects.equals(pattern == null ? null : pattern.pattern(),
+                                 that.pattern == null ? null : that.pattern.pattern());
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(defaultValue, minLength, maxLength,
+                               pattern == null ? null : pattern.pattern(), required);
+        }
+    }
+    
+    public static class AttributionRule {
+        private final String defaultValue;
+        private final Integer minLength;
+        private final Integer maxLength;
+        private final Pattern pattern;
+        private final boolean required;
+        
+        private AttributionRule(AttributionRuleBuilder builder) {
+            this.defaultValue = builder.defaultValue;
+            this.minLength = builder.minLength;
+            this.maxLength = builder.maxLength;
+            this.pattern = builder.pattern;
+            this.required = builder.required;
+        }
+        
+        public String getDefaultValue() {
+            return defaultValue;
+        }
+        
+        public Integer getMinLength() {
+            return minLength;
+        }
+        
+        public Integer getMaxLength() {
+            return maxLength;
+        }
+        
+        public Pattern getPattern() {
+            return pattern;
+        }
+        
+        public boolean isRequired() {
+            return required;
+        }
+        
+        public static AttributionRuleBuilder builder() {
+            return new AttributionRuleBuilder();
+        }
+        
+        public static class AttributionRuleBuilder {
+            private String defaultValue;
+            private Integer minLength;
+            private Integer maxLength;
+            private Pattern pattern;
+            private boolean required;
+            
+            public AttributionRuleBuilder defaultValue(String defaultValue) {
+                this.defaultValue = defaultValue;
+                return this;
+            }
+            
+            public AttributionRuleBuilder minLength(Integer minLength) {
+                this.minLength = minLength;
+                return this;
+            }
+            
+            public AttributionRuleBuilder maxLength(Integer maxLength) {
+                this.maxLength = maxLength;
+                return this;
+            }
+            
+            public AttributionRuleBuilder pattern(Pattern pattern) {
+                this.pattern = pattern;
+                return this;
+            }
+            
+            public AttributionRuleBuilder pattern(String pattern) {
+                this.pattern = pattern != null ? Pattern.compile(pattern) : null;
+                return this;
+            }
+            
+            public AttributionRuleBuilder required(boolean required) {
+                this.required = required;
+                return this;
+            }
+            
+            public AttributionRule build() {
+                return new AttributionRule(this);
+            }
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof AttributionRule that)) return false;
+            return required == that.required &&
+                   Objects.equals(defaultValue, that.defaultValue) &&
+                   Objects.equals(minLength, that.minLength) &&
+                   Objects.equals(maxLength, that.maxLength) &&
+                   Objects.equals(pattern == null ? null : pattern.pattern(),
+                                 that.pattern == null ? null : that.pattern.pattern());
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(defaultValue, minLength, maxLength,
+                               pattern == null ? null : pattern.pattern(), required);
+        }
+    }
+    
+    public static class ContentRule {
+        private final Integer minLength;
+        private final Integer maxLength;
+        private final Pattern pattern;
+        private final boolean required;
+        
+        private ContentRule(ContentRuleBuilder builder) {
+            this.minLength = builder.minLength;
+            this.maxLength = builder.maxLength;
+            this.pattern = builder.pattern;
+            this.required = builder.required;
+        }
+        
+        public Integer getMinLength() {
+            return minLength;
+        }
+        
+        public Integer getMaxLength() {
+            return maxLength;
+        }
+        
+        public Pattern getPattern() {
+            return pattern;
+        }
+        
+        public boolean isRequired() {
+            return required;
+        }
+        
+        public static ContentRuleBuilder builder() {
+            return new ContentRuleBuilder();
+        }
+        
+        public static class ContentRuleBuilder {
+            private Integer minLength;
+            private Integer maxLength;
+            private Pattern pattern;
+            private boolean required;
+            
+            public ContentRuleBuilder minLength(Integer minLength) {
+                this.minLength = minLength;
+                return this;
+            }
+            
+            public ContentRuleBuilder maxLength(Integer maxLength) {
+                this.maxLength = maxLength;
+                return this;
+            }
+            
+            public ContentRuleBuilder pattern(Pattern pattern) {
+                this.pattern = pattern;
+                return this;
+            }
+            
+            public ContentRuleBuilder pattern(String pattern) {
+                this.pattern = pattern != null ? Pattern.compile(pattern) : null;
+                return this;
+            }
+            
+            public ContentRuleBuilder required(boolean required) {
+                this.required = required;
+                return this;
+            }
+            
+            public ContentRule build() {
+                return new ContentRule(this);
+            }
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ContentRule that)) return false;
+            return required == that.required &&
+                   Objects.equals(minLength, that.minLength) &&
+                   Objects.equals(maxLength, that.maxLength) &&
+                   Objects.equals(pattern == null ? null : pattern.pattern(),
+                                 that.pattern == null ? null : that.pattern.pattern());
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(minLength, maxLength,
+                               pattern == null ? null : pattern.pattern(), required);
+        }
+    }
+    
     public static class Builder extends AbstractBuilder<Builder> {
-        private String author;
-        private Integer authorMinLength;
-        private Integer authorMaxLength;
-        private Pattern authorPattern;
-        private boolean authorRequired;
+        private AuthorRule author;
+        private AttributionRule attribution;
+        private ContentRule content;
         
-        private String attribution;
-        private Integer attributionMinLength;
-        private Integer attributionMaxLength;
-        private Pattern attributionPattern;
-        private boolean attributionRequired;
-        
-        private Integer contentMinLength;
-        private Integer contentMaxLength;
-        private Pattern contentPattern;
-        private boolean contentRequired;
-        
-        public Builder author(String author) {
+        public Builder author(AuthorRule author) {
             this.author = author;
             return this;
         }
         
-        public Builder authorMinLength(Integer authorMinLength) {
-            this.authorMinLength = authorMinLength;
-            return this;
-        }
-        
-        public Builder authorMaxLength(Integer authorMaxLength) {
-            this.authorMaxLength = authorMaxLength;
-            return this;
-        }
-        
-        public Builder authorPattern(Pattern authorPattern) {
-            this.authorPattern = authorPattern;
-            return this;
-        }
-        
-        public Builder authorPattern(String authorPattern) {
-            this.authorPattern = authorPattern != null ? Pattern.compile(authorPattern) : null;
-            return this;
-        }
-        
-        public Builder authorRequired(boolean authorRequired) {
-            this.authorRequired = authorRequired;
-            return this;
-        }
-        
-        public Builder attribution(String attribution) {
+        public Builder attribution(AttributionRule attribution) {
             this.attribution = attribution;
             return this;
         }
         
-        public Builder attributionMinLength(Integer attributionMinLength) {
-            this.attributionMinLength = attributionMinLength;
-            return this;
-        }
-        
-        public Builder attributionMaxLength(Integer attributionMaxLength) {
-            this.attributionMaxLength = attributionMaxLength;
-            return this;
-        }
-        
-        public Builder attributionPattern(Pattern attributionPattern) {
-            this.attributionPattern = attributionPattern;
-            return this;
-        }
-        
-        public Builder attributionPattern(String attributionPattern) {
-            this.attributionPattern = attributionPattern != null ? Pattern.compile(attributionPattern) : null;
-            return this;
-        }
-        
-        public Builder attributionRequired(boolean attributionRequired) {
-            this.attributionRequired = attributionRequired;
-            return this;
-        }
-        
-        public Builder contentMinLength(Integer contentMinLength) {
-            this.contentMinLength = contentMinLength;
-            return this;
-        }
-        
-        public Builder contentMaxLength(Integer contentMaxLength) {
-            this.contentMaxLength = contentMaxLength;
-            return this;
-        }
-        
-        public Builder contentPattern(Pattern contentPattern) {
-            this.contentPattern = contentPattern;
-            return this;
-        }
-        
-        public Builder contentPattern(String contentPattern) {
-            this.contentPattern = contentPattern != null ? Pattern.compile(contentPattern) : null;
-            return this;
-        }
-        
-        public Builder contentRequired(boolean contentRequired) {
-            this.contentRequired = contentRequired;
+        public Builder content(ContentRule content) {
+            this.content = content;
             return this;
         }
         
@@ -224,32 +358,13 @@ public final class VerseBlock extends AbstractBlock {
         if (this == o) return true;
         if (!(o instanceof VerseBlock that)) return false;
         if (!super.equals(o)) return false;
-        return authorRequired == that.authorRequired && 
-               attributionRequired == that.attributionRequired && 
-               contentRequired == that.contentRequired &&
-               Objects.equals(author, that.author) && 
-               Objects.equals(authorMinLength, that.authorMinLength) && 
-               Objects.equals(authorMaxLength, that.authorMaxLength) && 
-               Objects.equals(authorPattern == null ? null : authorPattern.pattern(), 
-                             that.authorPattern == null ? null : that.authorPattern.pattern()) &&
-               Objects.equals(attribution, that.attribution) && 
-               Objects.equals(attributionMinLength, that.attributionMinLength) && 
-               Objects.equals(attributionMaxLength, that.attributionMaxLength) && 
-               Objects.equals(attributionPattern == null ? null : attributionPattern.pattern(), 
-                             that.attributionPattern == null ? null : that.attributionPattern.pattern()) &&
-               Objects.equals(contentMinLength, that.contentMinLength) && 
-               Objects.equals(contentMaxLength, that.contentMaxLength) && 
-               Objects.equals(contentPattern == null ? null : contentPattern.pattern(), 
-                             that.contentPattern == null ? null : that.contentPattern.pattern());
+        return Objects.equals(author, that.author) &&
+               Objects.equals(attribution, that.attribution) &&
+               Objects.equals(content, that.content);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), author, authorMinLength, authorMaxLength, 
-                           authorPattern == null ? null : authorPattern.pattern(), authorRequired,
-                           attribution, attributionMinLength, attributionMaxLength, 
-                           attributionPattern == null ? null : attributionPattern.pattern(), attributionRequired,
-                           contentMinLength, contentMaxLength, 
-                           contentPattern == null ? null : contentPattern.pattern(), contentRequired);
+        return Objects.hash(super.hashCode(), author, attribution, content);
     }
 }
