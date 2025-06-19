@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [ 17, 21 ]
+    
+    name: Test with Java ${{ matrix.java-version }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK ${{ matrix.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+        cache: 'maven'
+    
+    - name: Compile project
+      run: mvn clean compile
+    
+    - name: Run tests
+      run: mvn test
+    
+    - name: Generate test report
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Test Results - Java ${{ matrix.java-version }}
+        path: target/surefire-reports/*.xml
+        reporter: java-junit
+        fail-on-error: false
