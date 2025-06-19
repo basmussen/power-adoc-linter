@@ -191,6 +191,23 @@ document:
               min: 0
               max: 5
               # Kein severity = verwendet Block-Severity (warn)
+            # Listing-spezifische Attribute
+            language:
+              required: true         # Sprache ist Pflicht
+              allowed: ["java", "python", "javascript", "yaml", "bash", "xml"]
+              severity: error        # Streng: nur erlaubte Sprachen
+            lines:
+              min: 3                 # Mindestens 3 Zeilen
+              max: 100               # Maximal 100 Zeilen
+              # Kein severity = verwendet Block-Severity (warn)
+            title:
+              required: false        # Titel optional für allgemeine Listings
+              pattern: "^(Example|Beispiel|Code|Listing).*"
+              severity: info         # Nur Hinweis
+            callouts:
+              allowed: true          # Callouts erlaubt
+              max: 15                # Maximal 15 Callouts
+              severity: info         # Nur Hinweis
           
         - table:
             # Kein name = generischer Block
@@ -289,6 +306,23 @@ document:
                   min: 1             # Mindestens 1 Code-Beispiel
                   max: 3
                   # Kein severity = verwendet Block-Severity (error)
+                # Strenge Vorgaben für Implementierungs-Code
+                language:
+                  required: true     # Sprache ist Pflicht
+                  allowed: ["java", "kotlin", "python", "javascript", "typescript"]
+                  severity: error    # Nur Implementierungssprachen erlaubt
+                lines:
+                  min: 5             # Mindestens 5 Zeilen für echten Code
+                  max: 200           # Maximal 200 Zeilen pro Listing
+                  # Kein severity = verwendet Block-Severity (error)
+                title:
+                  required: true     # Titel ist Pflicht
+                  pattern: "^(Listing|Code|Beispiel)\\s+\\d+:\\s+.*"  # Format: "Listing 1: Beschreibung"
+                  severity: error    # Strenge Vorgabe
+                callouts:
+                  allowed: true      # Callouts für Erklärungen erlaubt
+                  max: 20            # Mehr Callouts für komplexe Beispiele
+                  severity: warn     # Warnung bei zu vielen
             - table:
                 severity: info       # PFLICHT: Default-Severity für den gesamten Block
                 occurrence:
