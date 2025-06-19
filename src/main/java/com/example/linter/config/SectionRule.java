@@ -1,5 +1,7 @@
 package com.example.linter.config;
 
+import com.example.linter.config.blocks.AbstractBlock;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +14,7 @@ public final class SectionRule {
     private final int min;
     private final int max;
     private final TitleRule title;
-    private final List<AllowedBlock> allowedBlocks;
+    private final List<AbstractBlock> allowedBlocks;
     private final List<SectionRule> subsections;
 
     private SectionRule(Builder builder) {
@@ -32,7 +34,7 @@ public final class SectionRule {
     public int min() { return min; }
     public int max() { return max; }
     public TitleRule title() { return title; }
-    public List<AllowedBlock> allowedBlocks() { return allowedBlocks; }
+    public List<AbstractBlock> allowedBlocks() { return allowedBlocks; }
     public List<SectionRule> subsections() { return subsections; }
 
     public static Builder builder() {
@@ -46,7 +48,7 @@ public final class SectionRule {
         private int min = 0;
         private int max = Integer.MAX_VALUE;
         private TitleRule title;
-        private List<AllowedBlock> allowedBlocks = new ArrayList<>();
+        private List<AbstractBlock> allowedBlocks = new ArrayList<>();
         private List<SectionRule> subsections = new ArrayList<>();
 
         public Builder name(String name) {
@@ -79,12 +81,12 @@ public final class SectionRule {
             return this;
         }
 
-        public Builder allowedBlocks(List<AllowedBlock> allowedBlocks) {
+        public Builder allowedBlocks(List<AbstractBlock> allowedBlocks) {
             this.allowedBlocks = allowedBlocks != null ? new ArrayList<>(allowedBlocks) : new ArrayList<>();
             return this;
         }
 
-        public Builder addAllowedBlock(AllowedBlock block) {
+        public Builder addAllowedBlock(AbstractBlock block) {
             this.allowedBlocks.add(block);
             return this;
         }

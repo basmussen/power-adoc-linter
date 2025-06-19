@@ -1,6 +1,7 @@
 package com.example.linter.config.loader;
 
 import com.example.linter.config.*;
+import com.example.linter.config.blocks.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -102,16 +103,18 @@ class ConfigurationLoaderTest {
         var allowedBlocks = introSection.allowedBlocks();
         assertEquals(2, allowedBlocks.size());
         
-        var paragraphBlock = allowedBlocks.get(0);
-        assertEquals(BlockType.PARAGRAPH, paragraphBlock.type());
-        assertEquals("intro-paragraph", paragraphBlock.name());
-        assertEquals(Severity.WARN, paragraphBlock.severity());
-        assertNotNull(paragraphBlock.occurrence());
-        assertEquals(1, paragraphBlock.occurrence().min());
-        assertEquals(3, paragraphBlock.occurrence().max());
-        assertEquals(Severity.ERROR, paragraphBlock.occurrence().severity());
-        assertNotNull(paragraphBlock.lines());
-        assertEquals(15, paragraphBlock.lines().max());
+        var abstractBlock = allowedBlocks.get(0);
+        assertTrue(abstractBlock instanceof ParagraphBlock);
+        ParagraphBlock paragraphBlock = (ParagraphBlock) abstractBlock;
+        assertEquals(BlockType.PARAGRAPH, paragraphBlock.getType());
+        assertEquals("intro-paragraph", paragraphBlock.getName());
+        assertEquals(Severity.WARN, paragraphBlock.getSeverity());
+        assertNotNull(paragraphBlock.getOccurrence());
+        assertEquals(1, paragraphBlock.getOccurrence().min());
+        assertEquals(3, paragraphBlock.getOccurrence().max());
+        assertEquals(Severity.ERROR, paragraphBlock.getOccurrence().severity());
+        assertNotNull(paragraphBlock.getLines());
+        assertEquals(15, paragraphBlock.getLines().max());
     }
     
     @Test

@@ -1,6 +1,7 @@
 package com.example.linter.config.loader;
 
 import com.example.linter.config.*;
+import com.example.linter.config.blocks.*;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -119,11 +120,11 @@ public class ConfigurationLoader {
                 .build();
         }
         
-        List<AllowedBlock> allowedBlocks = new ArrayList<>();
+        List<AbstractBlock> allowedBlocks = new ArrayList<>();
         if (raw.containsKey("allowedBlocks")) {
             List<Map<String, Object>> blocksRaw = (List<Map<String, Object>>) raw.get("allowedBlocks");
             for (Map<String, Object> blockRaw : blocksRaw) {
-                allowedBlocks.add(parseAllowedBlock(blockRaw));
+                allowedBlocks.add(parseBlock(blockRaw));
             }
         }
         
@@ -150,7 +151,7 @@ public class ConfigurationLoader {
         return builder.build();
     }
     
-    private AllowedBlock parseAllowedBlock(Map<String, Object> raw) {
+    private AbstractBlock parseBlock(Map<String, Object> raw) {
         // The YAML structure has block type as key (e.g., "paragraph:", "listing:")
         Map.Entry<String, Object> entry = raw.entrySet().iterator().next();
         String blockTypeStr = entry.getKey();
@@ -212,13 +213,39 @@ public class ConfigurationLoader {
             occurrence = occBuilder.build();
         }
         
-        return AllowedBlock.builder()
-            .type(type)
-            .name(name)
-            .severity(severity)
-            .occurrence(occurrence)
-            .lines(lines)
-            .build();
+        // Create specific block instance based on type
+        return switch (type) {
+            case PARAGRAPH -> {
+                ParagraphBlock.Builder builder = ParagraphBlock.builder()
+                    .name(name)
+                    .severity(severity)
+                    .occurrence(occurrence);
+                if (lines != null) {
+                    builder.lines(lines);
+                }
+                yield builder.build();
+            }
+            case LISTING -> ListingBlock.builder()
+                .name(name)
+                .severity(severity)
+                .occurrence(occurrence)
+                .build();
+            case TABLE -> TableBlock.builder()
+                .name(name)
+                .severity(severity)
+                .occurrence(occurrence)
+                .build();
+            case IMAGE -> ImageBlock.builder()
+                .name(name)
+                .severity(severity)
+                .occurrence(occurrence)
+                .build();
+            case VERSE -> VerseBlock.builder()
+                .name(name)
+                .severity(severity)
+                .occurrence(occurrence)
+                .build();
+        };
     }
     
     private BlockType parseBlockType(String value) {

@@ -2,6 +2,10 @@ package com.example.linter.config;
 
 import java.util.Objects;
 
+/**
+ * @deprecated Use specific block classes from com.example.linter.config.blocks package instead
+ */
+@Deprecated
 public final class AllowedBlock {
     private final BlockType type;
     private final String name;
