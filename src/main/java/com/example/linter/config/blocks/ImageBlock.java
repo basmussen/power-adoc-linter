@@ -7,10 +7,10 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public final class ImageBlock extends AbstractBlock {
-    private final UrlRule url;
-    private final DimensionRule height;
-    private final DimensionRule width;
-    private final AltTextRule alt;
+    private final UrlConfig url;
+    private final DimensionConfig height;
+    private final DimensionConfig width;
+    private final AltTextConfig alt;
     
     private ImageBlock(Builder builder) {
         super(builder);
@@ -25,19 +25,19 @@ public final class ImageBlock extends AbstractBlock {
         return BlockType.IMAGE;
     }
     
-    public UrlRule getUrl() {
+    public UrlConfig getUrl() {
         return url;
     }
     
-    public DimensionRule getHeight() {
+    public DimensionConfig getHeight() {
         return height;
     }
     
-    public DimensionRule getWidth() {
+    public DimensionConfig getWidth() {
         return width;
     }
     
-    public AltTextRule getAlt() {
+    public AltTextConfig getAlt() {
         return alt;
     }
     
@@ -45,11 +45,11 @@ public final class ImageBlock extends AbstractBlock {
         return new Builder();
     }
     
-    public static class UrlRule {
+    public static class UrlConfig {
         private final Pattern pattern;
         private final boolean required;
         
-        private UrlRule(UrlRuleBuilder builder) {
+        private UrlConfig(UrlConfigBuilder builder) {
             this.pattern = builder.pattern;
             this.required = builder.required;
         }
@@ -62,38 +62,38 @@ public final class ImageBlock extends AbstractBlock {
             return required;
         }
         
-        public static UrlRuleBuilder builder() {
-            return new UrlRuleBuilder();
+        public static UrlConfigBuilder builder() {
+            return new UrlConfigBuilder();
         }
         
-        public static class UrlRuleBuilder {
+        public static class UrlConfigBuilder {
             private Pattern pattern;
             private boolean required;
             
-            public UrlRuleBuilder pattern(Pattern pattern) {
+            public UrlConfigBuilder pattern(Pattern pattern) {
                 this.pattern = pattern;
                 return this;
             }
             
-            public UrlRuleBuilder pattern(String pattern) {
+            public UrlConfigBuilder pattern(String pattern) {
                 this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
-            public UrlRuleBuilder required(boolean required) {
+            public UrlConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public UrlRule build() {
-                return new UrlRule(this);
+            public UrlConfig build() {
+                return new UrlConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof UrlRule that)) return false;
+            if (!(o instanceof UrlConfig that)) return false;
             return required == that.required &&
                    Objects.equals(pattern == null ? null : pattern.pattern(),
                                  that.pattern == null ? null : that.pattern.pattern());
@@ -105,12 +105,12 @@ public final class ImageBlock extends AbstractBlock {
         }
     }
     
-    public static class DimensionRule {
+    public static class DimensionConfig {
         private final Integer minValue;
         private final Integer maxValue;
         private final boolean required;
         
-        private DimensionRule(DimensionRuleBuilder builder) {
+        private DimensionConfig(DimensionConfigBuilder builder) {
             this.minValue = builder.minValue;
             this.maxValue = builder.maxValue;
             this.required = builder.required;
@@ -128,39 +128,39 @@ public final class ImageBlock extends AbstractBlock {
             return required;
         }
         
-        public static DimensionRuleBuilder builder() {
-            return new DimensionRuleBuilder();
+        public static DimensionConfigBuilder builder() {
+            return new DimensionConfigBuilder();
         }
         
-        public static class DimensionRuleBuilder {
+        public static class DimensionConfigBuilder {
             private Integer minValue;
             private Integer maxValue;
             private boolean required;
             
-            public DimensionRuleBuilder minValue(Integer minValue) {
+            public DimensionConfigBuilder minValue(Integer minValue) {
                 this.minValue = minValue;
                 return this;
             }
             
-            public DimensionRuleBuilder maxValue(Integer maxValue) {
+            public DimensionConfigBuilder maxValue(Integer maxValue) {
                 this.maxValue = maxValue;
                 return this;
             }
             
-            public DimensionRuleBuilder required(boolean required) {
+            public DimensionConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public DimensionRule build() {
-                return new DimensionRule(this);
+            public DimensionConfig build() {
+                return new DimensionConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof DimensionRule that)) return false;
+            if (!(o instanceof DimensionConfig that)) return false;
             return required == that.required &&
                    Objects.equals(minValue, that.minValue) &&
                    Objects.equals(maxValue, that.maxValue);
@@ -172,12 +172,12 @@ public final class ImageBlock extends AbstractBlock {
         }
     }
     
-    public static class AltTextRule {
+    public static class AltTextConfig {
         private final boolean required;
         private final Integer minLength;
         private final Integer maxLength;
         
-        private AltTextRule(AltTextRuleBuilder builder) {
+        private AltTextConfig(AltTextConfigBuilder builder) {
             this.required = builder.required;
             this.minLength = builder.minLength;
             this.maxLength = builder.maxLength;
@@ -195,39 +195,39 @@ public final class ImageBlock extends AbstractBlock {
             return maxLength;
         }
         
-        public static AltTextRuleBuilder builder() {
-            return new AltTextRuleBuilder();
+        public static AltTextConfigBuilder builder() {
+            return new AltTextConfigBuilder();
         }
         
-        public static class AltTextRuleBuilder {
+        public static class AltTextConfigBuilder {
             private boolean required;
             private Integer minLength;
             private Integer maxLength;
             
-            public AltTextRuleBuilder required(boolean required) {
+            public AltTextConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public AltTextRuleBuilder minLength(Integer minLength) {
+            public AltTextConfigBuilder minLength(Integer minLength) {
                 this.minLength = minLength;
                 return this;
             }
             
-            public AltTextRuleBuilder maxLength(Integer maxLength) {
+            public AltTextConfigBuilder maxLength(Integer maxLength) {
                 this.maxLength = maxLength;
                 return this;
             }
             
-            public AltTextRule build() {
-                return new AltTextRule(this);
+            public AltTextConfig build() {
+                return new AltTextConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof AltTextRule that)) return false;
+            if (!(o instanceof AltTextConfig that)) return false;
             return required == that.required &&
                    Objects.equals(minLength, that.minLength) &&
                    Objects.equals(maxLength, that.maxLength);
@@ -240,27 +240,27 @@ public final class ImageBlock extends AbstractBlock {
     }
     
     public static class Builder extends AbstractBuilder<Builder> {
-        private UrlRule url;
-        private DimensionRule height;
-        private DimensionRule width;
-        private AltTextRule alt;
+        private UrlConfig url;
+        private DimensionConfig height;
+        private DimensionConfig width;
+        private AltTextConfig alt;
         
-        public Builder url(UrlRule url) {
+        public Builder url(UrlConfig url) {
             this.url = url;
             return this;
         }
         
-        public Builder height(DimensionRule height) {
+        public Builder height(DimensionConfig height) {
             this.height = height;
             return this;
         }
         
-        public Builder width(DimensionRule width) {
+        public Builder width(DimensionConfig width) {
             this.width = width;
             return this;
         }
         
-        public Builder alt(AltTextRule alt) {
+        public Builder alt(AltTextConfig alt) {
             this.alt = alt;
             return this;
         }

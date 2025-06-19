@@ -2,10 +2,10 @@ package com.example.linter.config.rule;
 
 import java.util.Objects;
 
-public final class TitleRule {
+public final class TitleConfig {
     private final String pattern;
 
-    private TitleRule(Builder builder) {
+    private TitleConfig(Builder builder) {
         this.pattern = builder.pattern;
     }
 
@@ -23,9 +23,9 @@ public final class TitleRule {
             return this;
         }
 
-        public TitleRule build() {
+        public TitleConfig build() {
             Objects.requireNonNull(pattern, "pattern is required");
-            return new TitleRule(this);
+            return new TitleConfig(this);
         }
     }
 
@@ -33,7 +33,7 @@ public final class TitleRule {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TitleRule titleRule = (TitleRule) o;
+        TitleConfig titleRule = (TitleConfig) o;
         return Objects.equals(pattern, titleRule.pattern);
     }
 

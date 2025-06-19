@@ -2,8 +2,8 @@ package com.example.linter.config.loader;
 
 import com.example.linter.config.*;
 import com.example.linter.config.blocks.*;
-import com.example.linter.config.rule.AttributeRule;
-import com.example.linter.config.rule.SectionRule;
+import com.example.linter.config.rule.AttributeConfig;
+import com.example.linter.config.rule.SectionConfig;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

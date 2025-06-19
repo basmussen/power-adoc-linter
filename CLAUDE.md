@@ -87,6 +87,8 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - Given-When-Then structure in test methods
 - Comprehensive equals/hashCode testing for all domain objects
 - Builder pattern validation (null checks, required fields)
+- Use test case patterns like Given-When-Then
+- Use "should" method naming pattern for test methods
 
 ## Development Guidelines
 
@@ -146,3 +148,13 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - **Configuration Specification**: `docs/linter-config-specification.yaml` - Full example configuration
 - **Schema Definitions**: `src/main/resources/schemas/blocks/*.yaml` - JSON Schema 2020-12 for each block type
 - **Test Examples**: `src/test/java/com/example/linter/config/loader/ConfigurationLoaderTest.java` - Shows YAML configuration patterns
+
+## Debug Notes
+
+- Debug tests werden nicht mit git commit hinzugefügt. Diese werden nach dem Beheben des Fehlers wieder gelöscht
+
+## Validation Considerations
+
+- Validation error messages should include:
+  - Actual values found during validation
+  - Expected values or criteria for validation

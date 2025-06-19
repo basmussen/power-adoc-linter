@@ -2,14 +2,14 @@ package com.example.linter.config.blocks;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.rule.OccurrenceRule;
+import com.example.linter.config.rule.OccurrenceConfig;
 
 import java.util.Objects;
 
 public abstract class AbstractBlock {
     private final String name;
     private final Severity severity;
-    private final OccurrenceRule occurrence;
+    private final OccurrenceConfig occurrence;
     
     protected AbstractBlock(AbstractBuilder<?> builder) {
         this.name = builder.name;
@@ -21,12 +21,12 @@ public abstract class AbstractBlock {
     
     public String getName() { return name; }
     public Severity getSeverity() { return severity; }
-    public OccurrenceRule getOccurrence() { return occurrence; }
+    public OccurrenceConfig getOccurrence() { return occurrence; }
     
     protected abstract static class AbstractBuilder<T extends AbstractBuilder<T>> {
         protected String name;
         protected Severity severity;
-        protected OccurrenceRule occurrence;
+        protected OccurrenceConfig occurrence;
         
         @SuppressWarnings("unchecked")
         public T name(String name) {
@@ -41,7 +41,7 @@ public abstract class AbstractBlock {
         }
         
         @SuppressWarnings("unchecked")
-        public T occurrence(OccurrenceRule occurrence) {
+        public T occurrence(OccurrenceConfig occurrence) {
             this.occurrence = occurrence;
             return (T) this;
         }

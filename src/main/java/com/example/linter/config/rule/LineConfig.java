@@ -3,12 +3,12 @@ package com.example.linter.config.rule;
 import com.example.linter.config.Severity;
 import java.util.Objects;
 
-public final class LineRule {
+public final class LineConfig {
     private final Integer min;
     private final Integer max;
     private final Severity severity;
 
-    private LineRule(Builder builder) {
+    private LineConfig(Builder builder) {
         this.min = builder.min;
         this.max = builder.max;
         this.severity = builder.severity;
@@ -42,8 +42,8 @@ public final class LineRule {
             return this;
         }
 
-        public LineRule build() {
-            return new LineRule(this);
+        public LineConfig build() {
+            return new LineConfig(this);
         }
     }
 
@@ -51,7 +51,7 @@ public final class LineRule {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LineRule lineRule = (LineRule) o;
+        LineConfig lineRule = (LineConfig) o;
         return Objects.equals(min, lineRule.min) &&
                Objects.equals(max, lineRule.max) &&
                severity == lineRule.severity;

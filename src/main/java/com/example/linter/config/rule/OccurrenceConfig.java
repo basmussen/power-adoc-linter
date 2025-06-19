@@ -4,13 +4,13 @@ import com.example.linter.config.Severity;
 
 import java.util.Objects;
 
-public final class OccurrenceRule {
+public final class OccurrenceConfig {
     private final Integer order;
     private final int min;
     private final int max;
     private final Severity severity;
 
-    private OccurrenceRule(Builder builder) {
+    private OccurrenceConfig(Builder builder) {
         this.order = builder.order;
         this.min = builder.min;
         this.max = builder.max;
@@ -52,8 +52,8 @@ public final class OccurrenceRule {
             return this;
         }
 
-        public OccurrenceRule build() {
-            return new OccurrenceRule(this);
+        public OccurrenceConfig build() {
+            return new OccurrenceConfig(this);
         }
     }
 
@@ -61,7 +61,7 @@ public final class OccurrenceRule {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OccurrenceRule that = (OccurrenceRule) o;
+        OccurrenceConfig that = (OccurrenceConfig) o;
         return min == that.min &&
                max == that.max &&
                Objects.equals(order, that.order) &&
