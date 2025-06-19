@@ -1,0 +1,51 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://example.com/schemas/blocks/paragraph-block.schema.yaml
+title: Paragraph Block Configuration Schema
+description: Schema for validating paragraph block configuration in AsciiDoc linter
+type: object
+properties:
+  name:
+    type: string
+    description: Optional name for the paragraph block for better error messages
+    minLength: 1
+    maxLength: 50
+  severity:
+    type: string
+    description: Default severity level for all rules in this block
+    enum: [error, warn, info]
+  occurrence:
+    type: object
+    description: Occurrence rules for this block type
+    properties:
+      order:
+        type: integer
+        description: Order in which this block should appear
+        minimum: 1
+      min:
+        type: integer
+        description: Minimum number of occurrences
+        minimum: 0
+      max:
+        type: integer
+        description: Maximum number of occurrences
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
+    additionalProperties: false
+  lines:
+    type: object
+    description: Line count validation rules
+    properties:
+      min:
+        type: integer
+        description: Minimum number of lines in the paragraph
+        minimum: 1
+      max:
+        type: integer
+        description: Maximum number of lines in the paragraph
+        minimum: 1
+    additionalProperties: false
+required: [severity]
+additionalProperties: false

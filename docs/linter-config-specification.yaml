@@ -115,6 +115,22 @@ document:
               min: 0                 # Bilder sind optional
               max: 1                 # Maximal 1 Bild
               # Kein severity = verwendet Block-Severity (info)
+            # Image-spezifische Attribute
+            url:
+              required: true         # URL ist Pflicht
+              pattern: "^https?://.*\\.(jpg|jpeg|png|gif|svg)$"  # Nur sichere Bildformate
+            height:
+              required: false        # Höhe ist optional
+              minValue: 50           # Mindestens 50 Pixel
+              maxValue: 2000         # Maximal 2000 Pixel
+            width:
+              required: false        # Breite ist optional
+              minValue: 50           # Mindestens 50 Pixel
+              maxValue: 3000         # Maximal 3000 Pixel
+            alt:
+              required: true         # Alt-Text ist Pflicht (Barrierefreiheit)
+              minLength: 10          # Mindestens 10 Zeichen
+              maxLength: 200         # Maximal 200 Zeichen
           
       # Erlaubte Unterabschnitte
       subsections:
@@ -175,6 +191,23 @@ document:
               min: 0
               max: 5
               # Kein severity = verwendet Block-Severity (warn)
+            # Listing-spezifische Attribute
+            language:
+              required: true         # Sprache ist Pflicht
+              allowed: ["java", "python", "javascript", "yaml", "bash", "xml"]
+              severity: error        # Streng: nur erlaubte Sprachen
+            lines:
+              min: 3                 # Mindestens 3 Zeilen
+              max: 100               # Maximal 100 Zeilen
+              # Kein severity = verwendet Block-Severity (warn)
+            title:
+              required: false        # Titel optional für allgemeine Listings
+              pattern: "^(Example|Beispiel|Code|Listing).*"
+              severity: info         # Nur Hinweis
+            callouts:
+              allowed: true          # Callouts erlaubt
+              max: 15                # Maximal 15 Callouts
+              severity: info         # Nur Hinweis
           
         - table:
             # Kein name = generischer Block
@@ -183,6 +216,29 @@ document:
               min: 0
               max: 3
               # Kein severity = verwendet Block-Severity (info)
+            # Table-spezifische Attribute
+            columns:
+              min: 2                 # Mindestens 2 Spalten
+              max: 10                # Maximal 10 Spalten
+              severity: error        # Strenge Vorgabe für Spaltenanzahl
+            rows:
+              min: 1                 # Mindestens 1 Zeile
+              max: 100               # Maximal 100 Zeilen
+              severity: warn         # Warnung bei zu vielen Zeilen
+            header:
+              required: true         # Header ist Pflicht
+              pattern: "^[A-Z].*"    # Header muss mit Großbuchstabe beginnen
+              severity: error        # Strenge Vorgabe
+            caption:
+              required: true         # Caption ist Pflicht
+              pattern: "^Table \\d+: .*"  # Format: "Table 1: Beschreibung"
+              minLength: 10          # Mindestens 10 Zeichen
+              maxLength: 200         # Maximal 200 Zeichen
+              severity: warn         # Warnung bei falscher Caption
+            format:
+              style: "grid"          # Table-Style (z.B. grid, simple, borderless)
+              borders: true          # Rahmen anzeigen
+              severity: info         # Nur Hinweis
           
         - image:
             name: "diagrams"            # Optional: Benannter Block
@@ -191,6 +247,22 @@ document:
               min: 0
               max: 5
               # Kein severity = verwendet Block-Severity (warn)
+            # Image-spezifische Attribute für Diagramme
+            url:
+              required: true         # URL ist Pflicht
+              pattern: "^(https?://|\\./|/|assets/).*\\.(jpg|jpeg|png|gif|svg)$"  # Auch relative Pfade erlaubt
+            height:
+              required: false        # Höhe ist optional
+              minValue: 100          # Mindestens 100 Pixel für Diagramme
+              maxValue: 1500         # Maximal 1500 Pixel
+            width:
+              required: false        # Breite ist optional
+              minValue: 200          # Mindestens 200 Pixel für Diagramme
+              maxValue: 2000         # Maximal 2000 Pixel
+            alt:
+              required: true         # Alt-Text ist Pflicht
+              minLength: 15          # Mindestens 15 Zeichen für Diagrammbeschreibung
+              maxLength: 300         # Maximal 300 Zeichen
           
       # Verschachtelte Struktur bis Level 3
       subsections:
@@ -217,6 +289,22 @@ document:
                   min: 0
                   max: 1
                   # Kein severity = verwendet Block-Severity (info)
+                # Einfache Bilder in Übersichts-Abschnitten
+                url:
+                  required: true         # URL ist Pflicht
+                  pattern: ".*\\.(jpg|jpeg|png|gif|svg)$"  # Alle Bildformate erlaubt
+                height:
+                  required: false        # Dimensionen optional
+                  minValue: 50
+                  maxValue: 1000
+                width:
+                  required: false
+                  minValue: 50
+                  maxValue: 1500
+                alt:
+                  required: true         # Alt-Text ist Pflicht
+                  minLength: 5           # Mindestens 5 Zeichen
+                  maxLength: 150         # Maximal 150 Zeichen
                 
         # Weiterer spezifischer Unterabschnitt
         - name: "implementation"
@@ -241,6 +329,23 @@ document:
                   min: 1             # Mindestens 1 Code-Beispiel
                   max: 3
                   # Kein severity = verwendet Block-Severity (error)
+                # Strenge Vorgaben für Implementierungs-Code
+                language:
+                  required: true     # Sprache ist Pflicht
+                  allowed: ["java", "kotlin", "python", "javascript", "typescript"]
+                  severity: error    # Nur Implementierungssprachen erlaubt
+                lines:
+                  min: 5             # Mindestens 5 Zeilen für echten Code
+                  max: 200           # Maximal 200 Zeilen pro Listing
+                  # Kein severity = verwendet Block-Severity (error)
+                title:
+                  required: true     # Titel ist Pflicht
+                  pattern: "^(Listing|Code|Beispiel)\\s+\\d+:\\s+.*"  # Format: "Listing 1: Beschreibung"
+                  severity: error    # Strenge Vorgabe
+                callouts:
+                  allowed: true      # Callouts für Erklärungen erlaubt
+                  max: 20            # Mehr Callouts für komplexe Beispiele
+                  severity: warn     # Warnung bei zu vielen
             - table:
                 severity: info       # PFLICHT: Default-Severity für den gesamten Block
                 occurrence:
@@ -248,6 +353,29 @@ document:
                   min: 0
                   max: 1
                   # Kein severity = verwendet Block-Severity (info)
+                # Table-spezifische Attribute für Implementierungs-Tabellen
+                columns:
+                  min: 2             # Mindestens 2 Spalten (z.B. Parameter/Beschreibung)
+                  max: 6             # Maximal 6 Spalten für Übersichtlichkeit
+                  severity: warn     # Warnung bei zu vielen Spalten
+                rows:
+                  min: 2             # Mindestens 2 Zeilen für sinnvolle Tabelle
+                  max: 50            # Maximal 50 Zeilen pro Tabelle
+                  severity: info     # Nur Hinweis
+                header:
+                  required: true     # Header ist Pflicht für Verständlichkeit
+                  pattern: "^[A-Z][a-zA-Z\\s]+$"  # Muss mit Großbuchstabe beginnen
+                  severity: error    # Strenge Vorgabe
+                caption:
+                  required: false    # Caption optional für Implementierungs-Tabellen
+                  pattern: "^(Table|Tabelle) \\d+:.*"  # Falls vorhanden: standardisiert
+                  minLength: 15      # Mindestens 15 Zeichen für aussagekräftige Caption
+                  maxLength: 150     # Maximal 150 Zeichen
+                  severity: info     # Nur Hinweis
+                format:
+                  style: "grid"      # Grid-Style für klare Struktur
+                  borders: true      # Mit Rahmen für bessere Lesbarkeit
+                  severity: info     # Nur Hinweis
               
           # Unter-Unterabschnitte für implementation
           subsections:
@@ -287,6 +415,22 @@ document:
                   min: 0
                   max: 2
                   # Kein severity = verwendet Block-Severity (info)
+                # Verse-spezifische Attribute (z.B. Gedichte, Zitate)
+                author:
+                  required: false    # Author ist optional
+                  minLength: 3       # Mindestens 3 Zeichen
+                  maxLength: 50      # Maximal 50 Zeichen  
+                  pattern: "^[A-Z][a-zA-Z\\s\\.]+$"  # Muss mit Großbuchstabe beginnen
+                attribution:
+                  required: false    # Quelle/Titel ist optional
+                  minLength: 5       # Mindestens 5 Zeichen
+                  maxLength: 100     # Maximal 100 Zeichen
+                  pattern: "^[A-Za-z0-9\\s,\\.]+$"  # Alphanumerisch mit Satzzeichen
+                content:
+                  required: true     # Inhalt ist Pflicht
+                  minLength: 20      # Mindestens 20 Zeichen
+                  maxLength: 500     # Maximal 500 Zeichen
+                  pattern: ".*\\n.*" # Sollte mehrzeilig sein (min. 1 Zeilenumbruch)
             - listing:
                 severity: warn       # PFLICHT: Default-Severity für den gesamten Block
                 occurrence:
