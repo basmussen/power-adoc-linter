@@ -2,10 +2,11 @@ package com.example.linter.config.loader;
 
 import com.example.linter.config.*;
 import com.example.linter.config.blocks.*;
-import com.example.linter.rule.AttributeRule;
-import com.example.linter.rule.OccurrenceRule;
-import com.example.linter.rule.SectionRule;
-import com.example.linter.rule.TitleRule;
+import com.example.linter.config.rule.AttributeRule;
+import com.example.linter.config.rule.OccurrenceRule;
+import com.example.linter.config.rule.SectionRule;
+import com.example.linter.config.rule.TitleRule;
+
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -204,10 +205,10 @@ public class ConfigurationLoader {
             occurrence = occBuilder.build();
         }
         
-        com.example.linter.rule.LineRule lines = null;
+        com.example.linter.config.rule.LineRule lines = null;
         if (blockData.containsKey("lines")) {
             Map<String, Object> linesRaw = (Map<String, Object>) blockData.get("lines");
-            com.example.linter.rule.LineRule.Builder lineBuilder = com.example.linter.rule.LineRule.builder()
+            com.example.linter.config.rule.LineRule.Builder lineBuilder = com.example.linter.config.rule.LineRule.builder()
                 .min((Integer) linesRaw.get("min"))
                 .max((Integer) linesRaw.get("max"));
             

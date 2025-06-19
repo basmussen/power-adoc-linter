@@ -1,7 +1,8 @@
 package com.example.linter.config.blocks;
 
 import com.example.linter.config.Severity;
-import com.example.linter.rule.LineRule;
+import com.example.linter.config.rule.LineRule;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

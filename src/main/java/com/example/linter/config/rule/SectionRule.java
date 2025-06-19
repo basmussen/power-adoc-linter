@@ -1,4 +1,4 @@
-package com.example.linter.rule;
+package com.example.linter.config.rule;
 
 import com.example.linter.config.blocks.AbstractBlock;
 

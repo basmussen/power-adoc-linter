@@ -1,11 +1,11 @@
 package com.example.linter.config;
 
-import com.example.linter.rule.SectionRule;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import com.example.linter.config.rule.SectionRule;
 
 public final class DocumentConfiguration {
     private final MetadataConfiguration metadata;

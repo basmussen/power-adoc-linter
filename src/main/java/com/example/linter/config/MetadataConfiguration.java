@@ -1,11 +1,11 @@
 package com.example.linter.config;
 
-import com.example.linter.rule.AttributeRule;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import com.example.linter.config.rule.AttributeRule;
 
 public final class MetadataConfiguration {
     private final List<AttributeRule> attributes;
