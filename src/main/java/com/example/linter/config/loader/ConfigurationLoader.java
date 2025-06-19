@@ -57,7 +57,9 @@ public class ConfigurationLoader {
         }
         Map<String, Object> documentRaw = (Map<String, Object>) raw.get("document");
         DocumentConfiguration document = parseDocumentConfiguration(documentRaw);
-        return new LinterConfiguration(document);
+        return LinterConfiguration.builder()
+            .document(document)
+            .build();
     }
     
     private DocumentConfiguration parseDocumentConfiguration(Map<String, Object> raw) {
@@ -67,7 +69,10 @@ public class ConfigurationLoader {
         List<Map<String, Object>> sectionsRaw = (List<Map<String, Object>>) raw.get("sections");
         List<SectionRule> sections = parseSectionRules(sectionsRaw);
         
-        return new DocumentConfiguration(metadata, sections);
+        return DocumentConfiguration.builder()
+            .metadata(metadata)
+            .sections(sections)
+            .build();
     }
     
     private MetadataConfiguration parseMetadataConfiguration(Map<String, Object> raw) {
@@ -78,19 +83,21 @@ public class ConfigurationLoader {
             attributes.add(parseAttributeRule(attrRaw));
         }
         
-        return new MetadataConfiguration(attributes);
+        return MetadataConfiguration.builder()
+            .attributes(attributes)
+            .build();
     }
     
     private AttributeRule parseAttributeRule(Map<String, Object> raw) {
-        return new AttributeRule(
-            (String) raw.get("name"),
-            (Integer) raw.get("order"),
-            Boolean.TRUE.equals(raw.get("required")),
-            (Integer) raw.get("minLength"),
-            (Integer) raw.get("maxLength"),
-            (String) raw.get("pattern"),
-            parseSeverity((String) raw.get("severity"))
-        );
+        return AttributeRule.builder()
+            .name((String) raw.get("name"))
+            .order((Integer) raw.get("order"))
+            .required(Boolean.TRUE.equals(raw.get("required")))
+            .minLength((Integer) raw.get("minLength"))
+            .maxLength((Integer) raw.get("maxLength"))
+            .pattern((String) raw.get("pattern"))
+            .severity(parseSeverity((String) raw.get("severity")))
+            .build();
     }
     
     private List<SectionRule> parseSectionRules(List<Map<String, Object>> sectionsRaw) {
@@ -107,7 +114,9 @@ public class ConfigurationLoader {
         TitleRule title = null;
         if (raw.containsKey("title")) {
             Map<String, Object> titleRaw = (Map<String, Object>) raw.get("title");
-            title = new TitleRule((String) titleRaw.get("pattern"));
+            title = TitleRule.builder()
+                .pattern((String) titleRaw.get("pattern"))
+                .build();
         }
         
         List<AllowedBlock> allowedBlocks = new ArrayList<>();
@@ -123,16 +132,22 @@ public class ConfigurationLoader {
             subsections = parseSectionRules((List<Map<String, Object>>) raw.get("subsections"));
         }
         
-        return new SectionRule(
-            (String) raw.get("name"),
-            (Integer) raw.get("order"),
-            (Integer) raw.get("level"),
-            raw.get("min") != null ? (Integer) raw.get("min") : 0,
-            raw.get("max") != null ? (Integer) raw.get("max") : Integer.MAX_VALUE,
-            title,
-            allowedBlocks,
-            subsections
-        );
+        SectionRule.Builder builder = SectionRule.builder()
+            .name((String) raw.get("name"))
+            .order((Integer) raw.get("order"))
+            .level((Integer) raw.get("level"))
+            .title(title)
+            .allowedBlocks(allowedBlocks)
+            .subsections(subsections);
+            
+        if (raw.get("min") != null) {
+            builder.min((Integer) raw.get("min"));
+        }
+        if (raw.get("max") != null) {
+            builder.max((Integer) raw.get("max"));
+        }
+        
+        return builder.build();
     }
     
     private AllowedBlock parseAllowedBlock(Map<String, Object> raw) {
@@ -145,38 +160,65 @@ public class ConfigurationLoader {
         String name = (String) blockData.get("name");
         Severity severity = parseSeverity((String) blockData.get("severity"));
         
+        // Default severity if not specified
+        if (severity == null) {
+            severity = Severity.WARN;
+        }
+        
         OccurrenceRule occurrence = null;
         if (blockData.containsKey("occurrence")) {
             Map<String, Object> occRaw = (Map<String, Object>) blockData.get("occurrence");
-            occurrence = new OccurrenceRule(
-                (Integer) occRaw.get("order"),
-                occRaw.get("min") != null ? (Integer) occRaw.get("min") : 0,
-                occRaw.get("max") != null ? (Integer) occRaw.get("max") : Integer.MAX_VALUE,
-                occRaw.containsKey("severity") ? parseSeverity((String) occRaw.get("severity")) : null
-            );
+            OccurrenceRule.Builder occBuilder = OccurrenceRule.builder()
+                .order((Integer) occRaw.get("order"));
+            
+            if (occRaw.get("min") != null) {
+                occBuilder.min((Integer) occRaw.get("min"));
+            }
+            if (occRaw.get("max") != null) {
+                occBuilder.max((Integer) occRaw.get("max"));
+            }
+            if (occRaw.containsKey("severity")) {
+                occBuilder.severity(parseSeverity((String) occRaw.get("severity")));
+            }
+            
+            occurrence = occBuilder.build();
         }
         
         LineRule lines = null;
         if (blockData.containsKey("lines")) {
             Map<String, Object> linesRaw = (Map<String, Object>) blockData.get("lines");
-            lines = new LineRule(
-                (Integer) linesRaw.get("min"),
-                (Integer) linesRaw.get("max"),
-                linesRaw.containsKey("severity") ? parseSeverity((String) linesRaw.get("severity")) : null
-            );
+            LineRule.Builder lineBuilder = LineRule.builder()
+                .min((Integer) linesRaw.get("min"))
+                .max((Integer) linesRaw.get("max"));
+            
+            if (linesRaw.containsKey("severity")) {
+                lineBuilder.severity(parseSeverity((String) linesRaw.get("severity")));
+            }
+            
+            lines = lineBuilder.build();
         }
         
         // Handle direct min/max when no occurrence block
         if (occurrence == null && (blockData.containsKey("min") || blockData.containsKey("max"))) {
-            occurrence = new OccurrenceRule(
-                null,
-                blockData.get("min") != null ? (Integer) blockData.get("min") : 0,
-                blockData.get("max") != null ? (Integer) blockData.get("max") : Integer.MAX_VALUE,
-                null
-            );
+            OccurrenceRule.Builder occBuilder = OccurrenceRule.builder();
+            
+            if (blockData.get("min") != null) {
+                occBuilder.min((Integer) blockData.get("min"));
+            }
+            if (blockData.get("max") != null) {
+                occBuilder.max((Integer) blockData.get("max"));
+            }
+            
+            occurrence = occBuilder.build();
         }
         
-        return new AllowedBlock(type, name, severity, occurrence, lines);
+        return AllowedBlock.builder()
+            .type(type)
+            .name(name)
+            .severity(severity)
+            .occurrence(occurrence)
+            .lines(lines)
+            .build();
     }
     
     private BlockType parseBlockType(String value) {
