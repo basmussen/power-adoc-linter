@@ -3,6 +3,7 @@ package com.example.linter.config.loader;
 import com.example.linter.config.*;
 import com.example.linter.config.blocks.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -246,6 +247,65 @@ class ConfigurationLoaderTest {
             assertNotNull(config.document().metadata());
             assertFalse(config.document().metadata().attributes().isEmpty());
             assertFalse(config.document().sections().isEmpty());
+        }
+    }
+    
+    @Nested
+    class MetadataAttributesTest {
+        
+        @Test
+        void testLoadTwoMetadataAttributes() {
+            String yaml = """
+                document:
+                  metadata:
+                    attributes:
+                      - name: title
+                        order: 1
+                        required: true
+                        minLength: 5
+                        maxLength: 100
+                        pattern: "^[A-Z].*"
+                        severity: error
+                      - name: author
+                        order: 2
+                        required: false
+                        minLength: 3
+                        maxLength: 50
+                        pattern: "^[A-Za-z][a-zA-Z\\\\s\\\\.]+$"
+                        severity: warn
+                  sections: []
+                """;
+            
+            LinterConfiguration config = loader.loadConfiguration(
+                new ByteArrayInputStream(yaml.getBytes())
+            );
+            
+            assertNotNull(config);
+            assertNotNull(config.document());
+            assertNotNull(config.document().metadata());
+            
+            var attributes = config.document().metadata().attributes();
+            assertEquals(2, attributes.size());
+            
+            // Verify first attribute (title)
+            var titleAttr = attributes.get(0);
+            assertEquals("title", titleAttr.name());
+            assertEquals(1, titleAttr.order());
+            assertTrue(titleAttr.required());
+            assertEquals(5, titleAttr.minLength());
+            assertEquals(100, titleAttr.maxLength());
+            assertEquals("^[A-Z].*", titleAttr.pattern());
+            assertEquals(Severity.ERROR, titleAttr.severity());
+            
+            // Verify second attribute (author)
+            var authorAttr = attributes.get(1);
+            assertEquals("author", authorAttr.name());
+            assertEquals(2, authorAttr.order());
+            assertFalse(authorAttr.required());
+            assertEquals(3, authorAttr.minLength());
+            assertEquals(50, authorAttr.maxLength());
+            assertEquals("^[A-Za-z][a-zA-Z\\s\\.]+$", authorAttr.pattern());
+            assertEquals(Severity.WARN, authorAttr.severity());
         }
     }
 }
