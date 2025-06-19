@@ -287,6 +287,22 @@ document:
                   min: 0
                   max: 2
                   # Kein severity = verwendet Block-Severity (info)
+                # Verse-spezifische Attribute (z.B. Gedichte, Zitate)
+                author:
+                  required: false    # Author ist optional
+                  minLength: 3       # Mindestens 3 Zeichen
+                  maxLength: 50      # Maximal 50 Zeichen  
+                  pattern: "^[A-Z][a-zA-Z\\s\\.]+$"  # Muss mit Großbuchstabe beginnen
+                attribution:
+                  required: false    # Quelle/Titel ist optional
+                  minLength: 5       # Mindestens 5 Zeichen
+                  maxLength: 100     # Maximal 100 Zeichen
+                  pattern: "^[A-Za-z0-9\\s,\\.]+$"  # Alphanumerisch mit Satzzeichen
+                content:
+                  required: true     # Inhalt ist Pflicht
+                  minLength: 20      # Mindestens 20 Zeichen
+                  maxLength: 500     # Maximal 500 Zeichen
+                  pattern: ".*\\n.*" # Sollte mehrzeilig sein (min. 1 Zeilenumbruch)
             - listing:
                 severity: warn       # PFLICHT: Default-Severity für den gesamten Block
                 occurrence:
