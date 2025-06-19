@@ -1,0 +1,163 @@
+package com.example.linter.validator.rules;
+
+import com.example.linter.config.Severity;
+import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@DisplayName("RequiredRule")
+class RequiredRuleTest {
+
+    private SourceLocation testLocation;
+
+    @BeforeEach
+    void setUp() {
+        testLocation = SourceLocation.builder()
+            .filename("test.adoc")
+            .line(1)
+            .build();
+    }
+
+    @Nested
+    @DisplayName("Rule Building")
+    class RuleBuilding {
+        
+        @Test
+        @DisplayName("should build rule with required attributes")
+        void shouldBuildRuleWithRequiredAttributes() {
+            RequiredRule rule = RequiredRule.builder()
+                .addAttribute("title", true, Severity.ERROR)
+                .addAttribute("author", true, Severity.ERROR)
+                .addAttribute("email", false, Severity.WARN)
+                .build();
+            
+            assertEquals("metadata.required", rule.getRuleId());
+            assertTrue(rule.isApplicable("title"));
+            assertTrue(rule.isApplicable("author"));
+            assertTrue(rule.isApplicable("email"));
+            assertFalse(rule.isApplicable("unknown"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Validation")
+    class Validation {
+        
+        @Test
+        @DisplayName("should pass when required attribute has value")
+        void shouldPassWhenRequiredAttributeHasValue() {
+            RequiredRule rule = RequiredRule.builder()
+                .addAttribute("title", true, Severity.ERROR)
+                .build();
+            
+            List<ValidationMessage> messages = rule.validate("title", "My Document", testLocation);
+            
+            assertTrue(messages.isEmpty());
+        }
+        
+        @Test
+        @DisplayName("should fail when required attribute is null")
+        void shouldFailWhenRequiredAttributeIsNull() {
+            RequiredRule rule = RequiredRule.builder()
+                .addAttribute("author", true, Severity.ERROR)
+                .build();
+            
+            List<ValidationMessage> messages = rule.validate("author", null, testLocation);
+            
+            assertEquals(1, messages.size());
+            ValidationMessage message = messages.get(0);
+            assertEquals(Severity.ERROR, message.getSeverity());
+            assertEquals("metadata.required", message.getRuleId());
+            assertTrue(message.getMessage().contains("Missing required attribute 'author'"));
+        }
+        
+        @Test
+        @DisplayName("should fail when required attribute is empty")
+        void shouldFailWhenRequiredAttributeIsEmpty() {
+            RequiredRule rule = RequiredRule.builder()
+                .addAttribute("version", true, Severity.ERROR)
+                .build();
+            
+            List<ValidationMessage> messages = rule.validate("version", "", testLocation);
+            
+            assertEquals(1, messages.size());
+            assertEquals(Severity.ERROR, messages.get(0).getSeverity());
+        }
+        
+        @Test
+        @DisplayName("should fail when required attribute is whitespace only")
+        void shouldFailWhenRequiredAttributeIsWhitespaceOnly() {
+            RequiredRule rule = RequiredRule.builder()
+                .addAttribute("revdate", true, Severity.ERROR)
+                .build();
+            
+            List<ValidationMessage> messages = rule.validate("revdate", "   ", testLocation);
+            
+            assertEquals(1, messages.size());
+        }
+        
+        @Test
+        @DisplayName("should pass when optional attribute is missing")
+        void shouldPassWhenOptionalAttributeIsMissing() {
+            RequiredRule rule = RequiredRule.builder()
+                .addAttribute("email", false, Severity.WARN)
+                .build();
+            
+            List<ValidationMessage> messages = rule.validate("email", null, testLocation);
+            
+            assertTrue(messages.isEmpty());
+        }
+    }
+
+    @Nested
+    @DisplayName("Missing Attributes Validation")
+    class MissingAttributesValidation {
+        
+        @Test
+        @DisplayName("should detect all missing required attributes")
+        void shouldDetectAllMissingRequiredAttributes() {
+            RequiredRule rule = RequiredRule.builder()
+                .addAttribute("title", true, Severity.ERROR)
+                .addAttribute("author", true, Severity.ERROR)
+                .addAttribute("version", true, Severity.ERROR)
+                .addAttribute("email", false, Severity.WARN)
+                .build();
+            
+            Set<String> presentAttributes = new HashSet<>();
+            presentAttributes.add("title");
+            
+            List<ValidationMessage> messages = rule.validateMissingAttributes(presentAttributes, testLocation);
+            
+            assertEquals(2, messages.size());
+            assertTrue(messages.stream().anyMatch(m -> m.getMessage().contains("author")));
+            assertTrue(messages.stream().anyMatch(m -> m.getMessage().contains("version")));
+            assertFalse(messages.stream().anyMatch(m -> m.getMessage().contains("email")));
+        }
+        
+        @Test
+        @DisplayName("should return empty list when all required attributes present")
+        void shouldReturnEmptyListWhenAllRequiredAttributesPresent() {
+            RequiredRule rule = RequiredRule.builder()
+                .addAttribute("title", true, Severity.ERROR)
+                .addAttribute("author", true, Severity.ERROR)
+                .build();
+            
+            Set<String> presentAttributes = new HashSet<>();
+            presentAttributes.add("title");
+            presentAttributes.add("author");
+            
+            List<ValidationMessage> messages = rule.validateMissingAttributes(presentAttributes, testLocation);
+            
+            assertTrue(messages.isEmpty());
+        }
+    }
+}

@@ -1,0 +1,8 @@
+= Valid Document Title
+:author: John Doe
+:revdate: 2024-01-15
+:version: 1.0.0
+:email: john.doe@example.com
+
+== Introduction
+This is a valid document.
