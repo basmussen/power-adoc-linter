@@ -3,6 +3,7 @@ package com.example.linter.config.loader;
 import com.example.linter.config.*;
 import com.example.linter.config.blocks.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("ConfigurationLoader")
 class ConfigurationLoaderTest {
     
     private ConfigurationLoader loader;
@@ -23,237 +25,272 @@ class ConfigurationLoaderTest {
     }
     
     @Nested
+    @DisplayName("Common Loading Scenarios")
     class CommonTest {
         
         @Test
-        void testLoadFullConfiguration() throws IOException {
-        String yaml = """
-            document:
-              metadata:
-                attributes:
-                  - name: title
-                    order: 1
-                    required: true
-                    minLength: 5
-                    maxLength: 100
-                    pattern: "^[A-Z].*"
-                    severity: error
-                  - name: author
-                    required: false
-                    severity: warn
-              sections:
-                - name: introduction
-                  order: 1
-                  level: 1
-                  min: 1
-                  max: 1
-                  title:
-                    pattern: "^(Introduction|Einführung)$"
-                  allowedBlocks:
-                    - paragraph:
-                        name: intro-paragraph
-                        severity: warn
-                        occurrence:
-                          min: 1
-                          max: 3
-                          severity: error
-                        lines:
-                          max: 15
-                    - image:
-                        severity: info
-                        occurrence:
-                          min: 0
-                          max: 1
-            """;
-        
-        LinterConfiguration config = loader.loadConfiguration(yaml);
-        
-        assertNotNull(config);
-        assertNotNull(config.document());
-        assertNotNull(config.document().metadata());
-        
-        // Check metadata attributes
-        var attributes = config.document().metadata().attributes();
-        assertEquals(2, attributes.size());
-        
-        var titleAttr = attributes.get(0);
-        assertEquals("title", titleAttr.name());
-        assertEquals(1, titleAttr.order());
-        assertTrue(titleAttr.required());
-        assertEquals(5, titleAttr.minLength());
-        assertEquals(100, titleAttr.maxLength());
-        assertEquals("^[A-Z].*", titleAttr.pattern());
-        assertEquals(Severity.ERROR, titleAttr.severity());
-        
-        // Check sections
-        var sections = config.document().sections();
-        assertEquals(1, sections.size());
-        
-        var introSection = sections.get(0);
-        assertEquals("introduction", introSection.name());
-        assertEquals(1, introSection.order());
-        assertEquals(1, introSection.level());
-        assertEquals(1, introSection.min());
-        assertEquals(1, introSection.max());
-        
-        // Check title pattern
-        assertNotNull(introSection.title());
-        assertEquals("^(Introduction|Einführung)$", introSection.title().pattern());
-        
-        // Check allowed blocks
-        var allowedBlocks = introSection.allowedBlocks();
-        assertEquals(2, allowedBlocks.size());
-        
-        var abstractBlock = allowedBlocks.get(0);
-        assertTrue(abstractBlock instanceof ParagraphBlock);
-        ParagraphBlock paragraphBlock = (ParagraphBlock) abstractBlock;
-        assertEquals(BlockType.PARAGRAPH, paragraphBlock.getType());
-        assertEquals("intro-paragraph", paragraphBlock.getName());
-        assertEquals(Severity.WARN, paragraphBlock.getSeverity());
-        assertNotNull(paragraphBlock.getOccurrence());
-        assertEquals(1, paragraphBlock.getOccurrence().min());
-        assertEquals(3, paragraphBlock.getOccurrence().max());
-        assertEquals(Severity.ERROR, paragraphBlock.getOccurrence().severity());
-        assertNotNull(paragraphBlock.getLines());
-        assertEquals(15, paragraphBlock.getLines().max());
-        }
-        
-        @Test
-        void testLoadFromFile(@TempDir Path tempDir) throws IOException {
-        Path configFile = tempDir.resolve("test-config.yaml");
-        String yaml = """
-            document:
-              metadata:
-                attributes:
-                  - name: version
-                    required: true
-                    pattern: "^\\\\d+\\\\.\\\\d+$"
-                    severity: error
-              sections: []
-            """;
-        Files.writeString(configFile, yaml);
-        
-        LinterConfiguration config = loader.loadConfiguration(configFile);
-        
-        assertNotNull(config);
-        assertEquals(1, config.document().metadata().attributes().size());
-        }
-        
-        @Test
-        void testEmptyConfiguration() {
-        String yaml = "";
-        
-        assertThrows(ConfigurationException.class, () -> 
-            loader.loadConfiguration(yaml)
-        );
-        }
-        
-        @Test
-        void testMissingDocumentSection() {
-        String yaml = """
-            someOtherKey:
-              value: test
-            """;
-        
-        ConfigurationException exception = assertThrows(ConfigurationException.class, () -> 
-            loader.loadConfiguration(yaml)
-        );
-        
-        assertTrue(exception.getMessage().contains("Missing required 'document' section"));
-        }
-        
-        @Test
-        void testInvalidSeverity() {
-        String yaml = """
-            document:
-              metadata:
-                attributes:
-                  - name: test
-                    severity: invalid
-              sections: []
-            """;
-        
-        assertThrows(ConfigurationException.class, () -> 
-            loader.loadConfiguration(yaml)
-        );
-        }
-        
-        @Test
-        void testInvalidBlockType() {
-        String yaml = """
-            document:
-              metadata:
-                attributes: []
-              sections:
-                - level: 1
-                  allowedBlocks:
-                    - unknownblock:
+        @DisplayName("should load full configuration with metadata and sections")
+        void shouldLoadFullConfigurationWithMetadataAndSections() throws IOException {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes:
+                      - name: title
+                        order: 1
+                        required: true
+                        minLength: 5
+                        maxLength: 100
+                        pattern: "^[A-Z].*"
                         severity: error
-            """;
-        
-        assertThrows(ConfigurationException.class, () -> 
-            loader.loadConfiguration(yaml)
-        );
-        }
-        
-        @Test
-        void testNestedSections() {
-        String yaml = """
-            document:
-              metadata:
-                attributes: []
-              sections:
-                - name: main
-                  level: 1
-                  min: 1
-                  max: 1
-                  subsections:
-                    - name: sub1
-                      level: 2
-                      min: 0
-                      max: 2
-                      subsections:
-                        - level: 3
-                          min: 0
-                          max: 5
-            """;
-        
-        LinterConfiguration config = loader.loadConfiguration(yaml);
-        
-        var mainSection = config.document().sections().get(0);
-        assertEquals(1, mainSection.subsections().size());
-        
-        var subSection = mainSection.subsections().get(0);
-        assertEquals("sub1", subSection.name());
-        assertEquals(2, subSection.level());
-        assertEquals(1, subSection.subsections().size());
-        
-        var subSubSection = subSection.subsections().get(0);
-        assertEquals(3, subSubSection.level());
-        assertEquals(5, subSubSection.max());
-        }
-        
-        @Test
-        void testCompleteSpecificationLoads() throws IOException {
-        // This test verifies that our complete specification file loads without errors
-        Path specPath = Path.of("docs/linter-config-specification.yaml");
-        if (Files.exists(specPath)) {
-            LinterConfiguration config = loader.loadConfiguration(specPath);
+                      - name: author
+                        required: false
+                        severity: warn
+                  sections:
+                    - name: introduction
+                      order: 1
+                      level: 1
+                      min: 1
+                      max: 1
+                      title:
+                        pattern: "^(Introduction|Einführung)$"
+                      allowedBlocks:
+                        - paragraph:
+                            name: intro-paragraph
+                            severity: warn
+                            occurrence:
+                              min: 1
+                              max: 3
+                              severity: error
+                            lines:
+                              max: 15
+                        - image:
+                            severity: info
+                            occurrence:
+                              min: 0
+                              max: 1
+                """;
             
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then - Configuration structure
             assertNotNull(config);
             assertNotNull(config.document());
             assertNotNull(config.document().metadata());
-            assertFalse(config.document().metadata().attributes().isEmpty());
-            assertFalse(config.document().sections().isEmpty());
+            
+            // Then - Metadata attributes
+            var attributes = config.document().metadata().attributes();
+            assertEquals(2, attributes.size());
+            
+            var titleAttr = attributes.get(0);
+            assertEquals("title", titleAttr.name());
+            assertEquals(1, titleAttr.order());
+            assertTrue(titleAttr.required());
+            assertEquals(5, titleAttr.minLength());
+            assertEquals(100, titleAttr.maxLength());
+            assertEquals("^[A-Z].*", titleAttr.pattern());
+            assertEquals(Severity.ERROR, titleAttr.severity());
+            
+            // Then - Sections
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var introSection = sections.get(0);
+            assertEquals("introduction", introSection.name());
+            assertEquals(1, introSection.order());
+            assertEquals(1, introSection.level());
+            assertEquals(1, introSection.min());
+            assertEquals(1, introSection.max());
+            
+            // Then - Title pattern
+            assertNotNull(introSection.title());
+            assertEquals("^(Introduction|Einführung)$", introSection.title().pattern());
+            
+            // Then - Allowed blocks
+            var allowedBlocks = introSection.allowedBlocks();
+            assertEquals(2, allowedBlocks.size());
+            
+            var abstractBlock = allowedBlocks.get(0);
+            assertTrue(abstractBlock instanceof ParagraphBlock);
+            ParagraphBlock paragraphBlock = (ParagraphBlock) abstractBlock;
+            assertEquals(BlockType.PARAGRAPH, paragraphBlock.getType());
+            assertEquals("intro-paragraph", paragraphBlock.getName());
+            assertEquals(Severity.WARN, paragraphBlock.getSeverity());
+            assertNotNull(paragraphBlock.getOccurrence());
+            assertEquals(1, paragraphBlock.getOccurrence().min());
+            assertEquals(3, paragraphBlock.getOccurrence().max());
+            assertEquals(Severity.ERROR, paragraphBlock.getOccurrence().severity());
+            assertNotNull(paragraphBlock.getLines());
+            assertEquals(15, paragraphBlock.getLines().max());
+        }
+        
+        @Test
+        @DisplayName("should load configuration from file")
+        void shouldLoadConfigurationFromFile(@TempDir Path tempDir) throws IOException {
+            // Given
+            Path configFile = tempDir.resolve("test-config.yaml");
+            String yaml = """
+                document:
+                  metadata:
+                    attributes:
+                      - name: version
+                        required: true
+                        pattern: "^\\\\d+\\\\.\\\\d+$"
+                        severity: error
+                  sections: []
+                """;
+            Files.writeString(configFile, yaml);
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(configFile);
+            
+            // Then
+            assertNotNull(config);
+            assertEquals(1, config.document().metadata().attributes().size());
+        }
+        
+        @Test
+        @DisplayName("should throw exception when configuration is empty")
+        void shouldThrowExceptionWhenConfigurationIsEmpty() {
+            // Given
+            String yaml = "";
+            
+            // When & Then
+            assertThrows(ConfigurationException.class, () -> 
+                loader.loadConfiguration(yaml)
+            );
+        }
+        
+        @Test
+        @DisplayName("should throw exception when document section is missing")
+        void shouldThrowExceptionWhenDocumentSectionIsMissing() {
+            // Given
+            String yaml = """
+                someOtherKey:
+                  value: test
+                """;
+            
+            // When
+            ConfigurationException exception = assertThrows(ConfigurationException.class, () -> 
+                loader.loadConfiguration(yaml)
+            );
+            
+            // Then
+            assertTrue(exception.getMessage().contains("Missing required 'document' section"));
+        }
+        
+        @Test
+        @DisplayName("should throw exception when severity is invalid")
+        void shouldThrowExceptionWhenSeverityIsInvalid() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes:
+                      - name: test
+                        severity: invalid
+                  sections: []
+                """;
+            
+            // When & Then
+            assertThrows(ConfigurationException.class, () -> 
+                loader.loadConfiguration(yaml)
+            );
+        }
+        
+        @Test
+        @DisplayName("should throw exception when block type is invalid")
+        void shouldThrowExceptionWhenBlockTypeIsInvalid() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - level: 1
+                      allowedBlocks:
+                        - unknownblock:
+                            severity: error
+                """;
+            
+            // When & Then
+            assertThrows(ConfigurationException.class, () -> 
+                loader.loadConfiguration(yaml)
+            );
+        }
+        
+        @Test
+        @DisplayName("should load nested sections with multiple levels")
+        void shouldLoadNestedSectionsWithMultipleLevels() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: main
+                      level: 1
+                      min: 1
+                      max: 1
+                      subsections:
+                        - name: sub1
+                          level: 2
+                          min: 0
+                          max: 2
+                          subsections:
+                            - level: 3
+                              min: 0
+                              max: 5
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then - Main section
+            var mainSection = config.document().sections().get(0);
+            assertEquals(1, mainSection.subsections().size());
+            
+            // Then - Sub section
+            var subSection = mainSection.subsections().get(0);
+            assertEquals("sub1", subSection.name());
+            assertEquals(2, subSection.level());
+            assertEquals(1, subSection.subsections().size());
+            
+            // Then - Sub-sub section
+            var subSubSection = subSection.subsections().get(0);
+            assertEquals(3, subSubSection.level());
+            assertEquals(5, subSubSection.max());
+        }
+        
+        @Test
+        @DisplayName("should load complete specification file without errors")
+        void shouldLoadCompleteSpecificationFileWithoutErrors() throws IOException {
+            // Given
+            Path specPath = Path.of("docs/linter-config-specification.yaml");
+            
+            // When
+            if (Files.exists(specPath)) {
+                LinterConfiguration config = loader.loadConfiguration(specPath);
+                
+                // Then
+                assertNotNull(config);
+                assertNotNull(config.document());
+                assertNotNull(config.document().metadata());
+                assertFalse(config.document().metadata().attributes().isEmpty());
+                assertFalse(config.document().sections().isEmpty());
             }
         }
     }
     
     @Nested
+    @DisplayName("Metadata Attributes Loading")
     class MetadataAttributesTest {
         
         @Test
-        void testLoadTwoMetadataAttributes() {
+        @DisplayName("should load two metadata attributes with all properties")
+        void shouldLoadTwoMetadataAttributesWithAllProperties() {
+            // Given
             String yaml = """
                 document:
                   metadata:
@@ -275,8 +312,10 @@ class ConfigurationLoaderTest {
                   sections: []
                 """;
             
+            // When
             LinterConfiguration config = loader.loadConfiguration(yaml);
             
+            // Then - Basic structure
             assertNotNull(config);
             assertNotNull(config.document());
             assertNotNull(config.document().metadata());
@@ -284,7 +323,7 @@ class ConfigurationLoaderTest {
             var attributes = config.document().metadata().attributes();
             assertEquals(2, attributes.size());
             
-            // Verify first attribute (title)
+            // Then - First attribute (title)
             var titleAttr = attributes.get(0);
             assertEquals("title", titleAttr.name());
             assertEquals(1, titleAttr.order());
@@ -294,7 +333,7 @@ class ConfigurationLoaderTest {
             assertEquals("^[A-Z].*", titleAttr.pattern());
             assertEquals(Severity.ERROR, titleAttr.severity());
             
-            // Verify second attribute (author)
+            // Then - Second attribute (author)
             var authorAttr = attributes.get(1);
             assertEquals("author", authorAttr.name());
             assertEquals(2, authorAttr.order());
