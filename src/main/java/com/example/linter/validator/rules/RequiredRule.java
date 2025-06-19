@@ -23,12 +23,15 @@ public final class RequiredRule implements AttributeRule {
         
         RequiredAttribute config = requiredAttributes.get(attributeName);
         if (config != null && config.isRequired() && (value == null || value.trim().isEmpty())) {
+            String actualValue = value == null ? "null" : "'" + value + "'";
             messages.add(ValidationMessage.builder()
                 .severity(config.getSeverity())
                 .ruleId(getRuleId())
-                .message("Missing required attribute '" + attributeName + "'")
+                .message("Missing required attribute '" + attributeName + "': actual " + actualValue + ", expected non-empty value")
                 .location(location)
                 .attributeName(attributeName)
+                .actualValue(value)
+                .expectedValue("Non-empty value")
                 .build());
         }
         
@@ -51,9 +54,11 @@ public final class RequiredRule implements AttributeRule {
                 messages.add(ValidationMessage.builder()
                     .severity(config.getSeverity())
                     .ruleId(getRuleId())
-                    .message("Missing required attribute '" + attrName + "'")
+                    .message("Missing required attribute '" + attrName + "': actual not present, expected non-empty value")
                     .location(documentLocation)
                     .attributeName(attrName)
+                    .actualValue(null)
+                    .expectedValue("Non-empty value")
                     .build());
             }
         }

@@ -29,7 +29,7 @@ public final class PatternRule implements AttributeRule {
                 messages.add(ValidationMessage.builder()
                     .severity(config.getSeverity())
                     .ruleId(getRuleId())
-                    .message("Attribute '" + attributeName + "' does not match required pattern")
+                    .message("Attribute '" + attributeName + "' does not match required pattern: actual '" + value + "', expected pattern '" + config.getPatternString() + "'")
                     .location(location)
                     .attributeName(attributeName)
                     .actualValue(value)

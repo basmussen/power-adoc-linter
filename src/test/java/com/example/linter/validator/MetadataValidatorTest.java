@@ -98,7 +98,7 @@ class MetadataValidatorTest {
         // Then
         assertTrue(result.hasErrors());
         assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().equals("Missing required attribute 'title'")));
+            .anyMatch(msg -> msg.getMessage().equals("Missing required attribute 'title': actual null, expected non-empty value")));
         
         // Cleanup
         Files.deleteIfExists(tempFile);

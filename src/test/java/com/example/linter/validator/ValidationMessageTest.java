@@ -126,7 +126,7 @@ class ValidationMessageTest {
             ValidationMessage message = ValidationMessage.builder()
                 .severity(Severity.ERROR)
                 .ruleId("metadata.required")
-                .message("Missing required attribute 'author'")
+                .message("Missing required attribute 'author': actual not present, expected non-empty value")
                 .location(testLocation)
                 .build();
             

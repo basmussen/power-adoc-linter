@@ -87,7 +87,7 @@ class RequiredRuleTest {
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.ERROR, message.getSeverity());
             assertEquals("metadata.required", message.getRuleId());
-            assertEquals("Missing required attribute 'author'", message.getMessage());
+            assertEquals("Missing required attribute 'author': actual null, expected non-empty value", message.getMessage());
         }
         
         @Test
@@ -160,9 +160,9 @@ class RequiredRuleTest {
             
             // Then
             assertEquals(2, messages.size());
-            assertTrue(messages.stream().anyMatch(m -> m.getMessage().equals("Missing required attribute 'author'")));
-            assertTrue(messages.stream().anyMatch(m -> m.getMessage().equals("Missing required attribute 'version'")));
-            assertFalse(messages.stream().anyMatch(m -> m.getMessage().equals("Missing required attribute 'email'")));
+            assertTrue(messages.stream().anyMatch(m -> m.getMessage().equals("Missing required attribute 'author': actual not present, expected non-empty value")));
+            assertTrue(messages.stream().anyMatch(m -> m.getMessage().equals("Missing required attribute 'version': actual not present, expected non-empty value")));
+            assertFalse(messages.stream().anyMatch(m -> m.getMessage().equals("Missing required attribute 'email': actual not present, expected non-empty value")));
         }
         
         @Test

@@ -48,7 +48,7 @@ public final class OrderRule implements AttributeRule {
                             messages.add(ValidationMessage.builder()
                                 .severity(config.getSeverity())
                                 .ruleId(getRuleId())
-                                .message("Attribute '" + attrName + "' should appear before '" + otherAttrName + "'")
+                                .message("Attribute '" + attrName + "' should appear before '" + otherAttrName + "': actual position line " + actual.location.getStartLine() + ", expected before line " + otherActual.location.getStartLine())
                                 .location(actual.location)
                                 .attributeName(attrName)
                                 .actualValue("Line " + actual.location.getStartLine())

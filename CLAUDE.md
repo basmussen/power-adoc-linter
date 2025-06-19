@@ -150,3 +150,9 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 ## Debug Notes
 
 - Debug tests werden nicht mit git commit hinzugefügt. Diese werden nach dem Beheben des Fehlers wieder gelöscht
+
+## Validation Considerations
+
+- Validation error messages should include:
+  - Actual values found during validation
+  - Expected values or criteria for validation
