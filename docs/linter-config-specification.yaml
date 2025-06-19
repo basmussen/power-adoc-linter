@@ -1,0 +1,335 @@
+# AsciiDoc Linter Configuration
+# Version: 1.0
+# Diese Konfigurationsdatei definiert Regeln für die Validierung von AsciiDoc-Dokumenten
+
+# === DOCUMENT SECTION ===
+# Definiert globale Anforderungen für das gesamte Dokument
+document:
+  
+  # Dokument-Metadaten im Header
+  # Beispiel in AsciiDoc:
+  # = Dokumenttitel
+  # :author: Max Mustermann
+  # :revdate: 2024-01-15
+  metadata:
+    attributes:
+      # Der Haupttitel des Dokuments
+      # Wird mit = geschrieben (nicht wie andere Metadaten mit :)
+      - name: title
+        order: 1            # Optional: Reihenfolge im Dokument
+        required: true      # Titel ist Pflicht
+        minLength: 5        # Mindestens 5 Zeichen
+        maxLength: 100      # Maximal 100 Zeichen
+        pattern: "^[A-Z].*" # Regex: Muss mit Großbuchstabe beginnen
+        severity: error     # PFLICHT: error, warn oder info
+        
+      # Definition einzelner Metadaten-Felder mit Validierungsregeln
+      - name: author
+        order: 2            # Optional: Nach dem Titel
+        required: true      # Pflichtfeld
+        minLength: 5        # Mindestens 5 Zeichen
+        maxLength: 50       # Maximal 50 Zeichen
+        pattern: "^[A-Z][a-zA-Z\\s\\.]+$"  # Muss mit Großbuchstabe beginnen
+        severity: error     # PFLICHT: error, warning oder info
+        
+      - name: revdate
+        order: 3            # Optional: Nach author
+        required: true      # Pflichtfeld
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"  # Format: YYYY-MM-DD
+        severity: error     # PFLICHT: error, warning oder info
+        
+      - name: version
+        order: 4            # Optional: Nach revdate
+        required: true      # Pflichtfeld
+        pattern: "^\\d+\\.\\d+(\\.\\d+)?$"  # Format: 1.0 oder 1.0.0
+        severity: error     # PFLICHT: error, warning oder info
+        
+      - name: email
+        # Kein order = flexible Position
+        required: false     # Optional
+        pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"  # Email-Format
+        severity: warn      # PFLICHT: error, warn oder info
+        
+      - name: copyright
+        # Kein order = flexible Position
+        required: false     # Optional
+        minLength: 10       # Mindestens 10 Zeichen
+        maxLength: 100      # Maximal 100 Zeichen
+        severity: info      # PFLICHT: error, warning oder info
+        
+      - name: keywords
+        # Kein order = flexible Position
+        required: false     # Optional
+        pattern: "^[a-zA-Z0-9,\\s-]+$"  # Komma-separierte Keywords
+        maxLength: 200      # Maximal 200 Zeichen
+        severity: info      # PFLICHT: error, warning oder info
+
+  # === SECTIONS ===
+  # Definiert die erlaubte Struktur und Reihenfolge von Dokumentabschnitten
+  # Sections können entweder:
+  # - Spezifisch sein (mit name, order, title-pattern)
+  # - Generisch sein (nur level, min, max für flexible Strukturen)
+  # - Gemischt (einige spezifische, Rest generisch)
+  # Level-Zuordnung in AsciiDoc:
+  # = Dokumenttitel (level 0)
+  # == Section (level 1)
+  # === Subsection (level 2)
+  # ==== Sub-subsection (level 3)
+  # 
+  # Hinweis zu allowedBlocks:
+  # - Jeder Block hat eine "severity" als Default für alle seine Regeln
+  # - "occurrence" gruppiert strukturelle Eigenschaften (order, min, max)
+  # - Nested severities überschreiben die Block-Severity
+  # - Blöcke können optional einen "name" haben für bessere Fehlermeldungen
+  sections:
+    
+    # Erste Section: Einleitung
+    - name: "introduction"    # Interner Name für Referenzen
+      order: 1               # Muss als erste Section erscheinen
+      level: 1               # Heading-Level (== Einleitung)
+      min: 1                 # Pflicht (genau 1x)
+      max: 1                 # Pflicht (genau 1x)
+      
+      # Titel-Validierung für diese Section
+      title:
+        # Der Titel muss genau einem dieser Werte entsprechen
+        pattern: "^(Introduction|Einführung|Einleitung)$"
+      
+      # Welche Block-Typen sind in dieser Section erlaubt?
+      allowedBlocks:
+        - paragraph:
+            name: "intro-paragraph"  # Optional: Spezifischer Name für Validierung
+            severity: warn           # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 1                 # Mindestens 1 Paragraph
+              max: 3                 # Maximal 3 Paragraphs
+              severity: error        # Optional: Überschreibt Block-Severity
+            lines:
+              max: 15                # In der Einleitung max 15 Zeilen pro Paragraph
+              # Kein severity = verwendet Block-Severity (warn)
+              
+        - image:
+            name: "intro-image"      # Optional: Spezifischer Name für Validierung
+            severity: info           # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0                 # Bilder sind optional
+              max: 1                 # Maximal 1 Bild
+              # Kein severity = verwendet Block-Severity (info)
+          
+      # Erlaubte Unterabschnitte
+      subsections:
+        # Optionaler spezifischer Unterabschnitt
+        - name: "motivation"
+          level: 2           # === Unterüberschrift
+          order: 1           # Wenn vorhanden, muss er zuerst kommen
+          min: 0             # Optional
+          max: 1             # Maximal 1x
+          title:
+            pattern: "^(Motivation|Background|Hintergrund)$"
+          allowedBlocks:
+            - paragraph:
+                severity: error      # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  min: 1
+                  max: 2
+                  # Kein severity = verwendet Block-Severity (error)
+                
+        # Generische Unterabschnitte (ohne spezifische Vorgaben)
+        - level: 2           # === Unterüberschrift
+          min: 0             # Optional
+          max: 3             # Maximal 3 weitere Unterabschnitte
+          allowedBlocks:
+            - paragraph:
+                severity: warn       # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  min: 1             # Jeder Unterabschnitt braucht min. 1 Paragraph
+                  max: 4
+                  severity: error    # Optional: Überschreibt Block-Severity
+            - listing:
+                severity: info       # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  min: 0
+                  max: 2
+                  # Kein severity = verwendet Block-Severity (info)
+              
+    # Zweite Section: Hauptinhalt (kann mehrfach vorkommen)
+    - name: "main-content"
+      order: 2
+      level: 1
+      min: 1                 # Mindestens 1 main-content Section
+      max: 5                 # Maximal 5 main-content Sections
+      
+      allowedBlocks:
+        - paragraph:
+            # Kein name = generischer Block
+            severity: error          # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 1
+              max: 10
+              # Kein severity = verwendet Block-Severity (error)
+          
+        - listing:
+            name: "main-code-examples"  # Optional: Benannter Block
+            severity: warn           # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 5
+              # Kein severity = verwendet Block-Severity (warn)
+          
+        - table:
+            # Kein name = generischer Block
+            severity: info           # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 3
+              # Kein severity = verwendet Block-Severity (info)
+          
+        - image:
+            name: "diagrams"            # Optional: Benannter Block
+            severity: warn           # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 5
+              # Kein severity = verwendet Block-Severity (warn)
+          
+      # Verschachtelte Struktur bis Level 3
+      subsections:
+        # Spezifischer Unterabschnitt mit festem Namen und Reihenfolge
+        - name: "overview"   # Interner Name
+          level: 2           # === Überschrift
+          order: 1           # Muss als erster kommen
+          min: 1             # Pflicht (genau 1x)
+          max: 1             # Pflicht (genau 1x)
+          title:
+            pattern: "^(Overview|Überblick|Übersicht)$"  # Erlaubte Titel
+          allowedBlocks:
+            - paragraph:
+                name: "overview-description"  # Optional: Benannte Blöcke für bessere Fehlermeldungen
+                severity: error      # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  min: 1
+                  max: 3
+                  # Kein severity = verwendet Block-Severity (error)
+            - image:
+                # Kein name = generische Validierungsmeldung
+                severity: info       # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  min: 0
+                  max: 1
+                  # Kein severity = verwendet Block-Severity (info)
+                
+        # Weiterer spezifischer Unterabschnitt
+        - name: "implementation"
+          level: 2
+          order: 2           # Kommt nach "overview"
+          min: 0             # Optional
+          max: 1             # Maximal 1x
+          title:
+            pattern: "^(Implementation|Implementierung|Umsetzung)"  # Titel muss so beginnen
+          allowedBlocks:
+            - paragraph:
+                severity: error      # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  order: 1           # Optional: Muss als erstes kommen
+                  min: 1
+                  max: 5
+                  # Kein severity = verwendet Block-Severity (error)
+            - listing:
+                severity: error      # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  order: 2           # Optional: Kommt nach paragraph
+                  min: 1             # Mindestens 1 Code-Beispiel
+                  max: 3
+                  # Kein severity = verwendet Block-Severity (error)
+            - table:
+                severity: info       # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  # Kein order = flexible Position
+                  min: 0
+                  max: 1
+                  # Kein severity = verwendet Block-Severity (info)
+              
+          # Unter-Unterabschnitte für implementation
+          subsections:
+            - name: "code-examples"
+              level: 3       # ==== Überschrift
+              order: 1
+              min: 1         # Pflicht wenn implementation vorhanden
+              max: 1         # Genau 1x
+              title:
+                pattern: "^(Code Examples|Code-Beispiele|Beispiele)$"
+              allowedBlocks:
+                - paragraph:
+                    min: 1
+                    max: 2
+                    lines:
+                      max: 5         # Kurze Einführung
+                      severity: info # PFLICHT: error, warning oder info
+                - listing:
+                    min: 1
+                    max: 3
+                    
+        # Generische weitere Unterabschnitte (ohne feste Vorgaben)
+        - level: 2           # === Überschrift
+          min: 1             # Mindestens 1 weiterer Unterabschnitt
+          max: 10            # Maximal 10 weitere
+          # Keine order/name/title = flexible Unterabschnitte
+          allowedBlocks:
+            - paragraph:
+                severity: warn       # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  min: 1
+                  max: 5
+                  # Kein severity = verwendet Block-Severity (warn)
+            - verse:
+                severity: info       # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  min: 0
+                  max: 2
+                  # Kein severity = verwendet Block-Severity (info)
+            - listing:
+                severity: warn       # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  min: 0
+                  max: 3
+                  # Kein severity = verwendet Block-Severity (warn)
+              
+          # Generische Unter-Unterabschnitte
+          subsections:
+            - level: 3       # ==== Überschrift
+              min: 0
+              max: 5
+              allowedBlocks:
+                - paragraph:
+                    severity: warn       # PFLICHT: Default-Severity für den gesamten Block
+                    occurrence:
+                      min: 1
+                      max: 4
+                      severity: error    # Optional: Überschreibt Block-Severity
+                    lines:
+                      min: 1
+                      max: 10            # Kürzere Absätze in Level 3
+                      # Kein severity = verwendet Block-Severity (warn)
+                - listing:
+                    severity: warn       # PFLICHT: Default-Severity für den gesamten Block
+                    occurrence:
+                      min: 0
+                      max: 2
+                      # Kein severity = verwendet Block-Severity (warn)
+                  
+    # Dritte Section: Fazit (optional)
+    - name: "conclusion"
+      order: 3               # Kommt nach main-content
+      level: 1
+      min: 0                 # Optional
+      max: 1                 # Maximal 1x
+      title:
+        pattern: "^(Conclusion|Zusammenfassung|Fazit)$"
+        
+      allowedBlocks:
+        - paragraph:
+            severity: error          # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 1                 # Wenn vorhanden, min. 1 Paragraph
+              max: 3
+              # Kein severity = verwendet Block-Severity (error)

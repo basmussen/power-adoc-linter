@@ -1,0 +1,38 @@
+= Power AsciiDoc Linter
+:toc:
+:toc-placement: auto
+:toc-title: Inhaltsverzeichnis
+:icons: font
+:source-highlighter: rouge
+
+== Übersicht
+
+Power AsciiDoc Linter ist ein Tool zur Überprüfung und Validierung von AsciiDoc-Dokumenten.
+
+== Voraussetzungen
+
+* Java 17 oder höher
+* Maven 3.6 oder höher
+
+== Installation
+
+[source,bash]
+----
+git clone https://github.com/basmussen/power-adoc-linter.git
+cd power-adoc-linter
+mvn clean install
+----
+
+== Verwendung
+
+TBD
+
+== Technologien
+
+* Java 17
+* Maven
+* AsciidoctorJ 2.5.13
+
+== Lizenz
+
+TBD
