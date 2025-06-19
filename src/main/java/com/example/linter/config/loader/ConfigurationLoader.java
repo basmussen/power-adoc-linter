@@ -2,10 +2,10 @@ package com.example.linter.config.loader;
 
 import com.example.linter.config.*;
 import com.example.linter.config.blocks.*;
-import com.example.linter.config.rule.AttributeRule;
-import com.example.linter.config.rule.OccurrenceRule;
-import com.example.linter.config.rule.SectionRule;
-import com.example.linter.config.rule.TitleRule;
+import com.example.linter.config.rule.AttributeConfig;
+import com.example.linter.config.rule.OccurrenceConfig;
+import com.example.linter.config.rule.SectionConfig;
+import com.example.linter.config.rule.TitleConfig;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -88,7 +88,7 @@ public class ConfigurationLoader {
         MetadataConfiguration metadata = parseMetadataConfiguration(metadataRaw);
         
         List<Map<String, Object>> sectionsRaw = (List<Map<String, Object>>) raw.get("sections");
-        List<SectionRule> sections = parseSectionRules(sectionsRaw);
+        List<SectionConfig> sections = parseSectionRules(sectionsRaw);
         
         return DocumentConfiguration.builder()
             .metadata(metadata)
@@ -98,7 +98,7 @@ public class ConfigurationLoader {
     
     private MetadataConfiguration parseMetadataConfiguration(Map<String, Object> raw) {
         List<Map<String, Object>> attributesRaw = (List<Map<String, Object>>) raw.get("attributes");
-        List<AttributeRule> attributes = new ArrayList<>();
+        List<AttributeConfig> attributes = new ArrayList<>();
         
         for (Map<String, Object> attrRaw : attributesRaw) {
             attributes.add(parseAttributeRule(attrRaw));
@@ -109,8 +109,8 @@ public class ConfigurationLoader {
             .build();
     }
     
-    private AttributeRule parseAttributeRule(Map<String, Object> raw) {
-        return AttributeRule.builder()
+    private AttributeConfig parseAttributeRule(Map<String, Object> raw) {
+        return AttributeConfig.builder()
             .name((String) raw.get("name"))
             .order((Integer) raw.get("order"))
             .required(Boolean.TRUE.equals(raw.get("required")))
@@ -121,8 +121,8 @@ public class ConfigurationLoader {
             .build();
     }
     
-    private List<SectionRule> parseSectionRules(List<Map<String, Object>> sectionsRaw) {
-        List<SectionRule> sections = new ArrayList<>();
+    private List<SectionConfig> parseSectionRules(List<Map<String, Object>> sectionsRaw) {
+        List<SectionConfig> sections = new ArrayList<>();
         if (sectionsRaw != null) {
             for (Map<String, Object> sectionRaw : sectionsRaw) {
                 sections.add(parseSectionRule(sectionRaw));
@@ -131,11 +131,11 @@ public class ConfigurationLoader {
         return sections;
     }
     
-    private SectionRule parseSectionRule(Map<String, Object> raw) {
-        TitleRule title = null;
+    private SectionConfig parseSectionRule(Map<String, Object> raw) {
+        TitleConfig title = null;
         if (raw.containsKey("title")) {
             Map<String, Object> titleRaw = (Map<String, Object>) raw.get("title");
-            title = TitleRule.builder()
+            title = TitleConfig.builder()
                 .pattern((String) titleRaw.get("pattern"))
                 .build();
         }
@@ -148,12 +148,12 @@ public class ConfigurationLoader {
             }
         }
         
-        List<SectionRule> subsections = new ArrayList<>();
+        List<SectionConfig> subsections = new ArrayList<>();
         if (raw.containsKey("subsections")) {
             subsections = parseSectionRules((List<Map<String, Object>>) raw.get("subsections"));
         }
         
-        SectionRule.Builder builder = SectionRule.builder()
+        SectionConfig.Builder builder = SectionConfig.builder()
             .name((String) raw.get("name"))
             .order((Integer) raw.get("order"))
             .level((Integer) raw.get("level"))
@@ -186,10 +186,10 @@ public class ConfigurationLoader {
             severity = Severity.WARN;
         }
         
-        OccurrenceRule occurrence = null;
+        OccurrenceConfig occurrence = null;
         if (blockData.containsKey("occurrence")) {
             Map<String, Object> occRaw = (Map<String, Object>) blockData.get("occurrence");
-            OccurrenceRule.Builder occBuilder = OccurrenceRule.builder()
+            OccurrenceConfig.Builder occBuilder = OccurrenceConfig.builder()
                 .order((Integer) occRaw.get("order"));
             
             if (occRaw.get("min") != null) {
@@ -205,10 +205,10 @@ public class ConfigurationLoader {
             occurrence = occBuilder.build();
         }
         
-        com.example.linter.config.rule.LineRule lines = null;
+        com.example.linter.config.rule.LineConfig lines = null;
         if (blockData.containsKey("lines")) {
             Map<String, Object> linesRaw = (Map<String, Object>) blockData.get("lines");
-            com.example.linter.config.rule.LineRule.Builder lineBuilder = com.example.linter.config.rule.LineRule.builder()
+            com.example.linter.config.rule.LineConfig.Builder lineBuilder = com.example.linter.config.rule.LineConfig.builder()
                 .min((Integer) linesRaw.get("min"))
                 .max((Integer) linesRaw.get("max"));
             
@@ -221,7 +221,7 @@ public class ConfigurationLoader {
         
         // Handle direct min/max when no occurrence block
         if (occurrence == null && (blockData.containsKey("min") || blockData.containsKey("max"))) {
-            OccurrenceRule.Builder occBuilder = OccurrenceRule.builder();
+            OccurrenceConfig.Builder occBuilder = OccurrenceConfig.builder();
             
             if (blockData.get("min") != null) {
                 occBuilder.min((Integer) blockData.get("min"));
@@ -254,7 +254,7 @@ public class ConfigurationLoader {
                 // Parse language attribute
                 if (blockData.containsKey("language")) {
                     Map<String, Object> langRaw = (Map<String, Object>) blockData.get("language");
-                    ListingBlock.LanguageRule.LanguageRuleBuilder langBuilder = ListingBlock.LanguageRule.builder()
+                    ListingBlock.LanguageConfig.LanguageConfigBuilder langBuilder = ListingBlock.LanguageConfig.builder()
                         .required(Boolean.TRUE.equals(langRaw.get("required")))
                         .allowed((List<String>) langRaw.get("allowed"))
                         .severity(parseSeverity((String) langRaw.get("severity")));
@@ -264,7 +264,7 @@ public class ConfigurationLoader {
                 // Parse title attribute
                 if (blockData.containsKey("title")) {
                     Map<String, Object> titleRaw = (Map<String, Object>) blockData.get("title");
-                    ListingBlock.TitleRule.TitleRuleBuilder titleBuilder = ListingBlock.TitleRule.builder()
+                    ListingBlock.TitleConfig.TitleConfigBuilder titleBuilder = ListingBlock.TitleConfig.builder()
                         .required(Boolean.TRUE.equals(titleRaw.get("required")))
                         .pattern((String) titleRaw.get("pattern"))
                         .severity(parseSeverity((String) titleRaw.get("severity")));
@@ -274,7 +274,7 @@ public class ConfigurationLoader {
                 // Parse callouts attribute
                 if (blockData.containsKey("callouts")) {
                     Map<String, Object> calloutsRaw = (Map<String, Object>) blockData.get("callouts");
-                    ListingBlock.CalloutsRule.CalloutsRuleBuilder calloutsBuilder = ListingBlock.CalloutsRule.builder()
+                    ListingBlock.CalloutsConfig.CalloutsConfigBuilder calloutsBuilder = ListingBlock.CalloutsConfig.builder()
                         .allowed(Boolean.TRUE.equals(calloutsRaw.get("allowed")))
                         .max((Integer) calloutsRaw.get("max"))
                         .severity(parseSeverity((String) calloutsRaw.get("severity")));
@@ -297,7 +297,7 @@ public class ConfigurationLoader {
                 // Parse columns attribute
                 if (blockData.containsKey("columns")) {
                     Map<String, Object> colsRaw = (Map<String, Object>) blockData.get("columns");
-                    TableBlock.DimensionRule.DimensionRuleBuilder colsBuilder = TableBlock.DimensionRule.builder()
+                    TableBlock.DimensionConfig.DimensionConfigBuilder colsBuilder = TableBlock.DimensionConfig.builder()
                         .min((Integer) colsRaw.get("min"))
                         .max((Integer) colsRaw.get("max"))
                         .severity(parseSeverity((String) colsRaw.get("severity")));
@@ -307,7 +307,7 @@ public class ConfigurationLoader {
                 // Parse rows attribute
                 if (blockData.containsKey("rows")) {
                     Map<String, Object> rowsRaw = (Map<String, Object>) blockData.get("rows");
-                    TableBlock.DimensionRule.DimensionRuleBuilder rowsBuilder = TableBlock.DimensionRule.builder()
+                    TableBlock.DimensionConfig.DimensionConfigBuilder rowsBuilder = TableBlock.DimensionConfig.builder()
                         .min((Integer) rowsRaw.get("min"))
                         .max((Integer) rowsRaw.get("max"))
                         .severity(parseSeverity((String) rowsRaw.get("severity")));
@@ -317,7 +317,7 @@ public class ConfigurationLoader {
                 // Parse header attribute
                 if (blockData.containsKey("header")) {
                     Map<String, Object> headerRaw = (Map<String, Object>) blockData.get("header");
-                    TableBlock.HeaderRule.HeaderRuleBuilder headerBuilder = TableBlock.HeaderRule.builder()
+                    TableBlock.HeaderConfig.HeaderConfigBuilder headerBuilder = TableBlock.HeaderConfig.builder()
                         .required(Boolean.TRUE.equals(headerRaw.get("required")))
                         .pattern((String) headerRaw.get("pattern"))
                         .severity(parseSeverity((String) headerRaw.get("severity")));
@@ -327,7 +327,7 @@ public class ConfigurationLoader {
                 // Parse caption attribute
                 if (blockData.containsKey("caption")) {
                     Map<String, Object> captionRaw = (Map<String, Object>) blockData.get("caption");
-                    TableBlock.CaptionRule.CaptionRuleBuilder captionBuilder = TableBlock.CaptionRule.builder()
+                    TableBlock.CaptionConfig.CaptionConfigBuilder captionBuilder = TableBlock.CaptionConfig.builder()
                         .required(Boolean.TRUE.equals(captionRaw.get("required")))
                         .pattern((String) captionRaw.get("pattern"))
                         .minLength((Integer) captionRaw.get("minLength"))
@@ -339,7 +339,7 @@ public class ConfigurationLoader {
                 // Parse format attribute
                 if (blockData.containsKey("format")) {
                     Map<String, Object> formatRaw = (Map<String, Object>) blockData.get("format");
-                    TableBlock.FormatRule.FormatRuleBuilder formatBuilder = TableBlock.FormatRule.builder()
+                    TableBlock.FormatConfig.FormatConfigBuilder formatBuilder = TableBlock.FormatConfig.builder()
                         .style((String) formatRaw.get("style"))
                         .borders((Boolean) formatRaw.get("borders"))
                         .severity(parseSeverity((String) formatRaw.get("severity")));
@@ -357,7 +357,7 @@ public class ConfigurationLoader {
                 // Parse url attribute
                 if (blockData.containsKey("url")) {
                     Map<String, Object> urlRaw = (Map<String, Object>) blockData.get("url");
-                    ImageBlock.UrlRule.UrlRuleBuilder urlBuilder = ImageBlock.UrlRule.builder()
+                    ImageBlock.UrlConfig.UrlConfigBuilder urlBuilder = ImageBlock.UrlConfig.builder()
                         .required(Boolean.TRUE.equals(urlRaw.get("required")))
                         .pattern((String) urlRaw.get("pattern"));
                     builder.url(urlBuilder.build());
@@ -366,7 +366,7 @@ public class ConfigurationLoader {
                 // Parse height attribute
                 if (blockData.containsKey("height")) {
                     Map<String, Object> heightRaw = (Map<String, Object>) blockData.get("height");
-                    ImageBlock.DimensionRule.DimensionRuleBuilder heightBuilder = ImageBlock.DimensionRule.builder()
+                    ImageBlock.DimensionConfig.DimensionConfigBuilder heightBuilder = ImageBlock.DimensionConfig.builder()
                         .required(Boolean.TRUE.equals(heightRaw.get("required")))
                         .minValue((Integer) heightRaw.get("minValue"))
                         .maxValue((Integer) heightRaw.get("maxValue"));
@@ -376,7 +376,7 @@ public class ConfigurationLoader {
                 // Parse width attribute
                 if (blockData.containsKey("width")) {
                     Map<String, Object> widthRaw = (Map<String, Object>) blockData.get("width");
-                    ImageBlock.DimensionRule.DimensionRuleBuilder widthBuilder = ImageBlock.DimensionRule.builder()
+                    ImageBlock.DimensionConfig.DimensionConfigBuilder widthBuilder = ImageBlock.DimensionConfig.builder()
                         .required(Boolean.TRUE.equals(widthRaw.get("required")))
                         .minValue((Integer) widthRaw.get("minValue"))
                         .maxValue((Integer) widthRaw.get("maxValue"));
@@ -386,7 +386,7 @@ public class ConfigurationLoader {
                 // Parse alt attribute
                 if (blockData.containsKey("alt")) {
                     Map<String, Object> altRaw = (Map<String, Object>) blockData.get("alt");
-                    ImageBlock.AltTextRule.AltTextRuleBuilder altBuilder = ImageBlock.AltTextRule.builder()
+                    ImageBlock.AltTextConfig.AltTextConfigBuilder altBuilder = ImageBlock.AltTextConfig.builder()
                         .required(Boolean.TRUE.equals(altRaw.get("required")))
                         .minLength((Integer) altRaw.get("minLength"))
                         .maxLength((Integer) altRaw.get("maxLength"));
@@ -404,7 +404,7 @@ public class ConfigurationLoader {
                 // Parse author attribute
                 if (blockData.containsKey("author")) {
                     Map<String, Object> authorRaw = (Map<String, Object>) blockData.get("author");
-                    VerseBlock.AuthorRule.AuthorRuleBuilder authorBuilder = VerseBlock.AuthorRule.builder()
+                    VerseBlock.AuthorConfig.AuthorConfigBuilder authorBuilder = VerseBlock.AuthorConfig.builder()
                         .defaultValue((String) authorRaw.get("defaultValue"))
                         .minLength((Integer) authorRaw.get("minLength"))
                         .maxLength((Integer) authorRaw.get("maxLength"))
@@ -416,7 +416,7 @@ public class ConfigurationLoader {
                 // Parse attribution attribute
                 if (blockData.containsKey("attribution")) {
                     Map<String, Object> attrRaw = (Map<String, Object>) blockData.get("attribution");
-                    VerseBlock.AttributionRule.AttributionRuleBuilder attrBuilder = VerseBlock.AttributionRule.builder()
+                    VerseBlock.AttributionConfig.AttributionConfigBuilder attrBuilder = VerseBlock.AttributionConfig.builder()
                         .defaultValue((String) attrRaw.get("defaultValue"))
                         .minLength((Integer) attrRaw.get("minLength"))
                         .maxLength((Integer) attrRaw.get("maxLength"))
@@ -428,7 +428,7 @@ public class ConfigurationLoader {
                 // Parse content attribute
                 if (blockData.containsKey("content")) {
                     Map<String, Object> contentRaw = (Map<String, Object>) blockData.get("content");
-                    VerseBlock.ContentRule.ContentRuleBuilder contentBuilder = VerseBlock.ContentRule.builder()
+                    VerseBlock.ContentConfig.ContentConfigBuilder contentBuilder = VerseBlock.ContentConfig.builder()
                         .minLength((Integer) contentRaw.get("minLength"))
                         .maxLength((Integer) contentRaw.get("maxLength"))
                         .pattern((String) contentRaw.get("pattern"))

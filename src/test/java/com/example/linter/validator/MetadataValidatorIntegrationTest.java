@@ -2,7 +2,7 @@ package com.example.linter.validator;
 
 import com.example.linter.config.MetadataConfiguration;
 import com.example.linter.config.Severity;
-import com.example.linter.config.rule.AttributeRule;
+import com.example.linter.config.rule.AttributeConfig;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.ast.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ class MetadataValidatorIntegrationTest {
         
         MetadataConfiguration config = MetadataConfiguration.builder()
             .attributes(Arrays.asList(
-                AttributeRule.builder()
+                AttributeConfig.builder()
                     .name("title")
                     .required(true)
                     .minLength(5)
@@ -39,7 +39,7 @@ class MetadataValidatorIntegrationTest {
                     .pattern("^[A-Z].*")
                     .severity(Severity.ERROR)
                     .build(),
-                AttributeRule.builder()
+                AttributeConfig.builder()
                     .name("author")
                     .required(true)
                     .minLength(5)
@@ -47,19 +47,19 @@ class MetadataValidatorIntegrationTest {
                     .pattern("^[A-Z][a-zA-Z\\s\\.]+$")
                     .severity(Severity.ERROR)
                     .build(),
-                AttributeRule.builder()
+                AttributeConfig.builder()
                     .name("revdate")
                     .required(true)
                     .pattern("^\\d{4}-\\d{2}-\\d{2}$")
                     .severity(Severity.ERROR)
                     .build(),
-                AttributeRule.builder()
+                AttributeConfig.builder()
                     .name("version")
                     .required(true)
                     .pattern("^\\d+\\.\\d+(\\.\\d+)?$")
                     .severity(Severity.ERROR)
                     .build(),
-                AttributeRule.builder()
+                AttributeConfig.builder()
                     .name("email")
                     .required(false)
                     .pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")

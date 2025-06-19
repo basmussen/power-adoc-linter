@@ -7,17 +7,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public final class SectionRule {
+public final class SectionConfig {
     private final String name;
     private final Integer order;
     private final int level;
     private final int min;
     private final int max;
-    private final TitleRule title;
+    private final TitleConfig title;
     private final List<AbstractBlock> allowedBlocks;
-    private final List<SectionRule> subsections;
+    private final List<SectionConfig> subsections;
 
-    private SectionRule(Builder builder) {
+    private SectionConfig(Builder builder) {
         this.name = builder.name;
         this.order = builder.order;
         this.level = builder.level;
@@ -33,9 +33,9 @@ public final class SectionRule {
     public int level() { return level; }
     public int min() { return min; }
     public int max() { return max; }
-    public TitleRule title() { return title; }
+    public TitleConfig title() { return title; }
     public List<AbstractBlock> allowedBlocks() { return allowedBlocks; }
-    public List<SectionRule> subsections() { return subsections; }
+    public List<SectionConfig> subsections() { return subsections; }
 
     public static Builder builder() {
         return new Builder();
@@ -47,9 +47,9 @@ public final class SectionRule {
         private int level;
         private int min = 0;
         private int max = Integer.MAX_VALUE;
-        private TitleRule title;
+        private TitleConfig title;
         private List<AbstractBlock> allowedBlocks = new ArrayList<>();
-        private List<SectionRule> subsections = new ArrayList<>();
+        private List<SectionConfig> subsections = new ArrayList<>();
 
         public Builder name(String name) {
             this.name = name;
@@ -76,7 +76,7 @@ public final class SectionRule {
             return this;
         }
 
-        public Builder title(TitleRule title) {
+        public Builder title(TitleConfig title) {
             this.title = title;
             return this;
         }
@@ -91,18 +91,18 @@ public final class SectionRule {
             return this;
         }
 
-        public Builder subsections(List<SectionRule> subsections) {
+        public Builder subsections(List<SectionConfig> subsections) {
             this.subsections = subsections != null ? new ArrayList<>(subsections) : new ArrayList<>();
             return this;
         }
 
-        public Builder addSubsection(SectionRule subsection) {
+        public Builder addSubsection(SectionConfig subsection) {
             this.subsections.add(subsection);
             return this;
         }
 
-        public SectionRule build() {
-            return new SectionRule(this);
+        public SectionConfig build() {
+            return new SectionConfig(this);
         }
     }
 
@@ -110,7 +110,7 @@ public final class SectionRule {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SectionRule that = (SectionRule) o;
+        SectionConfig that = (SectionConfig) o;
         return level == that.level &&
                min == that.min &&
                max == that.max &&

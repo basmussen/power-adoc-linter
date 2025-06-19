@@ -2,16 +2,16 @@ package com.example.linter.config.blocks;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.rule.LineRule;
+import com.example.linter.config.rule.LineConfig;
 
 import java.util.*;
 import java.util.regex.Pattern;
 
 public final class ListingBlock extends AbstractBlock {
-    private final LanguageRule language;
-    private final LineRule lines;
-    private final TitleRule title;
-    private final CalloutsRule callouts;
+    private final LanguageConfig language;
+    private final LineConfig lines;
+    private final TitleConfig title;
+    private final CalloutsConfig callouts;
     
     private ListingBlock(Builder builder) {
         super(builder);
@@ -26,19 +26,19 @@ public final class ListingBlock extends AbstractBlock {
         return BlockType.LISTING;
     }
     
-    public LanguageRule getLanguage() {
+    public LanguageConfig getLanguage() {
         return language;
     }
     
-    public LineRule getLines() {
+    public LineConfig getLines() {
         return lines;
     }
     
-    public TitleRule getTitle() {
+    public TitleConfig getTitle() {
         return title;
     }
     
-    public CalloutsRule getCallouts() {
+    public CalloutsConfig getCallouts() {
         return callouts;
     }
     
@@ -46,12 +46,12 @@ public final class ListingBlock extends AbstractBlock {
         return new Builder();
     }
     
-    public static class LanguageRule {
+    public static class LanguageConfig {
         private final boolean required;
         private final List<String> allowed;
         private final Severity severity;
         
-        private LanguageRule(LanguageRuleBuilder builder) {
+        private LanguageConfig(LanguageConfigBuilder builder) {
             this.required = builder.required;
             this.allowed = builder.allowed != null ? 
                 Collections.unmodifiableList(new ArrayList<>(builder.allowed)) : 
@@ -71,40 +71,40 @@ public final class ListingBlock extends AbstractBlock {
             return severity;
         }
         
-        public static LanguageRuleBuilder builder() {
-            return new LanguageRuleBuilder();
+        public static LanguageConfigBuilder builder() {
+            return new LanguageConfigBuilder();
         }
         
-        public static class LanguageRuleBuilder {
+        public static class LanguageConfigBuilder {
             private boolean required;
             private List<String> allowed;
             private Severity severity;
             
-            public LanguageRuleBuilder required(boolean required) {
+            public LanguageConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public LanguageRuleBuilder allowed(List<String> allowed) {
+            public LanguageConfigBuilder allowed(List<String> allowed) {
                 this.allowed = allowed;
                 return this;
             }
             
-            public LanguageRuleBuilder severity(Severity severity) {
+            public LanguageConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
-            public LanguageRule build() {
-                Objects.requireNonNull(severity, "severity is required for LanguageRule");
-                return new LanguageRule(this);
+            public LanguageConfig build() {
+                Objects.requireNonNull(severity, "severity is required for LanguageConfig");
+                return new LanguageConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof LanguageRule that)) return false;
+            if (!(o instanceof LanguageConfig that)) return false;
             return required == that.required &&
                    Objects.equals(allowed, that.allowed) &&
                    severity == that.severity;
@@ -116,12 +116,12 @@ public final class ListingBlock extends AbstractBlock {
         }
     }
     
-    public static class TitleRule {
+    public static class TitleConfig {
         private final boolean required;
         private final Pattern pattern;
         private final Severity severity;
         
-        private TitleRule(TitleRuleBuilder builder) {
+        private TitleConfig(TitleConfigBuilder builder) {
             this.required = builder.required;
             this.pattern = builder.pattern;
             this.severity = builder.severity;
@@ -139,45 +139,45 @@ public final class ListingBlock extends AbstractBlock {
             return severity;
         }
         
-        public static TitleRuleBuilder builder() {
-            return new TitleRuleBuilder();
+        public static TitleConfigBuilder builder() {
+            return new TitleConfigBuilder();
         }
         
-        public static class TitleRuleBuilder {
+        public static class TitleConfigBuilder {
             private boolean required;
             private Pattern pattern;
             private Severity severity;
             
-            public TitleRuleBuilder required(boolean required) {
+            public TitleConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public TitleRuleBuilder pattern(Pattern pattern) {
+            public TitleConfigBuilder pattern(Pattern pattern) {
                 this.pattern = pattern;
                 return this;
             }
             
-            public TitleRuleBuilder pattern(String pattern) {
+            public TitleConfigBuilder pattern(String pattern) {
                 this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
-            public TitleRuleBuilder severity(Severity severity) {
+            public TitleConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
-            public TitleRule build() {
-                Objects.requireNonNull(severity, "severity is required for TitleRule");
-                return new TitleRule(this);
+            public TitleConfig build() {
+                Objects.requireNonNull(severity, "severity is required for TitleConfig");
+                return new TitleConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof TitleRule that)) return false;
+            if (!(o instanceof TitleConfig that)) return false;
             return required == that.required &&
                    Objects.equals(pattern == null ? null : pattern.pattern(),
                                  that.pattern == null ? null : that.pattern.pattern()) &&
@@ -190,12 +190,12 @@ public final class ListingBlock extends AbstractBlock {
         }
     }
     
-    public static class CalloutsRule {
+    public static class CalloutsConfig {
         private final boolean allowed;
         private final Integer max;
         private final Severity severity;
         
-        private CalloutsRule(CalloutsRuleBuilder builder) {
+        private CalloutsConfig(CalloutsConfigBuilder builder) {
             this.allowed = builder.allowed;
             this.max = builder.max;
             this.severity = builder.severity;
@@ -213,40 +213,40 @@ public final class ListingBlock extends AbstractBlock {
             return severity;
         }
         
-        public static CalloutsRuleBuilder builder() {
-            return new CalloutsRuleBuilder();
+        public static CalloutsConfigBuilder builder() {
+            return new CalloutsConfigBuilder();
         }
         
-        public static class CalloutsRuleBuilder {
+        public static class CalloutsConfigBuilder {
             private boolean allowed;
             private Integer max;
             private Severity severity;
             
-            public CalloutsRuleBuilder allowed(boolean allowed) {
+            public CalloutsConfigBuilder allowed(boolean allowed) {
                 this.allowed = allowed;
                 return this;
             }
             
-            public CalloutsRuleBuilder max(Integer max) {
+            public CalloutsConfigBuilder max(Integer max) {
                 this.max = max;
                 return this;
             }
             
-            public CalloutsRuleBuilder severity(Severity severity) {
+            public CalloutsConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
-            public CalloutsRule build() {
-                Objects.requireNonNull(severity, "severity is required for CalloutsRule");
-                return new CalloutsRule(this);
+            public CalloutsConfig build() {
+                Objects.requireNonNull(severity, "severity is required for CalloutsConfig");
+                return new CalloutsConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof CalloutsRule that)) return false;
+            if (!(o instanceof CalloutsConfig that)) return false;
             return allowed == that.allowed &&
                    Objects.equals(max, that.max) &&
                    severity == that.severity;
@@ -259,27 +259,27 @@ public final class ListingBlock extends AbstractBlock {
     }
     
     public static class Builder extends AbstractBuilder<Builder> {
-        private LanguageRule language;
-        private LineRule lines;
-        private TitleRule title;
-        private CalloutsRule callouts;
+        private LanguageConfig language;
+        private LineConfig lines;
+        private TitleConfig title;
+        private CalloutsConfig callouts;
         
-        public Builder language(LanguageRule language) {
+        public Builder language(LanguageConfig language) {
             this.language = language;
             return this;
         }
         
-        public Builder lines(LineRule lines) {
+        public Builder lines(LineConfig lines) {
             this.lines = lines;
             return this;
         }
         
-        public Builder title(TitleRule title) {
+        public Builder title(TitleConfig title) {
             this.title = title;
             return this;
         }
         
-        public Builder callouts(CalloutsRule callouts) {
+        public Builder callouts(CalloutsConfig callouts) {
             this.callouts = callouts;
             return this;
         }

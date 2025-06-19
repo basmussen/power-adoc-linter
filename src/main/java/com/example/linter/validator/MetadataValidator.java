@@ -1,7 +1,7 @@
 package com.example.linter.validator;
 
 import com.example.linter.config.MetadataConfiguration;
-import com.example.linter.config.rule.AttributeRule;
+import com.example.linter.config.rule.AttributeConfig;
 import com.example.linter.validator.rules.*;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.StructuralNode;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public final class MetadataValidator {
     private final MetadataConfiguration configuration;
-    private final List<com.example.linter.validator.rules.AttributeRule> rules;
+    private final List<AttributeRule> rules;
 
     private MetadataValidator(Builder builder) {
         this.configuration = Objects.requireNonNull(builder.configuration, "configuration must not be null");
@@ -61,7 +61,7 @@ public final class MetadataValidator {
     }
 
     private void validateTitle(String title, SourceLocation location, ValidationResult.Builder resultBuilder) {
-        for (com.example.linter.validator.rules.AttributeRule rule : rules) {
+        for (AttributeRule rule : rules) {
             if (rule.isApplicable("title")) {
                 List<ValidationMessage> messages = rule.validate("title", title, location);
                 messages.forEach(resultBuilder::addMessage);
@@ -74,7 +74,7 @@ public final class MetadataValidator {
             String attrName = entry.getKey();
             AttributeWithLocation attrWithLoc = entry.getValue();
             
-            for (com.example.linter.validator.rules.AttributeRule rule : rules) {
+            for (AttributeRule rule : rules) {
                 if (rule.isApplicable(attrName)) {
                     List<ValidationMessage> messages = rule.validate(attrName, attrWithLoc.value, attrWithLoc.location);
                     messages.forEach(resultBuilder::addMessage);
@@ -159,7 +159,7 @@ public final class MetadataValidator {
         OrderRule.Builder orderBuilder = OrderRule.builder();
         
         if (configuration.attributes() != null) {
-            for (AttributeRule attr : configuration.attributes()) {
+            for (AttributeConfig attr : configuration.attributes()) {
                 String name = attr.name();
                 
                 requiredBuilder.addAttribute(name, attr.required(), attr.severity());
@@ -187,7 +187,7 @@ public final class MetadataValidator {
 
     public static final class Builder {
         private MetadataConfiguration configuration;
-        private final List<com.example.linter.validator.rules.AttributeRule> rules = new ArrayList<>();
+        private final List<AttributeRule> rules = new ArrayList<>();
 
         private Builder() {
         }
@@ -197,7 +197,7 @@ public final class MetadataValidator {
             return this;
         }
 
-        public Builder addRule(com.example.linter.validator.rules.AttributeRule rule) {
+        public Builder addRule(AttributeRule rule) {
             Objects.requireNonNull(rule, "rule must not be null");
             this.rules.add(rule);
             return this;

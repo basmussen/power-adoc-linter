@@ -87,6 +87,8 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - Given-When-Then structure in test methods
 - Comprehensive equals/hashCode testing for all domain objects
 - Builder pattern validation (null checks, required fields)
+- Use test case patterns like Given-When-Then
+- Use "should" method naming pattern for test methods
 
 ## Development Guidelines
 

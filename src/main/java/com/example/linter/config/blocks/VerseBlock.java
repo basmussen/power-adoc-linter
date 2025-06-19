@@ -7,9 +7,9 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public final class VerseBlock extends AbstractBlock {
-    private final AuthorRule author;
-    private final AttributionRule attribution;
-    private final ContentRule content;
+    private final AuthorConfig author;
+    private final AttributionConfig attribution;
+    private final ContentConfig content;
     
     private VerseBlock(Builder builder) {
         super(builder);
@@ -23,15 +23,15 @@ public final class VerseBlock extends AbstractBlock {
         return BlockType.VERSE;
     }
     
-    public AuthorRule getAuthor() {
+    public AuthorConfig getAuthor() {
         return author;
     }
     
-    public AttributionRule getAttribution() {
+    public AttributionConfig getAttribution() {
         return attribution;
     }
     
-    public ContentRule getContent() {
+    public ContentConfig getContent() {
         return content;
     }
     
@@ -39,14 +39,14 @@ public final class VerseBlock extends AbstractBlock {
         return new Builder();
     }
     
-    public static class AuthorRule {
+    public static class AuthorConfig {
         private final String defaultValue;
         private final Integer minLength;
         private final Integer maxLength;
         private final Pattern pattern;
         private final boolean required;
         
-        private AuthorRule(AuthorRuleBuilder builder) {
+        private AuthorConfig(AuthorConfigBuilder builder) {
             this.defaultValue = builder.defaultValue;
             this.minLength = builder.minLength;
             this.maxLength = builder.maxLength;
@@ -74,56 +74,56 @@ public final class VerseBlock extends AbstractBlock {
             return required;
         }
         
-        public static AuthorRuleBuilder builder() {
-            return new AuthorRuleBuilder();
+        public static AuthorConfigBuilder builder() {
+            return new AuthorConfigBuilder();
         }
         
-        public static class AuthorRuleBuilder {
+        public static class AuthorConfigBuilder {
             private String defaultValue;
             private Integer minLength;
             private Integer maxLength;
             private Pattern pattern;
             private boolean required;
             
-            public AuthorRuleBuilder defaultValue(String defaultValue) {
+            public AuthorConfigBuilder defaultValue(String defaultValue) {
                 this.defaultValue = defaultValue;
                 return this;
             }
             
-            public AuthorRuleBuilder minLength(Integer minLength) {
+            public AuthorConfigBuilder minLength(Integer minLength) {
                 this.minLength = minLength;
                 return this;
             }
             
-            public AuthorRuleBuilder maxLength(Integer maxLength) {
+            public AuthorConfigBuilder maxLength(Integer maxLength) {
                 this.maxLength = maxLength;
                 return this;
             }
             
-            public AuthorRuleBuilder pattern(Pattern pattern) {
+            public AuthorConfigBuilder pattern(Pattern pattern) {
                 this.pattern = pattern;
                 return this;
             }
             
-            public AuthorRuleBuilder pattern(String pattern) {
+            public AuthorConfigBuilder pattern(String pattern) {
                 this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
-            public AuthorRuleBuilder required(boolean required) {
+            public AuthorConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public AuthorRule build() {
-                return new AuthorRule(this);
+            public AuthorConfig build() {
+                return new AuthorConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof AuthorRule that)) return false;
+            if (!(o instanceof AuthorConfig that)) return false;
             return required == that.required &&
                    Objects.equals(defaultValue, that.defaultValue) &&
                    Objects.equals(minLength, that.minLength) &&
@@ -139,14 +139,14 @@ public final class VerseBlock extends AbstractBlock {
         }
     }
     
-    public static class AttributionRule {
+    public static class AttributionConfig {
         private final String defaultValue;
         private final Integer minLength;
         private final Integer maxLength;
         private final Pattern pattern;
         private final boolean required;
         
-        private AttributionRule(AttributionRuleBuilder builder) {
+        private AttributionConfig(AttributionConfigBuilder builder) {
             this.defaultValue = builder.defaultValue;
             this.minLength = builder.minLength;
             this.maxLength = builder.maxLength;
@@ -174,56 +174,56 @@ public final class VerseBlock extends AbstractBlock {
             return required;
         }
         
-        public static AttributionRuleBuilder builder() {
-            return new AttributionRuleBuilder();
+        public static AttributionConfigBuilder builder() {
+            return new AttributionConfigBuilder();
         }
         
-        public static class AttributionRuleBuilder {
+        public static class AttributionConfigBuilder {
             private String defaultValue;
             private Integer minLength;
             private Integer maxLength;
             private Pattern pattern;
             private boolean required;
             
-            public AttributionRuleBuilder defaultValue(String defaultValue) {
+            public AttributionConfigBuilder defaultValue(String defaultValue) {
                 this.defaultValue = defaultValue;
                 return this;
             }
             
-            public AttributionRuleBuilder minLength(Integer minLength) {
+            public AttributionConfigBuilder minLength(Integer minLength) {
                 this.minLength = minLength;
                 return this;
             }
             
-            public AttributionRuleBuilder maxLength(Integer maxLength) {
+            public AttributionConfigBuilder maxLength(Integer maxLength) {
                 this.maxLength = maxLength;
                 return this;
             }
             
-            public AttributionRuleBuilder pattern(Pattern pattern) {
+            public AttributionConfigBuilder pattern(Pattern pattern) {
                 this.pattern = pattern;
                 return this;
             }
             
-            public AttributionRuleBuilder pattern(String pattern) {
+            public AttributionConfigBuilder pattern(String pattern) {
                 this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
-            public AttributionRuleBuilder required(boolean required) {
+            public AttributionConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public AttributionRule build() {
-                return new AttributionRule(this);
+            public AttributionConfig build() {
+                return new AttributionConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof AttributionRule that)) return false;
+            if (!(o instanceof AttributionConfig that)) return false;
             return required == that.required &&
                    Objects.equals(defaultValue, that.defaultValue) &&
                    Objects.equals(minLength, that.minLength) &&
@@ -239,13 +239,13 @@ public final class VerseBlock extends AbstractBlock {
         }
     }
     
-    public static class ContentRule {
+    public static class ContentConfig {
         private final Integer minLength;
         private final Integer maxLength;
         private final Pattern pattern;
         private final boolean required;
         
-        private ContentRule(ContentRuleBuilder builder) {
+        private ContentConfig(ContentConfigBuilder builder) {
             this.minLength = builder.minLength;
             this.maxLength = builder.maxLength;
             this.pattern = builder.pattern;
@@ -268,50 +268,50 @@ public final class VerseBlock extends AbstractBlock {
             return required;
         }
         
-        public static ContentRuleBuilder builder() {
-            return new ContentRuleBuilder();
+        public static ContentConfigBuilder builder() {
+            return new ContentConfigBuilder();
         }
         
-        public static class ContentRuleBuilder {
+        public static class ContentConfigBuilder {
             private Integer minLength;
             private Integer maxLength;
             private Pattern pattern;
             private boolean required;
             
-            public ContentRuleBuilder minLength(Integer minLength) {
+            public ContentConfigBuilder minLength(Integer minLength) {
                 this.minLength = minLength;
                 return this;
             }
             
-            public ContentRuleBuilder maxLength(Integer maxLength) {
+            public ContentConfigBuilder maxLength(Integer maxLength) {
                 this.maxLength = maxLength;
                 return this;
             }
             
-            public ContentRuleBuilder pattern(Pattern pattern) {
+            public ContentConfigBuilder pattern(Pattern pattern) {
                 this.pattern = pattern;
                 return this;
             }
             
-            public ContentRuleBuilder pattern(String pattern) {
+            public ContentConfigBuilder pattern(String pattern) {
                 this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
-            public ContentRuleBuilder required(boolean required) {
+            public ContentConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public ContentRule build() {
-                return new ContentRule(this);
+            public ContentConfig build() {
+                return new ContentConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof ContentRule that)) return false;
+            if (!(o instanceof ContentConfig that)) return false;
             return required == that.required &&
                    Objects.equals(minLength, that.minLength) &&
                    Objects.equals(maxLength, that.maxLength) &&
@@ -327,21 +327,21 @@ public final class VerseBlock extends AbstractBlock {
     }
     
     public static class Builder extends AbstractBuilder<Builder> {
-        private AuthorRule author;
-        private AttributionRule attribution;
-        private ContentRule content;
+        private AuthorConfig author;
+        private AttributionConfig attribution;
+        private ContentConfig content;
         
-        public Builder author(AuthorRule author) {
+        public Builder author(AuthorConfig author) {
             this.author = author;
             return this;
         }
         
-        public Builder attribution(AttributionRule attribution) {
+        public Builder attribution(AttributionConfig attribution) {
             this.attribution = attribution;
             return this;
         }
         
-        public Builder content(ContentRule content) {
+        public Builder content(ContentConfig content) {
             this.content = content;
             return this;
         }

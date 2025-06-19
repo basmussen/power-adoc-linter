@@ -2,12 +2,12 @@ package com.example.linter.config.blocks;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.rule.LineRule;
+import com.example.linter.config.rule.LineConfig;
 
 import java.util.Objects;
 
 public final class ParagraphBlock extends AbstractBlock {
-    private final LineRule lines;
+    private final LineConfig lines;
     
     private ParagraphBlock(Builder builder) {
         super(builder);
@@ -19,16 +19,16 @@ public final class ParagraphBlock extends AbstractBlock {
         return BlockType.PARAGRAPH;
     }
     
-    public LineRule getLines() { return lines; }
+    public LineConfig getLines() { return lines; }
     
     public static Builder builder() {
         return new Builder();
     }
     
     public static class Builder extends AbstractBuilder<Builder> {
-        private LineRule lines;
+        private LineConfig lines;
         
-        public Builder lines(LineRule lines) {
+        public Builder lines(LineConfig lines) {
             this.lines = lines;
             return this;
         }

@@ -20,24 +20,24 @@ class ImageBlockTest {
         @DisplayName("should build ImageBlock with all attributes")
         void shouldBuildImageBlockWithAllAttributes() {
             // Given
-            ImageBlock.UrlRule urlRule = ImageBlock.UrlRule.builder()
+            ImageBlock.UrlConfig urlRule = ImageBlock.UrlConfig.builder()
                     .pattern("^https?://.*\\.(jpg|jpeg|png|gif|svg)$")
                     .required(true)
                     .build();
                     
-            ImageBlock.DimensionRule heightRule = ImageBlock.DimensionRule.builder()
+            ImageBlock.DimensionConfig heightRule = ImageBlock.DimensionConfig.builder()
                     .minValue(100)
                     .maxValue(2000)
                     .required(false)
                     .build();
                     
-            ImageBlock.DimensionRule widthRule = ImageBlock.DimensionRule.builder()
+            ImageBlock.DimensionConfig widthRule = ImageBlock.DimensionConfig.builder()
                     .minValue(100)
                     .maxValue(3000)
                     .required(false)
                     .build();
                     
-            ImageBlock.AltTextRule altRule = ImageBlock.AltTextRule.builder()
+            ImageBlock.AltTextConfig altRule = ImageBlock.AltTextConfig.builder()
                     .required(true)
                     .minLength(10)
                     .maxLength(200)
@@ -86,14 +86,14 @@ class ImageBlockTest {
     }
     
     @Nested
-    @DisplayName("UrlRule Tests")
-    class UrlRuleTests {
+    @DisplayName("UrlConfig Tests")
+    class UrlConfigTests {
         
         @Test
-        @DisplayName("should create UrlRule with string pattern")
-        void shouldCreateUrlRuleWithStringPattern() {
+        @DisplayName("should create UrlConfig with string pattern")
+        void shouldCreateUrlConfigWithStringPattern() {
             // Given & When
-            ImageBlock.UrlRule urlRule = ImageBlock.UrlRule.builder()
+            ImageBlock.UrlConfig urlRule = ImageBlock.UrlConfig.builder()
                     .pattern("^https://.*")
                     .required(true)
                     .build();
@@ -105,13 +105,13 @@ class ImageBlockTest {
         }
         
         @Test
-        @DisplayName("should create UrlRule with Pattern object")
-        void shouldCreateUrlRuleWithPatternObject() {
+        @DisplayName("should create UrlConfig with Pattern object")
+        void shouldCreateUrlConfigWithPatternObject() {
             // Given
             Pattern pattern = Pattern.compile(".*\\.png$");
             
             // When
-            ImageBlock.UrlRule urlRule = ImageBlock.UrlRule.builder()
+            ImageBlock.UrlConfig urlRule = ImageBlock.UrlConfig.builder()
                     .pattern(pattern)
                     .required(false)
                     .build();
@@ -125,7 +125,7 @@ class ImageBlockTest {
         @DisplayName("should handle null pattern")
         void shouldHandleNullPattern() {
             // Given & When
-            ImageBlock.UrlRule urlRule = ImageBlock.UrlRule.builder()
+            ImageBlock.UrlConfig urlRule = ImageBlock.UrlConfig.builder()
                     .pattern((String) null)
                     .build();
             
@@ -135,14 +135,14 @@ class ImageBlockTest {
     }
     
     @Nested
-    @DisplayName("DimensionRule Tests")
-    class DimensionRuleTests {
+    @DisplayName("DimensionConfig Tests")
+    class DimensionConfigTests {
         
         @Test
-        @DisplayName("should create DimensionRule with min and max values")
-        void shouldCreateDimensionRuleWithMinAndMaxValues() {
+        @DisplayName("should create DimensionConfig with min and max values")
+        void shouldCreateDimensionConfigWithMinAndMaxValues() {
             // Given & When
-            ImageBlock.DimensionRule dimension = ImageBlock.DimensionRule.builder()
+            ImageBlock.DimensionConfig dimension = ImageBlock.DimensionConfig.builder()
                     .minValue(50)
                     .maxValue(1000)
                     .required(true)
@@ -158,7 +158,7 @@ class ImageBlockTest {
         @DisplayName("should allow optional dimensions")
         void shouldAllowOptionalDimensions() {
             // Given & When
-            ImageBlock.DimensionRule dimension = ImageBlock.DimensionRule.builder()
+            ImageBlock.DimensionConfig dimension = ImageBlock.DimensionConfig.builder()
                     .required(false)
                     .build();
             
@@ -170,14 +170,14 @@ class ImageBlockTest {
     }
     
     @Nested
-    @DisplayName("AltTextRule Tests")
-    class AltTextRuleTests {
+    @DisplayName("AltTextConfig Tests")
+    class AltTextConfigTests {
         
         @Test
-        @DisplayName("should create AltTextRule with length constraints")
-        void shouldCreateAltTextRuleWithLengthConstraints() {
+        @DisplayName("should create AltTextConfig with length constraints")
+        void shouldCreateAltTextConfigWithLengthConstraints() {
             // Given & When
-            ImageBlock.AltTextRule altText = ImageBlock.AltTextRule.builder()
+            ImageBlock.AltTextConfig altText = ImageBlock.AltTextConfig.builder()
                     .required(true)
                     .minLength(5)
                     .maxLength(150)
@@ -193,7 +193,7 @@ class ImageBlockTest {
         @DisplayName("should allow optional alt text")
         void shouldAllowOptionalAltText() {
             // Given & When
-            ImageBlock.AltTextRule altText = ImageBlock.AltTextRule.builder()
+            ImageBlock.AltTextConfig altText = ImageBlock.AltTextConfig.builder()
                     .required(false)
                     .build();
             
@@ -212,22 +212,22 @@ class ImageBlockTest {
         @DisplayName("should correctly implement equals and hashCode")
         void shouldCorrectlyImplementEqualsAndHashCode() {
             // Given
-            ImageBlock.UrlRule url1 = ImageBlock.UrlRule.builder()
+            ImageBlock.UrlConfig url1 = ImageBlock.UrlConfig.builder()
                     .pattern(".*\\.jpg$")
                     .required(true)
                     .build();
                     
-            ImageBlock.UrlRule url2 = ImageBlock.UrlRule.builder()
+            ImageBlock.UrlConfig url2 = ImageBlock.UrlConfig.builder()
                     .pattern(".*\\.jpg$")
                     .required(true)
                     .build();
                     
-            ImageBlock.AltTextRule alt1 = ImageBlock.AltTextRule.builder()
+            ImageBlock.AltTextConfig alt1 = ImageBlock.AltTextConfig.builder()
                     .required(true)
                     .minLength(10)
                     .build();
                     
-            ImageBlock.AltTextRule alt2 = ImageBlock.AltTextRule.builder()
+            ImageBlock.AltTextConfig alt2 = ImageBlock.AltTextConfig.builder()
                     .required(true)
                     .minLength(10)
                     .build();
@@ -262,35 +262,35 @@ class ImageBlockTest {
         @DisplayName("should test inner class equals and hashCode")
         void shouldTestInnerClassEqualsAndHashCode() {
             // Given
-            ImageBlock.UrlRule url1 = ImageBlock.UrlRule.builder()
+            ImageBlock.UrlConfig url1 = ImageBlock.UrlConfig.builder()
                     .pattern("test")
                     .required(true)
                     .build();
                     
-            ImageBlock.UrlRule url2 = ImageBlock.UrlRule.builder()
+            ImageBlock.UrlConfig url2 = ImageBlock.UrlConfig.builder()
                     .pattern("test")
                     .required(true)
                     .build();
                     
-            ImageBlock.DimensionRule dim1 = ImageBlock.DimensionRule.builder()
+            ImageBlock.DimensionConfig dim1 = ImageBlock.DimensionConfig.builder()
                     .minValue(100)
                     .maxValue(200)
                     .required(false)
                     .build();
                     
-            ImageBlock.DimensionRule dim2 = ImageBlock.DimensionRule.builder()
+            ImageBlock.DimensionConfig dim2 = ImageBlock.DimensionConfig.builder()
                     .minValue(100)
                     .maxValue(200)
                     .required(false)
                     .build();
                     
-            ImageBlock.AltTextRule alt1 = ImageBlock.AltTextRule.builder()
+            ImageBlock.AltTextConfig alt1 = ImageBlock.AltTextConfig.builder()
                     .required(true)
                     .minLength(5)
                     .maxLength(50)
                     .build();
                     
-            ImageBlock.AltTextRule alt2 = ImageBlock.AltTextRule.builder()
+            ImageBlock.AltTextConfig alt2 = ImageBlock.AltTextConfig.builder()
                     .required(true)
                     .minLength(5)
                     .maxLength(50)

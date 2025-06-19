@@ -4,7 +4,7 @@ import com.example.linter.config.Severity;
 
 import java.util.Objects;
 
-public final class AttributeRule {
+public final class AttributeConfig {
     private final String name;
     private final Integer order;
     private final boolean required;
@@ -13,7 +13,7 @@ public final class AttributeRule {
     private final String pattern;
     private final Severity severity;
 
-    private AttributeRule(Builder builder) {
+    private AttributeConfig(Builder builder) {
         this.name = builder.name;
         this.order = builder.order;
         this.required = builder.required;
@@ -79,10 +79,10 @@ public final class AttributeRule {
             return this;
         }
 
-        public AttributeRule build() {
+        public AttributeConfig build() {
             Objects.requireNonNull(name, "name is required");
             Objects.requireNonNull(severity, "severity is required");
-            return new AttributeRule(this);
+            return new AttributeConfig(this);
         }
     }
 
@@ -90,7 +90,7 @@ public final class AttributeRule {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AttributeRule that = (AttributeRule) o;
+        AttributeConfig that = (AttributeConfig) o;
         return required == that.required &&
                Objects.equals(name, that.name) &&
                Objects.equals(order, that.order) &&

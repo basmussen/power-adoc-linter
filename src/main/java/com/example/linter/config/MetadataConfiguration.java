@@ -5,16 +5,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.example.linter.config.rule.AttributeRule;
+import com.example.linter.config.rule.AttributeConfig;
 
 public final class MetadataConfiguration {
-    private final List<AttributeRule> attributes;
+    private final List<AttributeConfig> attributes;
 
     private MetadataConfiguration(Builder builder) {
         this.attributes = Collections.unmodifiableList(new ArrayList<>(builder.attributes));
     }
 
-    public List<AttributeRule> attributes() { 
+    public List<AttributeConfig> attributes() { 
         return attributes; 
     }
 
@@ -23,14 +23,14 @@ public final class MetadataConfiguration {
     }
 
     public static class Builder {
-        private List<AttributeRule> attributes = new ArrayList<>();
+        private List<AttributeConfig> attributes = new ArrayList<>();
 
-        public Builder attributes(List<AttributeRule> attributes) {
+        public Builder attributes(List<AttributeConfig> attributes) {
             this.attributes = attributes != null ? new ArrayList<>(attributes) : new ArrayList<>();
             return this;
         }
 
-        public Builder addAttribute(AttributeRule attribute) {
+        public Builder addAttribute(AttributeConfig attribute) {
             this.attributes.add(attribute);
             return this;
         }

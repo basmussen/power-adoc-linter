@@ -7,11 +7,11 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public final class TableBlock extends AbstractBlock {
-    private final DimensionRule columns;
-    private final DimensionRule rows;
-    private final HeaderRule header;
-    private final CaptionRule caption;
-    private final FormatRule format;
+    private final DimensionConfig columns;
+    private final DimensionConfig rows;
+    private final HeaderConfig header;
+    private final CaptionConfig caption;
+    private final FormatConfig format;
     
     private TableBlock(Builder builder) {
         super(builder);
@@ -27,23 +27,23 @@ public final class TableBlock extends AbstractBlock {
         return BlockType.TABLE;
     }
     
-    public DimensionRule getColumns() {
+    public DimensionConfig getColumns() {
         return columns;
     }
     
-    public DimensionRule getRows() {
+    public DimensionConfig getRows() {
         return rows;
     }
     
-    public HeaderRule getHeader() {
+    public HeaderConfig getHeader() {
         return header;
     }
     
-    public CaptionRule getCaption() {
+    public CaptionConfig getCaption() {
         return caption;
     }
     
-    public FormatRule getFormat() {
+    public FormatConfig getFormat() {
         return format;
     }
     
@@ -51,12 +51,12 @@ public final class TableBlock extends AbstractBlock {
         return new Builder();
     }
     
-    public static class DimensionRule {
+    public static class DimensionConfig {
         private final Integer min;
         private final Integer max;
         private final Severity severity;
         
-        private DimensionRule(DimensionRuleBuilder builder) {
+        private DimensionConfig(DimensionConfigBuilder builder) {
             this.min = builder.min;
             this.max = builder.max;
             this.severity = builder.severity;
@@ -74,39 +74,39 @@ public final class TableBlock extends AbstractBlock {
             return severity;
         }
         
-        public static DimensionRuleBuilder builder() {
-            return new DimensionRuleBuilder();
+        public static DimensionConfigBuilder builder() {
+            return new DimensionConfigBuilder();
         }
         
-        public static class DimensionRuleBuilder {
+        public static class DimensionConfigBuilder {
             private Integer min;
             private Integer max;
             private Severity severity;
             
-            public DimensionRuleBuilder min(Integer min) {
+            public DimensionConfigBuilder min(Integer min) {
                 this.min = min;
                 return this;
             }
             
-            public DimensionRuleBuilder max(Integer max) {
+            public DimensionConfigBuilder max(Integer max) {
                 this.max = max;
                 return this;
             }
             
-            public DimensionRuleBuilder severity(Severity severity) {
+            public DimensionConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
-            public DimensionRule build() {
-                return new DimensionRule(this);
+            public DimensionConfig build() {
+                return new DimensionConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof DimensionRule that)) return false;
+            if (!(o instanceof DimensionConfig that)) return false;
             return Objects.equals(min, that.min) &&
                    Objects.equals(max, that.max) &&
                    severity == that.severity;
@@ -118,12 +118,12 @@ public final class TableBlock extends AbstractBlock {
         }
     }
     
-    public static class HeaderRule {
+    public static class HeaderConfig {
         private final boolean required;
         private final Pattern pattern;
         private final Severity severity;
         
-        private HeaderRule(HeaderRuleBuilder builder) {
+        private HeaderConfig(HeaderConfigBuilder builder) {
             this.required = builder.required;
             this.pattern = builder.pattern;
             this.severity = builder.severity;
@@ -141,45 +141,45 @@ public final class TableBlock extends AbstractBlock {
             return severity;
         }
         
-        public static HeaderRuleBuilder builder() {
-            return new HeaderRuleBuilder();
+        public static HeaderConfigBuilder builder() {
+            return new HeaderConfigBuilder();
         }
         
-        public static class HeaderRuleBuilder {
+        public static class HeaderConfigBuilder {
             private boolean required;
             private Pattern pattern;
             private Severity severity;
             
-            public HeaderRuleBuilder required(boolean required) {
+            public HeaderConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public HeaderRuleBuilder pattern(Pattern pattern) {
+            public HeaderConfigBuilder pattern(Pattern pattern) {
                 this.pattern = pattern;
                 return this;
             }
             
-            public HeaderRuleBuilder pattern(String pattern) {
+            public HeaderConfigBuilder pattern(String pattern) {
                 this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
-            public HeaderRuleBuilder severity(Severity severity) {
+            public HeaderConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
-            public HeaderRule build() {
-                Objects.requireNonNull(severity, "severity is required for HeaderRule");
-                return new HeaderRule(this);
+            public HeaderConfig build() {
+                Objects.requireNonNull(severity, "severity is required for HeaderConfig");
+                return new HeaderConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof HeaderRule that)) return false;
+            if (!(o instanceof HeaderConfig that)) return false;
             return required == that.required &&
                    Objects.equals(pattern == null ? null : pattern.pattern(),
                                  that.pattern == null ? null : that.pattern.pattern()) &&
@@ -192,14 +192,14 @@ public final class TableBlock extends AbstractBlock {
         }
     }
     
-    public static class CaptionRule {
+    public static class CaptionConfig {
         private final boolean required;
         private final Pattern pattern;
         private final Integer minLength;
         private final Integer maxLength;
         private final Severity severity;
         
-        private CaptionRule(CaptionRuleBuilder builder) {
+        private CaptionConfig(CaptionConfigBuilder builder) {
             this.required = builder.required;
             this.pattern = builder.pattern;
             this.minLength = builder.minLength;
@@ -227,57 +227,57 @@ public final class TableBlock extends AbstractBlock {
             return severity;
         }
         
-        public static CaptionRuleBuilder builder() {
-            return new CaptionRuleBuilder();
+        public static CaptionConfigBuilder builder() {
+            return new CaptionConfigBuilder();
         }
         
-        public static class CaptionRuleBuilder {
+        public static class CaptionConfigBuilder {
             private boolean required;
             private Pattern pattern;
             private Integer minLength;
             private Integer maxLength;
             private Severity severity;
             
-            public CaptionRuleBuilder required(boolean required) {
+            public CaptionConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public CaptionRuleBuilder pattern(Pattern pattern) {
+            public CaptionConfigBuilder pattern(Pattern pattern) {
                 this.pattern = pattern;
                 return this;
             }
             
-            public CaptionRuleBuilder pattern(String pattern) {
+            public CaptionConfigBuilder pattern(String pattern) {
                 this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
-            public CaptionRuleBuilder minLength(Integer minLength) {
+            public CaptionConfigBuilder minLength(Integer minLength) {
                 this.minLength = minLength;
                 return this;
             }
             
-            public CaptionRuleBuilder maxLength(Integer maxLength) {
+            public CaptionConfigBuilder maxLength(Integer maxLength) {
                 this.maxLength = maxLength;
                 return this;
             }
             
-            public CaptionRuleBuilder severity(Severity severity) {
+            public CaptionConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
-            public CaptionRule build() {
-                Objects.requireNonNull(severity, "severity is required for CaptionRule");
-                return new CaptionRule(this);
+            public CaptionConfig build() {
+                Objects.requireNonNull(severity, "severity is required for CaptionConfig");
+                return new CaptionConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof CaptionRule that)) return false;
+            if (!(o instanceof CaptionConfig that)) return false;
             return required == that.required &&
                    Objects.equals(pattern == null ? null : pattern.pattern(),
                                  that.pattern == null ? null : that.pattern.pattern()) &&
@@ -293,12 +293,12 @@ public final class TableBlock extends AbstractBlock {
         }
     }
     
-    public static class FormatRule {
+    public static class FormatConfig {
         private final String style;
         private final Boolean borders;
         private final Severity severity;
         
-        private FormatRule(FormatRuleBuilder builder) {
+        private FormatConfig(FormatConfigBuilder builder) {
             this.style = builder.style;
             this.borders = builder.borders;
             this.severity = builder.severity;
@@ -316,40 +316,40 @@ public final class TableBlock extends AbstractBlock {
             return severity;
         }
         
-        public static FormatRuleBuilder builder() {
-            return new FormatRuleBuilder();
+        public static FormatConfigBuilder builder() {
+            return new FormatConfigBuilder();
         }
         
-        public static class FormatRuleBuilder {
+        public static class FormatConfigBuilder {
             private String style;
             private Boolean borders;
             private Severity severity;
             
-            public FormatRuleBuilder style(String style) {
+            public FormatConfigBuilder style(String style) {
                 this.style = style;
                 return this;
             }
             
-            public FormatRuleBuilder borders(Boolean borders) {
+            public FormatConfigBuilder borders(Boolean borders) {
                 this.borders = borders;
                 return this;
             }
             
-            public FormatRuleBuilder severity(Severity severity) {
+            public FormatConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
-            public FormatRule build() {
-                Objects.requireNonNull(severity, "severity is required for FormatRule");
-                return new FormatRule(this);
+            public FormatConfig build() {
+                Objects.requireNonNull(severity, "severity is required for FormatConfig");
+                return new FormatConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof FormatRule that)) return false;
+            if (!(o instanceof FormatConfig that)) return false;
             return Objects.equals(style, that.style) &&
                    Objects.equals(borders, that.borders) &&
                    severity == that.severity;
@@ -362,33 +362,33 @@ public final class TableBlock extends AbstractBlock {
     }
     
     public static class Builder extends AbstractBuilder<Builder> {
-        private DimensionRule columns;
-        private DimensionRule rows;
-        private HeaderRule header;
-        private CaptionRule caption;
-        private FormatRule format;
+        private DimensionConfig columns;
+        private DimensionConfig rows;
+        private HeaderConfig header;
+        private CaptionConfig caption;
+        private FormatConfig format;
         
-        public Builder columns(DimensionRule columns) {
+        public Builder columns(DimensionConfig columns) {
             this.columns = columns;
             return this;
         }
         
-        public Builder rows(DimensionRule rows) {
+        public Builder rows(DimensionConfig rows) {
             this.rows = rows;
             return this;
         }
         
-        public Builder header(HeaderRule header) {
+        public Builder header(HeaderConfig header) {
             this.header = header;
             return this;
         }
         
-        public Builder caption(CaptionRule caption) {
+        public Builder caption(CaptionConfig caption) {
             this.caption = caption;
             return this;
         }
         
-        public Builder format(FormatRule format) {
+        public Builder format(FormatConfig format) {
             this.format = format;
             return this;
         }

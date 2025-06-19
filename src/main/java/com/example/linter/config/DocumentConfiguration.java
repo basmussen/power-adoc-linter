@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.example.linter.config.rule.SectionRule;
+import com.example.linter.config.rule.SectionConfig;
 
 public final class DocumentConfiguration {
     private final MetadataConfiguration metadata;
-    private final List<SectionRule> sections;
+    private final List<SectionConfig> sections;
 
     private DocumentConfiguration(Builder builder) {
         this.metadata = builder.metadata;
@@ -17,7 +17,7 @@ public final class DocumentConfiguration {
     }
 
     public MetadataConfiguration metadata() { return metadata; }
-    public List<SectionRule> sections() { return sections; }
+    public List<SectionConfig> sections() { return sections; }
 
     public static Builder builder() {
         return new Builder();
@@ -25,19 +25,19 @@ public final class DocumentConfiguration {
 
     public static class Builder {
         private MetadataConfiguration metadata;
-        private List<SectionRule> sections = new ArrayList<>();
+        private List<SectionConfig> sections = new ArrayList<>();
 
         public Builder metadata(MetadataConfiguration metadata) {
             this.metadata = metadata;
             return this;
         }
 
-        public Builder sections(List<SectionRule> sections) {
+        public Builder sections(List<SectionConfig> sections) {
             this.sections = sections != null ? new ArrayList<>(sections) : new ArrayList<>();
             return this;
         }
 
-        public Builder addSection(SectionRule section) {
+        public Builder addSection(SectionConfig section) {
             this.sections.add(section);
             return this;
         }

@@ -20,25 +20,25 @@ class TableBlockTest {
         @DisplayName("should build TableBlock with all attributes")
         void shouldBuildTableBlockWithAllAttributes() {
             // Given
-            TableBlock.DimensionRule columnsRule = TableBlock.DimensionRule.builder()
+            TableBlock.DimensionConfig columnsRule = TableBlock.DimensionConfig.builder()
                     .min(2)
                     .max(10)
                     .severity(Severity.ERROR)
                     .build();
                     
-            TableBlock.DimensionRule rowsRule = TableBlock.DimensionRule.builder()
+            TableBlock.DimensionConfig rowsRule = TableBlock.DimensionConfig.builder()
                     .min(1)
                     .max(100)
                     .severity(Severity.WARN)
                     .build();
                     
-            TableBlock.HeaderRule headerRule = TableBlock.HeaderRule.builder()
+            TableBlock.HeaderConfig headerRule = TableBlock.HeaderConfig.builder()
                     .required(true)
                     .pattern("^[A-Z].*")
                     .severity(Severity.ERROR)
                     .build();
                     
-            TableBlock.CaptionRule captionRule = TableBlock.CaptionRule.builder()
+            TableBlock.CaptionConfig captionRule = TableBlock.CaptionConfig.builder()
                     .required(true)
                     .pattern("^Table \\d+:")
                     .minLength(10)
@@ -46,7 +46,7 @@ class TableBlockTest {
                     .severity(Severity.WARN)
                     .build();
                     
-            TableBlock.FormatRule formatRule = TableBlock.FormatRule.builder()
+            TableBlock.FormatConfig formatRule = TableBlock.FormatConfig.builder()
                     .style("grid")
                     .borders(true)
                     .severity(Severity.INFO)
@@ -106,14 +106,14 @@ class TableBlockTest {
     }
     
     @Nested
-    @DisplayName("DimensionRule Tests")
-    class DimensionRuleTests {
+    @DisplayName("DimensionConfig Tests")
+    class DimensionConfigTests {
         
         @Test
-        @DisplayName("should create DimensionRule with min and max")
-        void shouldCreateDimensionRuleWithMinAndMax() {
+        @DisplayName("should create DimensionConfig with min and max")
+        void shouldCreateDimensionConfigWithMinAndMax() {
             // Given & When
-            TableBlock.DimensionRule dimensionRule = TableBlock.DimensionRule.builder()
+            TableBlock.DimensionConfig dimensionRule = TableBlock.DimensionConfig.builder()
                     .min(3)
                     .max(15)
                     .severity(Severity.ERROR)
@@ -126,10 +126,10 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should create DimensionRule with only min")
-        void shouldCreateDimensionRuleWithOnlyMin() {
+        @DisplayName("should create DimensionConfig with only min")
+        void shouldCreateDimensionConfigWithOnlyMin() {
             // When
-            TableBlock.DimensionRule dimensionRule = TableBlock.DimensionRule.builder()
+            TableBlock.DimensionConfig dimensionRule = TableBlock.DimensionConfig.builder()
                     .min(5)
                     .severity(Severity.WARN)
                     .build();
@@ -141,10 +141,10 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should create DimensionRule with only max")
-        void shouldCreateDimensionRuleWithOnlyMax() {
+        @DisplayName("should create DimensionConfig with only max")
+        void shouldCreateDimensionConfigWithOnlyMax() {
             // When
-            TableBlock.DimensionRule dimensionRule = TableBlock.DimensionRule.builder()
+            TableBlock.DimensionConfig dimensionRule = TableBlock.DimensionConfig.builder()
                     .max(20)
                     .severity(Severity.INFO)
                     .build();
@@ -157,14 +157,14 @@ class TableBlockTest {
     }
     
     @Nested
-    @DisplayName("HeaderRule Tests")
-    class HeaderRuleTests {
+    @DisplayName("HeaderConfig Tests")
+    class HeaderConfigTests {
         
         @Test
-        @DisplayName("should create HeaderRule with string pattern")
-        void shouldCreateHeaderRuleWithStringPattern() {
+        @DisplayName("should create HeaderConfig with string pattern")
+        void shouldCreateHeaderConfigWithStringPattern() {
             // Given & When
-            TableBlock.HeaderRule headerRule = TableBlock.HeaderRule.builder()
+            TableBlock.HeaderConfig headerRule = TableBlock.HeaderConfig.builder()
                     .required(true)
                     .pattern("^[A-Z][a-zA-Z\\s]+$")
                     .severity(Severity.ERROR)
@@ -178,13 +178,13 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should create HeaderRule with Pattern object")
-        void shouldCreateHeaderRuleWithPatternObject() {
+        @DisplayName("should create HeaderConfig with Pattern object")
+        void shouldCreateHeaderConfigWithPatternObject() {
             // Given
             Pattern pattern = Pattern.compile("^Header.*");
             
             // When
-            TableBlock.HeaderRule headerRule = TableBlock.HeaderRule.builder()
+            TableBlock.HeaderConfig headerRule = TableBlock.HeaderConfig.builder()
                     .required(false)
                     .pattern(pattern)
                     .severity(Severity.WARN)
@@ -197,11 +197,11 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for HeaderRule")
-        void shouldRequireSeverityForHeaderRule() {
+        @DisplayName("should require severity for HeaderConfig")
+        void shouldRequireSeverityForHeaderConfig() {
             // When & Then
             assertThrows(NullPointerException.class, () -> {
-                TableBlock.HeaderRule.builder()
+                TableBlock.HeaderConfig.builder()
                         .required(true)
                         .pattern("test")
                         .build();
@@ -210,14 +210,14 @@ class TableBlockTest {
     }
     
     @Nested
-    @DisplayName("CaptionRule Tests")
-    class CaptionRuleTests {
+    @DisplayName("CaptionConfig Tests")
+    class CaptionConfigTests {
         
         @Test
-        @DisplayName("should create CaptionRule with all attributes")
-        void shouldCreateCaptionRuleWithAllAttributes() {
+        @DisplayName("should create CaptionConfig with all attributes")
+        void shouldCreateCaptionConfigWithAllAttributes() {
             // Given & When
-            TableBlock.CaptionRule captionRule = TableBlock.CaptionRule.builder()
+            TableBlock.CaptionConfig captionRule = TableBlock.CaptionConfig.builder()
                     .required(true)
                     .pattern("^Table \\d+: .*")
                     .minLength(15)
@@ -234,10 +234,10 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should create CaptionRule without pattern")
-        void shouldCreateCaptionRuleWithoutPattern() {
+        @DisplayName("should create CaptionConfig without pattern")
+        void shouldCreateCaptionConfigWithoutPattern() {
             // Given & When
-            TableBlock.CaptionRule captionRule = TableBlock.CaptionRule.builder()
+            TableBlock.CaptionConfig captionRule = TableBlock.CaptionConfig.builder()
                     .required(false)
                     .minLength(5)
                     .maxLength(100)
@@ -253,11 +253,11 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for CaptionRule")
-        void shouldRequireSeverityForCaptionRule() {
+        @DisplayName("should require severity for CaptionConfig")
+        void shouldRequireSeverityForCaptionConfig() {
             // When & Then
             assertThrows(NullPointerException.class, () -> {
-                TableBlock.CaptionRule.builder()
+                TableBlock.CaptionConfig.builder()
                         .required(true)
                         .minLength(10)
                         .maxLength(50)
@@ -267,14 +267,14 @@ class TableBlockTest {
     }
     
     @Nested
-    @DisplayName("FormatRule Tests")
-    class FormatRuleTests {
+    @DisplayName("FormatConfig Tests")
+    class FormatConfigTests {
         
         @Test
-        @DisplayName("should create FormatRule with style and borders")
-        void shouldCreateFormatRuleWithStyleAndBorders() {
+        @DisplayName("should create FormatConfig with style and borders")
+        void shouldCreateFormatConfigWithStyleAndBorders() {
             // Given & When
-            TableBlock.FormatRule formatRule = TableBlock.FormatRule.builder()
+            TableBlock.FormatConfig formatRule = TableBlock.FormatConfig.builder()
                     .style("grid")
                     .borders(true)
                     .severity(Severity.INFO)
@@ -287,10 +287,10 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should create FormatRule with only style")
-        void shouldCreateFormatRuleWithOnlyStyle() {
+        @DisplayName("should create FormatConfig with only style")
+        void shouldCreateFormatConfigWithOnlyStyle() {
             // Given & When
-            TableBlock.FormatRule formatRule = TableBlock.FormatRule.builder()
+            TableBlock.FormatConfig formatRule = TableBlock.FormatConfig.builder()
                     .style("simple")
                     .severity(Severity.WARN)
                     .build();
@@ -302,10 +302,10 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should create FormatRule with only borders")
-        void shouldCreateFormatRuleWithOnlyBorders() {
+        @DisplayName("should create FormatConfig with only borders")
+        void shouldCreateFormatConfigWithOnlyBorders() {
             // Given & When
-            TableBlock.FormatRule formatRule = TableBlock.FormatRule.builder()
+            TableBlock.FormatConfig formatRule = TableBlock.FormatConfig.builder()
                     .borders(false)
                     .severity(Severity.ERROR)
                     .build();
@@ -317,11 +317,11 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for FormatRule")
-        void shouldRequireSeverityForFormatRule() {
+        @DisplayName("should require severity for FormatConfig")
+        void shouldRequireSeverityForFormatConfig() {
             // When & Then
             assertThrows(NullPointerException.class, () -> {
-                TableBlock.FormatRule.builder()
+                TableBlock.FormatConfig.builder()
                         .style("grid")
                         .borders(true)
                         .build();
@@ -337,25 +337,25 @@ class TableBlockTest {
         @DisplayName("should correctly implement equals and hashCode")
         void shouldCorrectlyImplementEqualsAndHashCode() {
             // Given
-            TableBlock.DimensionRule columns1 = TableBlock.DimensionRule.builder()
+            TableBlock.DimensionConfig columns1 = TableBlock.DimensionConfig.builder()
                     .min(2)
                     .max(8)
                     .severity(Severity.ERROR)
                     .build();
                     
-            TableBlock.DimensionRule columns2 = TableBlock.DimensionRule.builder()
+            TableBlock.DimensionConfig columns2 = TableBlock.DimensionConfig.builder()
                     .min(2)
                     .max(8)
                     .severity(Severity.ERROR)
                     .build();
                     
-            TableBlock.HeaderRule header1 = TableBlock.HeaderRule.builder()
+            TableBlock.HeaderConfig header1 = TableBlock.HeaderConfig.builder()
                     .required(true)
                     .pattern("^[A-Z].*")
                     .severity(Severity.WARN)
                     .build();
                     
-            TableBlock.HeaderRule header2 = TableBlock.HeaderRule.builder()
+            TableBlock.HeaderConfig header2 = TableBlock.HeaderConfig.builder()
                     .required(true)
                     .pattern("^[A-Z].*")
                     .severity(Severity.WARN)
@@ -391,31 +391,31 @@ class TableBlockTest {
         @DisplayName("should test inner class equals and hashCode")
         void shouldTestInnerClassEqualsAndHashCode() {
             // Given
-            TableBlock.DimensionRule dim1 = TableBlock.DimensionRule.builder()
+            TableBlock.DimensionConfig dim1 = TableBlock.DimensionConfig.builder()
                     .min(5)
                     .max(10)
                     .severity(Severity.ERROR)
                     .build();
                     
-            TableBlock.DimensionRule dim2 = TableBlock.DimensionRule.builder()
+            TableBlock.DimensionConfig dim2 = TableBlock.DimensionConfig.builder()
                     .min(5)
                     .max(10)
                     .severity(Severity.ERROR)
                     .build();
                     
-            TableBlock.HeaderRule header1 = TableBlock.HeaderRule.builder()
+            TableBlock.HeaderConfig header1 = TableBlock.HeaderConfig.builder()
                     .required(false)
                     .pattern("test")
                     .severity(Severity.INFO)
                     .build();
                     
-            TableBlock.HeaderRule header2 = TableBlock.HeaderRule.builder()
+            TableBlock.HeaderConfig header2 = TableBlock.HeaderConfig.builder()
                     .required(false)
                     .pattern("test")
                     .severity(Severity.INFO)
                     .build();
                     
-            TableBlock.CaptionRule caption1 = TableBlock.CaptionRule.builder()
+            TableBlock.CaptionConfig caption1 = TableBlock.CaptionConfig.builder()
                     .required(true)
                     .pattern("^Table.*")
                     .minLength(10)
@@ -423,7 +423,7 @@ class TableBlockTest {
                     .severity(Severity.WARN)
                     .build();
                     
-            TableBlock.CaptionRule caption2 = TableBlock.CaptionRule.builder()
+            TableBlock.CaptionConfig caption2 = TableBlock.CaptionConfig.builder()
                     .required(true)
                     .pattern("^Table.*")
                     .minLength(10)
@@ -431,13 +431,13 @@ class TableBlockTest {
                     .severity(Severity.WARN)
                     .build();
                     
-            TableBlock.FormatRule format1 = TableBlock.FormatRule.builder()
+            TableBlock.FormatConfig format1 = TableBlock.FormatConfig.builder()
                     .style("grid")
                     .borders(true)
                     .severity(Severity.INFO)
                     .build();
                     
-            TableBlock.FormatRule format2 = TableBlock.FormatRule.builder()
+            TableBlock.FormatConfig format2 = TableBlock.FormatConfig.builder()
                     .style("grid")
                     .borders(true)
                     .severity(Severity.INFO)

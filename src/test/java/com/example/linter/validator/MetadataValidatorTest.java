@@ -2,7 +2,7 @@ package com.example.linter.validator;
 
 import com.example.linter.config.MetadataConfiguration;
 import com.example.linter.config.Severity;
-import com.example.linter.config.rule.AttributeRule;
+import com.example.linter.config.rule.AttributeConfig;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.ast.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,13 +27,13 @@ class MetadataValidatorTest {
     void setUp() {
         testConfig = MetadataConfiguration.builder()
             .attributes(Arrays.asList(
-                AttributeRule.builder()
+                AttributeConfig.builder()
                     .name("title")
                     .required(true)
                     .pattern("^[A-Z].*")
                     .severity(Severity.ERROR)
                     .build(),
-                AttributeRule.builder()
+                AttributeConfig.builder()
                     .name("author")
                     .required(true)
                     .severity(Severity.ERROR)
@@ -119,12 +119,12 @@ class MetadataValidatorTest {
         Document document = asciidoctor.load(content, org.asciidoctor.Options.builder().build());
         MetadataConfiguration config = MetadataConfiguration.builder()
             .attributes(Arrays.asList(
-                AttributeRule.builder()
+                AttributeConfig.builder()
                     .name("author")
                     .order(1)
                     .severity(Severity.ERROR)
                     .build(),
-                AttributeRule.builder()
+                AttributeConfig.builder()
                     .name("version")
                     .order(2)
                     .severity(Severity.ERROR)
