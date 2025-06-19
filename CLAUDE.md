@@ -146,3 +146,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - **Configuration Specification**: `docs/linter-config-specification.yaml` - Full example configuration
 - **Schema Definitions**: `src/main/resources/schemas/blocks/*.yaml` - JSON Schema 2020-12 for each block type
 - **Test Examples**: `src/test/java/com/example/linter/config/loader/ConfigurationLoaderTest.java` - Shows YAML configuration patterns
+
+## Debug Notes
+
+- Debug tests werden nicht mit git commit hinzugefügt. Diese werden nach dem Beheben des Fehlers wieder gelöscht

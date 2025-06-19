@@ -18,7 +18,7 @@ properties:
           pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
         order:
           type: integer
-          description: Optional order in which this attribute should appear in the document
+          description: Optional order in which this attribute should appear in the document. Note that AsciidoctorJ may not preserve the original document order when parsing, so order validation is best used with direct file parsing rather than through the AsciidoctorJ API.
           minimum: 1
         required:
           type: boolean

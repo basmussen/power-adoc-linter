@@ -61,10 +61,6 @@ public final class MetadataValidator {
     }
 
     private void validateTitle(String title, SourceLocation location, ValidationResult.Builder resultBuilder) {
-        if (title == null || title.isEmpty()) {
-            title = "";
-        }
-        
         for (com.example.linter.validator.rules.AttributeRule rule : rules) {
             if (rule.isApplicable("title")) {
                 List<ValidationMessage> messages = rule.validate("title", title, location);

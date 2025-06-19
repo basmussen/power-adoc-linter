@@ -41,7 +41,6 @@ class MetadataValidatorIntegrationTest {
                     .build(),
                 AttributeRule.builder()
                     .name("author")
-                    .order(2)
                     .required(true)
                     .minLength(5)
                     .maxLength(50)
@@ -50,14 +49,12 @@ class MetadataValidatorIntegrationTest {
                     .build(),
                 AttributeRule.builder()
                     .name("revdate")
-                    .order(3)
                     .required(true)
                     .pattern("^\\d{4}-\\d{2}-\\d{2}$")
                     .severity(Severity.ERROR)
                     .build(),
                 AttributeRule.builder()
                     .name("version")
-                    .order(4)
                     .required(true)
                     .pattern("^\\d+\\.\\d+(\\.\\d+)?$")
                     .severity(Severity.ERROR)
@@ -196,8 +193,8 @@ class MetadataValidatorIntegrationTest {
     }
 
     @Test
-    @DisplayName("should detect order violations")
-    void shouldReportErrorsWhenAttributesAreInWrongOrder() throws IOException {
+    @DisplayName("should validate document with attributes in any order")
+    void shouldAcceptAttributesInAnyOrder() throws IOException {
         // Given
         String content = """
             = Valid Document Title
@@ -205,18 +202,17 @@ class MetadataValidatorIntegrationTest {
             :revdate: 2024-01-15
             :author: John Doe
             
-            Attributes in wrong order.
+            Attributes can be in any order.
             """;
-        File docFile = createTempFile("order-violations.adoc", content);
+        File docFile = createTempFile("any-order.adoc", content);
         Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
         
         // When
         ValidationResult result = validator.validate(document);
         
         // Then
-        assertTrue(result.hasErrors());
-        assertTrue(result.getMessages().stream()
-            .anyMatch(msg -> msg.getMessage().contains("should appear before")));
+        assertFalse(result.hasErrors());
+        assertEquals(0, result.getErrorCount());
     }
 
     @Test
