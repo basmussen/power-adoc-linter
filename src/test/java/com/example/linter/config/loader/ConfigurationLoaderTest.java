@@ -23,8 +23,11 @@ class ConfigurationLoaderTest {
         loader = new ConfigurationLoader();
     }
     
-    @Test
-    void testLoadFullConfiguration() throws IOException {
+    @Nested
+    class CommonTest {
+        
+        @Test
+        void testLoadFullConfiguration() throws IOException {
         String yaml = """
             document:
               metadata:
@@ -116,10 +119,10 @@ class ConfigurationLoaderTest {
         assertEquals(Severity.ERROR, paragraphBlock.getOccurrence().severity());
         assertNotNull(paragraphBlock.getLines());
         assertEquals(15, paragraphBlock.getLines().max());
-    }
-    
-    @Test
-    void testLoadFromFile(@TempDir Path tempDir) throws IOException {
+        }
+        
+        @Test
+        void testLoadFromFile(@TempDir Path tempDir) throws IOException {
         Path configFile = tempDir.resolve("test-config.yaml");
         String yaml = """
             document:
@@ -137,19 +140,19 @@ class ConfigurationLoaderTest {
         
         assertNotNull(config);
         assertEquals(1, config.document().metadata().attributes().size());
-    }
-    
-    @Test
-    void testEmptyConfiguration() {
+        }
+        
+        @Test
+        void testEmptyConfiguration() {
         String yaml = "";
         
         assertThrows(ConfigurationException.class, () -> 
             loader.loadConfiguration(new ByteArrayInputStream(yaml.getBytes()))
         );
-    }
-    
-    @Test
-    void testMissingDocumentSection() {
+        }
+        
+        @Test
+        void testMissingDocumentSection() {
         String yaml = """
             someOtherKey:
               value: test
@@ -160,10 +163,10 @@ class ConfigurationLoaderTest {
         );
         
         assertTrue(exception.getMessage().contains("Missing required 'document' section"));
-    }
-    
-    @Test
-    void testInvalidSeverity() {
+        }
+        
+        @Test
+        void testInvalidSeverity() {
         String yaml = """
             document:
               metadata:
@@ -176,10 +179,10 @@ class ConfigurationLoaderTest {
         assertThrows(ConfigurationException.class, () -> 
             loader.loadConfiguration(new ByteArrayInputStream(yaml.getBytes()))
         );
-    }
-    
-    @Test
-    void testInvalidBlockType() {
+        }
+        
+        @Test
+        void testInvalidBlockType() {
         String yaml = """
             document:
               metadata:
@@ -194,10 +197,10 @@ class ConfigurationLoaderTest {
         assertThrows(ConfigurationException.class, () -> 
             loader.loadConfiguration(new ByteArrayInputStream(yaml.getBytes()))
         );
-    }
-    
-    @Test
-    void testNestedSections() {
+        }
+        
+        @Test
+        void testNestedSections() {
         String yaml = """
             document:
               metadata:
@@ -233,10 +236,10 @@ class ConfigurationLoaderTest {
         var subSubSection = subSection.subsections().get(0);
         assertEquals(3, subSubSection.level());
         assertEquals(5, subSubSection.max());
-    }
-    
-    @Test
-    void testCompleteSpecificationLoads() throws IOException {
+        }
+        
+        @Test
+        void testCompleteSpecificationLoads() throws IOException {
         // This test verifies that our complete specification file loads without errors
         Path specPath = Path.of("docs/linter-config-specification.yaml");
         if (Files.exists(specPath)) {
@@ -247,6 +250,7 @@ class ConfigurationLoaderTest {
             assertNotNull(config.document().metadata());
             assertFalse(config.document().metadata().attributes().isEmpty());
             assertFalse(config.document().sections().isEmpty());
+            }
         }
     }
     
