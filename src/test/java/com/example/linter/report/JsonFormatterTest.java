@@ -4,6 +4,7 @@ import com.example.linter.config.Severity;
 import com.example.linter.validator.SourceLocation;
 import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.ValidationResult;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,16 +48,13 @@ class JsonFormatterTest {
             
             // Then
             String output = stringWriter.toString();
-            assertTrue(output.contains("\"timestamp\":"));
-            assertTrue(output.contains("\"duration\":"));
-            assertTrue(output.contains("\"summary\": {"));
-            assertTrue(output.contains("\"totalMessages\": 0"));
-            assertTrue(output.contains("\"errors\": 0"));
-            assertTrue(output.contains("\"warnings\": 0"));
-            assertTrue(output.contains("\"infos\": 0"));
-            assertTrue(output.contains("\"messages\": ["));
-            assertTrue(output.trim().startsWith("{"));
-            assertTrue(output.trim().endsWith("}"));
+            assertNotNull(JsonPath.read(output, "$.timestamp"));
+            assertNotNull(JsonPath.read(output, "$.duration"));
+            assertEquals(0, (int) JsonPath.read(output, "$.summary.totalMessages"));
+            assertEquals(0, (int) JsonPath.read(output, "$.summary.errors"));
+            assertEquals(0, (int) JsonPath.read(output, "$.summary.warnings"));
+            assertEquals(0, (int) JsonPath.read(output, "$.summary.infos"));
+            assertTrue(((List<?>) JsonPath.read(output, "$.messages")).isEmpty());
         }
         
         @Test
@@ -83,12 +82,12 @@ class JsonFormatterTest {
             
             // Then
             String output = stringWriter.toString();
-            assertTrue(output.contains("\"totalMessages\": 1"));
-            assertTrue(output.contains("\"errors\": 1"));
-            assertTrue(output.contains("\"file\": \"test.adoc\""));
-            assertTrue(output.contains("\"line\": 10"));
-            assertTrue(output.contains("\"severity\": \"ERROR\""));
-            assertTrue(output.contains("\"message\": \"Missing required attribute\""));
+            assertEquals(1, (int) JsonPath.read(output, "$.summary.totalMessages"));
+            assertEquals(1, (int) JsonPath.read(output, "$.summary.errors"));
+            assertEquals("test.adoc", JsonPath.read(output, "$.messages[0].file"));
+            assertEquals(10, (int) JsonPath.read(output, "$.messages[0].line"));
+            assertEquals("ERROR", JsonPath.read(output, "$.messages[0].severity"));
+            assertEquals("Missing required attribute", JsonPath.read(output, "$.messages[0].message"));
         }
         
         @Test
@@ -127,7 +126,7 @@ class JsonFormatterTest {
             
             // Then
             String output = stringWriter.toString();
-            assertTrue(output.contains("Message with \\\"quotes\\\" and \\nnewline"));
+            assertEquals("Message with \"quotes\" and \nnewline", JsonPath.read(output, "$.messages[0].message"));
         }
         
         @Test
@@ -155,7 +154,7 @@ class JsonFormatterTest {
             
             // Then
             String output = stringWriter.toString();
-            assertTrue(output.contains("C:\\\\path\\\\to\\\\file.adoc"));
+            assertEquals("C:\\path\\to\\file.adoc", JsonPath.read(output, "$.messages[0].file"));
         }
     }
     
@@ -191,10 +190,10 @@ class JsonFormatterTest {
             
             // Then
             String output = stringWriter.toString();
-            assertTrue(output.contains("\"column\": 20"));
-            assertTrue(output.contains("\"ruleId\": \"value-check\""));
-            assertTrue(output.contains("\"actualValue\": \"100\""));
-            assertTrue(output.contains("\"expectedValue\": \"80\""));
+            assertEquals(20, (int) JsonPath.read(output, "$.messages[0].column"));
+            assertEquals("value-check", JsonPath.read(output, "$.messages[0].ruleId"));
+            assertEquals("100", JsonPath.read(output, "$.messages[0].actualValue"));
+            assertEquals("80", JsonPath.read(output, "$.messages[0].expectedValue"));
         }
     }
     
@@ -238,13 +237,14 @@ class JsonFormatterTest {
             
             // Then
             String output = stringWriter.toString();
-            assertTrue(output.contains("\"totalMessages\": 2"));
-            assertTrue(output.contains("\"errors\": 1"));
-            assertTrue(output.contains("\"warnings\": 1"));
-            // Check that there's a comma between messages
-            int firstMessageEnd = output.indexOf("},", output.indexOf("\"message\": \"First error\""));
-            int secondMessageStart = output.indexOf("{", firstMessageEnd);
-            assertTrue(firstMessageEnd < secondMessageStart);
+            assertEquals(2, (int) JsonPath.read(output, "$.summary.totalMessages"));
+            assertEquals(1, (int) JsonPath.read(output, "$.summary.errors"));
+            assertEquals(1, (int) JsonPath.read(output, "$.summary.warnings"));
+            
+            List<String> messages = JsonPath.read(output, "$.messages[*].message");
+            assertEquals(2, messages.size());
+            assertTrue(messages.contains("First error"));
+            assertTrue(messages.contains("Second warning"));
         }
     }
     
@@ -267,7 +267,7 @@ class JsonFormatterTest {
             
             // Then
             String output = stringWriter.toString();
-            assertTrue(output.contains("\"duration\": \"500ms\""));
+            assertEquals("500ms", JsonPath.read(output, "$.duration"));
         }
         
         @Test
@@ -285,7 +285,7 @@ class JsonFormatterTest {
             
             // Then
             String output = stringWriter.toString();
-            assertTrue(output.contains("\"duration\": \"2.500s\""));
+            assertEquals("2.500s", JsonPath.read(output, "$.duration"));
         }
     }
 }

@@ -2,14 +2,15 @@ package com.example.linter.report;
 
 import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.ValidationResult;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Formats validation results as JSON.
@@ -20,70 +21,64 @@ public class JsonFormatter implements ReportFormatter {
     private static final DateTimeFormatter ISO_FORMATTER = 
         DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC);
     
-    @Override
-    public void format(ValidationResult result, PrintWriter writer) {
-        writer.println("{");
-        
-        // Timestamp
-        writer.println("  \"timestamp\": \"" + ISO_FORMATTER.format(Instant.now()) + "\",");
-        
-        // Duration
-        writer.println("  \"duration\": \"" + formatDuration(result.getValidationTimeMillis()) + "\",");
-        
-        // Summary
-        writer.println("  \"summary\": {");
-        writer.println("    \"totalMessages\": " + result.getMessages().size() + ",");
-        writer.println("    \"errors\": " + result.getErrorCount() + ",");
-        writer.println("    \"warnings\": " + result.getWarningCount() + ",");
-        writer.println("    \"infos\": " + result.getInfoCount());
-        writer.println("  },");
-        
-        // Messages
-        writer.println("  \"messages\": [");
-        formatMessages(result.getMessages(), writer);
-        writer.println("  ]");
-        
-        writer.println("}");
+    private final Gson gson;
+    
+    public JsonFormatter() {
+        this.gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .create();
     }
     
-    private void formatMessages(List<ValidationMessage> messages, PrintWriter writer) {
-        for (int i = 0; i < messages.size(); i++) {
-            ValidationMessage msg = messages.get(i);
-            boolean isLast = (i == messages.size() - 1);
-            
-            writer.println("    {");
-            writer.println("      \"file\": \"" + escapeJson(msg.getLocation().getFilename()) + "\",");
-            writer.println("      \"line\": " + msg.getLocation().getStartLine() + ",");
+    @Override
+    public void format(ValidationResult result, PrintWriter writer) {
+        JsonObject root = new JsonObject();
+        
+        // Timestamp
+        root.addProperty("timestamp", ISO_FORMATTER.format(Instant.now()));
+        
+        // Duration
+        root.addProperty("duration", formatDuration(result.getValidationTimeMillis()));
+        
+        // Summary
+        JsonObject summary = new JsonObject();
+        summary.addProperty("totalMessages", result.getMessages().size());
+        summary.addProperty("errors", result.getErrorCount());
+        summary.addProperty("warnings", result.getWarningCount());
+        summary.addProperty("infos", result.getInfoCount());
+        root.add("summary", summary);
+        
+        // Messages
+        JsonArray messages = new JsonArray();
+        for (ValidationMessage msg : result.getMessages()) {
+            JsonObject msgObj = new JsonObject();
+            msgObj.addProperty("file", msg.getLocation().getFilename());
+            msgObj.addProperty("line", msg.getLocation().getStartLine());
             
             if (msg.getLocation().getStartColumn() > 0) {
-                writer.println("      \"column\": " + msg.getLocation().getStartColumn() + ",");
+                msgObj.addProperty("column", msg.getLocation().getStartColumn());
             }
             
-            writer.println("      \"severity\": \"" + msg.getSeverity() + "\",");
-            writer.println("      \"message\": \"" + escapeJson(msg.getMessage()) + "\"");
+            msgObj.addProperty("severity", msg.getSeverity().toString());
+            msgObj.addProperty("message", msg.getMessage());
             
             // Optional fields
             if (msg.getRuleId() != null) {
-                writer.println(",");
-                writer.println("      \"ruleId\": \"" + escapeJson(msg.getRuleId()) + "\"");
+                msgObj.addProperty("ruleId", msg.getRuleId());
             }
             
-            if (msg.getActualValue().isPresent()) {
-                writer.println(",");
-                writer.println("      \"actualValue\": \"" + escapeJson(msg.getActualValue().orElse("")) + "\"");
-            }
+            msg.getActualValue().ifPresent(value -> 
+                msgObj.addProperty("actualValue", value));
             
-            if (msg.getExpectedValue().isPresent()) {
-                writer.println(",");
-                writer.println("      \"expectedValue\": \"" + escapeJson(msg.getExpectedValue().orElse("")) + "\"");
-            }
+            msg.getExpectedValue().ifPresent(value -> 
+                msgObj.addProperty("expectedValue", value));
             
-            writer.print("    }");
-            if (!isLast) {
-                writer.print(",");
-            }
-            writer.println();
+            messages.add(msgObj);
         }
+        root.add("messages", messages);
+        
+        // Write JSON to PrintWriter
+        gson.toJson(root, writer);
+        writer.flush();
     }
     
     private String formatDuration(long millis) {
@@ -92,21 +87,6 @@ public class JsonFormatter implements ReportFormatter {
         } else {
             return String.format("%.3fs", millis / 1000.0);
         }
-    }
-    
-    private String escapeJson(String value) {
-        if (value == null) {
-            return "";
-        }
-        
-        return value
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            .replace("\b", "\\b")
-            .replace("\f", "\\f")
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t");
     }
     
     @Override
