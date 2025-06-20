@@ -49,7 +49,9 @@ public final class BlockValidator {
         
         // No block validation if no blocks configured
         if (config.allowedBlocks() == null || config.allowedBlocks().isEmpty()) {
-            return new ValidationResult(messages);
+            return ValidationResult.builder()
+            .addMessages(messages)
+            .build();
         }
         
         // Create validation context
@@ -63,7 +65,9 @@ public final class BlockValidator {
         
         // Order validation would go here once OrderConfig is implemented
         
-        return new ValidationResult(messages);
+        return ValidationResult.builder()
+            .addMessages(messages)
+            .build();
     }
     
     /**
@@ -113,7 +117,7 @@ public final class BlockValidator {
         if (nameAttr != null) {
             String name = nameAttr.toString();
             for (AbstractBlock config : configs) {
-                if (config.type() == type && name.equals(config.name())) {
+                if (config.getType() == type && name.equals(config.getName())) {
                     return config;
                 }
             }
@@ -121,7 +125,7 @@ public final class BlockValidator {
         
         // Then match by type only
         for (AbstractBlock config : configs) {
-            if (config.type() == type && config.name() == null) {
+            if (config.getType() == type && config.getName() == null) {
                 return config;
             }
         }

@@ -186,10 +186,10 @@ public final class BlockOrderValidator {
      * Gets the identifier for a block (name or type).
      */
     private String getBlockIdentifier(AbstractBlock block) {
-        if (block.name() != null) {
-            return block.name();
+        if (block.getName() != null) {
+            return block.getName();
         }
-        return block.type().toString().toLowerCase();
+        return block.getType().toString().toLowerCase();
     }
     
     /**

@@ -27,7 +27,7 @@ public final class BlockOccurrenceValidator {
         List<ValidationMessage> messages = new ArrayList<>();
         
         for (AbstractBlock block : blocks) {
-            if (block.occurrences() != null) {
+            if (block.getOccurrence() != null) {
                 validateOccurrences(block, context, messages);
             }
         }
@@ -42,12 +42,12 @@ public final class BlockOccurrenceValidator {
                                    BlockValidationContext context,
                                    List<ValidationMessage> messages) {
         
-        AbstractBlock.OccurrenceConfig occurrences = block.occurrences();
+        com.example.linter.config.rule.OccurrenceConfig occurrences = block.getOccurrence();
         int actualCount = context.getOccurrenceCount(block);
         String blockName = context.getBlockName(block);
         
         // Validate minimum occurrences
-        if (occurrences.min() != null && actualCount < occurrences.min()) {
+        if (actualCount < occurrences.min()) {
             messages.add(ValidationMessage.builder()
                 .severity(occurrences.severity())
                 .ruleId("block.occurrences.min")
@@ -59,7 +59,7 @@ public final class BlockOccurrenceValidator {
         }
         
         // Validate maximum occurrences
-        if (occurrences.max() != null && actualCount > occurrences.max()) {
+        if (actualCount > occurrences.max()) {
             messages.add(ValidationMessage.builder()
                 .severity(occurrences.severity())
                 .ruleId("block.occurrences.max")
@@ -70,17 +70,6 @@ public final class BlockOccurrenceValidator {
                 .build());
         }
         
-        // Validate exact occurrences
-        if (occurrences.exact() != null && actualCount != occurrences.exact()) {
-            messages.add(ValidationMessage.builder()
-                .severity(occurrences.severity())
-                .ruleId("block.occurrences.exact")
-                .location(createSectionLocation(context))
-                .message("Incorrect number of occurrences of " + blockName)
-                .actualValue(String.valueOf(actualCount))
-                .expectedValue("Exactly " + occurrences.exact() + " occurrences")
-                .build());
-        }
     }
     
     /**

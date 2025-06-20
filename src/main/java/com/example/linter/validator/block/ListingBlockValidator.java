@@ -8,7 +8,6 @@ import org.asciidoctor.ast.StructuralNode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Validator for listing/code blocks.
@@ -34,23 +33,23 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         String content = getBlockContent(block);
         
         // Validate language
-        if (listingConfig.language() != null) {
-            validateLanguage(language, listingConfig, context, block, messages);
+        if (listingConfig.getLanguage() != null) {
+            validateLanguage(language, listingConfig.getLanguage(), context, block, messages);
         }
         
         // Validate title
-        if (listingConfig.title() != null) {
-            validateTitle(title, listingConfig, context, block, messages);
-        }
-        
-        // Validate callouts
-        if (listingConfig.callouts() != null) {
-            validateCallouts(content, listingConfig, context, block, messages);
+        if (listingConfig.getTitle() != null) {
+            validateTitle(title, listingConfig.getTitle(), context, block, messages);
         }
         
         // Validate lines
-        if (listingConfig.lines() != null) {
-            validateLines(content, listingConfig, context, block, messages);
+        if (listingConfig.getLines() != null) {
+            validateLines(content, listingConfig.getLines(), context, block, messages);
+        }
+        
+        // Validate callouts
+        if (listingConfig.getCallouts() != null) {
+            validateCallouts(content, listingConfig.getCallouts(), context, block, messages);
         }
         
         return messages;
@@ -84,75 +83,60 @@ public final class ListingBlockValidator implements BlockTypeValidator {
             return block.getContent().toString();
         }
         
-        // For listings, source lines contain the content
-        List<String> lines = block.getSourceLines();
-        if (lines != null && !lines.isEmpty()) {
-            return String.join("\n", lines);
+        // For listings, check blocks
+        if (block.getBlocks() != null && !block.getBlocks().isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (StructuralNode child : block.getBlocks()) {
+                if (child.getContent() != null) {
+                    sb.append(child.getContent()).append("\n");
+                }
+            }
+            return sb.toString();
         }
         
         return "";
     }
     
-    private void validateLanguage(String language, ListingBlock config,
+    private void validateLanguage(String language, ListingBlock.LanguageConfig config,
                                 BlockValidationContext context,
                                 StructuralNode block,
                                 List<ValidationMessage> messages) {
         
-        ListingBlock.LanguageConfig langConfig = config.language();
-        
         // Check if language is required
-        if (langConfig.required() && (language == null || language.trim().isEmpty())) {
+        if (config.isRequired() && (language == null || language.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(langConfig.severity())
+                .severity(config.getSeverity())
                 .ruleId("listing.language.required")
                 .location(context.createLocation(block))
                 .message("Listing block must specify a language")
                 .actualValue("No language")
                 .expectedValue("Language required")
                 .build());
-            return;
         }
         
-        // Validate allowed languages
-        if (language != null && langConfig.allowed() != null && !langConfig.allowed().isEmpty()) {
-            if (!langConfig.allowed().contains(language)) {
+        // Validate allowed languages if specified
+        if (language != null && config.getAllowed() != null && !config.getAllowed().isEmpty()) {
+            if (!config.getAllowed().contains(language)) {
                 messages.add(ValidationMessage.builder()
-                    .severity(langConfig.severity())
+                    .severity(config.getSeverity())
                     .ruleId("listing.language.allowed")
                     .location(context.createLocation(block))
                     .message("Listing block has unsupported language")
                     .actualValue(language)
-                    .expectedValue("One of: " + String.join(", ", langConfig.allowed()))
-                    .build());
-            }
-        }
-        
-        // Validate language pattern
-        if (language != null && langConfig.pattern() != null) {
-            Pattern pattern = Pattern.compile(langConfig.pattern());
-            if (!pattern.matcher(language).matches()) {
-                messages.add(ValidationMessage.builder()
-                    .severity(langConfig.severity())
-                    .ruleId("listing.language.pattern")
-                    .location(context.createLocation(block))
-                    .message("Listing language does not match required pattern")
-                    .actualValue(language)
-                    .expectedValue("Pattern: " + langConfig.pattern())
+                    .expectedValue("One of: " + String.join(", ", config.getAllowed()))
                     .build());
             }
         }
     }
     
-    private void validateTitle(String title, ListingBlock config,
+    private void validateTitle(String title, ListingBlock.TitleConfig config,
                              BlockValidationContext context,
                              StructuralNode block,
                              List<ValidationMessage> messages) {
         
-        ListingBlock.TitleConfig titleConfig = config.title();
-        
-        if (titleConfig.required() && (title == null || title.trim().isEmpty())) {
+        if (config.isRequired() && (title == null || title.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(titleConfig.severity())
+                .severity(config.getSeverity())
                 .ruleId("listing.title.required")
                 .location(context.createLocation(block))
                 .message("Listing block must have a title")
@@ -162,158 +146,69 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         }
     }
     
-    private void validateCallouts(String content, ListingBlock config,
-                                BlockValidationContext context,
-                                StructuralNode block,
-                                List<ValidationMessage> messages) {
-        
-        ListingBlock.CalloutConfig calloutConfig = config.callouts();
-        
-        // Count callouts in content
-        int calloutCount = countCallouts(content);
-        
-        // Check if callouts are required
-        if (calloutConfig.required() && calloutCount == 0) {
-            messages.add(ValidationMessage.builder()
-                .severity(calloutConfig.severity())
-                .ruleId("listing.callouts.required")
-                .location(context.createLocation(block))
-                .message("Listing block must contain callouts")
-                .actualValue("No callouts")
-                .expectedValue("At least one callout required")
-                .build());
-            return;
-        }
-        
-        // Validate min/max callouts
-        if (calloutConfig.min() != null && calloutCount < calloutConfig.min()) {
-            messages.add(ValidationMessage.builder()
-                .severity(calloutConfig.severity())
-                .ruleId("listing.callouts.min")
-                .location(context.createLocation(block))
-                .message("Listing block has too few callouts")
-                .actualValue(String.valueOf(calloutCount))
-                .expectedValue("At least " + calloutConfig.min() + " callouts")
-                .build());
-        }
-        
-        if (calloutConfig.max() != null && calloutCount > calloutConfig.max()) {
-            messages.add(ValidationMessage.builder()
-                .severity(calloutConfig.severity())
-                .ruleId("listing.callouts.max")
-                .location(context.createLocation(block))
-                .message("Listing block has too many callouts")
-                .actualValue(String.valueOf(calloutCount))
-                .expectedValue("At most " + calloutConfig.max() + " callouts")
-                .build());
-        }
-        
-        // Validate callout style
-        if (calloutConfig.style() != null && calloutCount > 0) {
-            validateCalloutStyle(content, calloutConfig, context, block, messages);
-        }
-    }
-    
-    private int countCallouts(String content) {
-        if (content == null || content.isEmpty()) {
-            return 0;
-        }
-        
-        // Count callouts in format <1>, <2>, etc.
-        Pattern calloutPattern = Pattern.compile("<\\d+>");
-        int count = 0;
-        String[] lines = content.split("\n");
-        
-        for (String line : lines) {
-            if (calloutPattern.matcher(line).find()) {
-                count++;
-            }
-        }
-        
-        return count;
-    }
-    
-    private void validateCalloutStyle(String content, ListingBlock.CalloutConfig config,
-                                    BlockValidationContext context,
-                                    StructuralNode block,
-                                    List<ValidationMessage> messages) {
-        
-        String expectedStyle = config.style();
-        Pattern calloutPattern;
-        
-        // Define patterns for different callout styles
-        switch (expectedStyle) {
-            case "angle":
-                calloutPattern = Pattern.compile("<\\d+>");
-                break;
-            case "circle":
-                calloutPattern = Pattern.compile("\\(\\d+\\)");
-                break;
-            case "conum":
-                calloutPattern = Pattern.compile("CO\\d+");
-                break;
-            default:
-                // Unknown style, skip validation
-                return;
-        }
-        
-        // Check if content uses the expected style
-        String[] lines = content.split("\n");
-        for (String line : lines) {
-            // Check for any callout
-            if (line.matches(".*[<(]\\d+[>)].*") || line.contains("CO")) {
-                if (!calloutPattern.matcher(line).find()) {
-                    messages.add(ValidationMessage.builder()
-                        .severity(config.severity())
-                        .ruleId("listing.callouts.style")
-                        .location(context.createLocation(block))
-                        .message("Listing uses incorrect callout style")
-                        .actualValue("Mixed or incorrect style")
-                        .expectedValue("Style: " + expectedStyle)
-                        .build());
-                    break;
-                }
-            }
-        }
-    }
-    
-    private void validateLines(String content, ListingBlock config,
+    private void validateLines(String content, com.example.linter.config.rule.LineConfig config,
                              BlockValidationContext context,
                              StructuralNode block,
                              List<ValidationMessage> messages) {
-        
-        ListingBlock.LineConfig lineConfig = config.lines();
         
         // Count lines
         int lineCount = countLines(content);
         
         // Validate min lines
-        if (lineConfig.min() != null && lineCount < lineConfig.min()) {
+        if (config.min() != null && lineCount < config.min()) {
             messages.add(ValidationMessage.builder()
-                .severity(lineConfig.severity())
+                .severity(config.severity())
                 .ruleId("listing.lines.min")
                 .location(context.createLocation(block))
                 .message("Listing block has too few lines")
                 .actualValue(String.valueOf(lineCount))
-                .expectedValue("At least " + lineConfig.min() + " lines")
+                .expectedValue("At least " + config.min() + " lines")
                 .build());
         }
         
         // Validate max lines
-        if (lineConfig.max() != null && lineCount > lineConfig.max()) {
+        if (config.max() != null && lineCount > config.max()) {
             messages.add(ValidationMessage.builder()
-                .severity(lineConfig.severity())
+                .severity(config.severity())
                 .ruleId("listing.lines.max")
                 .location(context.createLocation(block))
                 .message("Listing block has too many lines")
                 .actualValue(String.valueOf(lineCount))
-                .expectedValue("At most " + lineConfig.max() + " lines")
+                .expectedValue("At most " + config.max() + " lines")
+                .build());
+        }
+    }
+    
+    private void validateCallouts(String content, ListingBlock.CalloutsConfig config,
+                                BlockValidationContext context,
+                                StructuralNode block,
+                                List<ValidationMessage> messages) {
+        
+        // Count callouts in content
+        int calloutCount = countCallouts(content);
+        
+        // Check if callouts are allowed
+        if (!config.isAllowed() && calloutCount > 0) {
+            messages.add(ValidationMessage.builder()
+                .severity(config.getSeverity())
+                .ruleId("listing.callouts.notAllowed")
+                .location(context.createLocation(block))
+                .message("Listing block must not contain callouts")
+                .actualValue(calloutCount + " callouts")
+                .expectedValue("No callouts allowed")
                 .build());
         }
         
-        // Validate max line length
-        if (lineConfig.maxLength() != null) {
-            validateLineLength(content, lineConfig, context, block, messages);
+        // Validate max callouts
+        if (config.getMax() != null && calloutCount > config.getMax()) {
+            messages.add(ValidationMessage.builder()
+                .severity(config.getSeverity())
+                .ruleId("listing.callouts.max")
+                .location(context.createLocation(block))
+                .message("Listing block has too many callouts")
+                .actualValue(String.valueOf(calloutCount))
+                .expectedValue("At most " + config.getMax() + " callouts")
+                .build());
         }
     }
     
@@ -326,25 +221,22 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         return lines.length;
     }
     
-    private void validateLineLength(String content, ListingBlock.LineConfig config,
-                                  BlockValidationContext context,
-                                  StructuralNode block,
-                                  List<ValidationMessage> messages) {
+    private int countCallouts(String content) {
+        if (content == null || content.isEmpty()) {
+            return 0;
+        }
         
+        // Count callouts in format <1>, <2>, etc.
+        int count = 0;
         String[] lines = content.split("\n");
-        int maxLength = config.maxLength();
         
-        for (int i = 0; i < lines.length; i++) {
-            if (lines[i].length() > maxLength) {
-                messages.add(ValidationMessage.builder()
-                    .severity(config.severity())
-                    .ruleId("listing.lines.maxLength")
-                    .location(context.createLocation(block))
-                    .message("Listing line " + (i + 1) + " exceeds maximum length")
-                    .actualValue(lines[i].length() + " characters")
-                    .expectedValue("At most " + maxLength + " characters")
-                    .build());
+        for (String line : lines) {
+            // Simple pattern to find <number>
+            if (line.matches(".*<\\d+>.*")) {
+                count++;
             }
         }
+        
+        return count;
     }
 }

@@ -84,17 +84,17 @@ public final class BlockValidationContext {
      * Gets a human-readable name for the block.
      */
     public String getBlockName(AbstractBlock config) {
-        if (config.name() != null) {
-            return "block '" + config.name() + "'";
+        if (config.getName() != null) {
+            return "block '" + config.getName() + "'";
         }
-        return config.type().toString().toLowerCase() + " block";
+        return config.getType().toString().toLowerCase() + " block";
     }
     
     private String createOccurrenceKey(AbstractBlock config) {
-        if (config.name() != null) {
-            return config.type() + ":" + config.name();
+        if (config.getName() != null) {
+            return config.getType() + ":" + config.getName();
         }
-        return config.type().toString();
+        return config.getType().toString();
     }
     
     /**

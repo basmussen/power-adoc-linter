@@ -6,6 +6,8 @@ import com.example.linter.config.BlockType;
 import com.example.linter.validator.ValidationMessage;
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.ast.Table;
+import org.asciidoctor.ast.Row;
+import org.asciidoctor.ast.Cell;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,10 +145,10 @@ public final class TableBlockValidator implements BlockTypeValidator {
         
         // Validate header pattern if header exists
         if (hasHeader && headerConfig.getPattern() != null) {
-            Pattern pattern = Pattern.compile(headerConfig.getPattern());
+            Pattern pattern = headerConfig.getPattern();
             
-            for (Table.Row headerRow : table.getHeader()) {
-                for (Table.Cell cell : headerRow.getCells()) {
+            for (Row headerRow : table.getHeader()) {
+                for (Cell cell : headerRow.getCells()) {
                     String content = cell.getText();
                     if (!pattern.matcher(content).matches()) {
                         messages.add(ValidationMessage.builder()
@@ -185,7 +187,7 @@ public final class TableBlockValidator implements BlockTypeValidator {
         if (caption != null && !caption.trim().isEmpty()) {
             // Validate caption pattern
             if (captionConfig.getPattern() != null) {
-                Pattern pattern = Pattern.compile(captionConfig.getPattern());
+                Pattern pattern = captionConfig.getPattern();
                 if (!pattern.matcher(caption).matches()) {
                     messages.add(ValidationMessage.builder()
                         .severity(captionConfig.getSeverity())

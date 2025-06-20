@@ -31,9 +31,9 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
         String content = getBlockContent(block);
         
         // Validate line count if configured
-        if (paragraphConfig.lines() != null) {
+        if (paragraphConfig.getLines() != null) {
             int lineCount = countLines(content);
-            validateLineCount(lineCount, paragraphConfig, context, block, messages);
+            validateLineCount(lineCount, paragraphConfig.getLines(), context, block, messages);
         }
         
         return messages;
@@ -45,10 +45,15 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
             return block.getContent().toString();
         }
         
-        // For paragraphs, source might contain the content
-        List<String> lines = block.getSourceLines();
-        if (lines != null && !lines.isEmpty()) {
-            return String.join("\n", lines);
+        // For paragraphs, check blocks
+        if (block.getBlocks() != null && !block.getBlocks().isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (StructuralNode child : block.getBlocks()) {
+                if (child.getContent() != null) {
+                    sb.append(child.getContent()).append("\n");
+                }
+            }
+            return sb.toString();
         }
         
         return "";
@@ -72,12 +77,10 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
     }
     
     private void validateLineCount(int actualLines, 
-                                 ParagraphBlock config,
+                                 com.example.linter.config.rule.LineConfig lineConfig,
                                  BlockValidationContext context,
                                  StructuralNode block,
                                  List<ValidationMessage> messages) {
-        
-        ParagraphBlock.LineConfig lineConfig = config.lines();
         
         if (lineConfig.min() != null && actualLines < lineConfig.min()) {
             messages.add(ValidationMessage.builder()
