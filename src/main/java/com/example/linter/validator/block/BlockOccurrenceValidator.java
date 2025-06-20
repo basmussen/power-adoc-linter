@@ -80,7 +80,7 @@ public final class BlockOccurrenceValidator {
         
         return com.example.linter.validator.SourceLocation.builder()
             .filename(context.getFilename())
-            .line(1) // Section start
+            .startLine(1) // Section start
             .build();
     }
 }

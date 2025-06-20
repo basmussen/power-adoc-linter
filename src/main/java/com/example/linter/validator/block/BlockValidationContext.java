@@ -42,7 +42,7 @@ public final class BlockValidationContext {
         
         return SourceLocation.builder()
             .filename(filename)
-            .line(line)
+            .startLine(line)
             .build();
     }
     
