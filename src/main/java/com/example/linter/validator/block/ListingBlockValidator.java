@@ -143,6 +143,20 @@ public final class ListingBlockValidator implements BlockTypeValidator {
                 .actualValue("No title")
                 .expectedValue("Title required")
                 .build());
+            return;
+        }
+        
+        if (title != null && config.getPattern() != null) {
+            if (!config.getPattern().matcher(title).matches()) {
+                messages.add(ValidationMessage.builder()
+                    .severity(config.getSeverity())
+                    .ruleId("listing.title.pattern")
+                    .location(context.createLocation(block))
+                    .message("Code listing title does not match required pattern")
+                    .actualValue(title)
+                    .expectedValue("Pattern: " + config.getPattern().pattern())
+                    .build());
+            }
         }
     }
     

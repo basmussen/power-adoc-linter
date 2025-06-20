@@ -19,11 +19,12 @@ public final class BlockTypeDetector {
             return null;
         }
         
-        // Check node context
-        String context = node.getContext();
-        if (context == null) {
-            return null;
-        }
+        try {
+            // Check node context
+            String context = node.getContext();
+            if (context == null) {
+                return null;
+            }
         
         // Map AsciidoctorJ contexts to our BlockTypes
         switch (context) {
@@ -52,6 +53,10 @@ public final class BlockTypeDetector {
                 
             default:
                 return null;
+        }
+        } catch (Exception e) {
+            // Handle any exceptions gracefully
+            return null;
         }
     }
     

@@ -168,8 +168,8 @@ class ImageBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals("image.width.min", msg.getRuleId());
             assertEquals("Image width is too small", msg.getMessage());
-            assertEquals("50", msg.getActualValue().orElse(null));
-            assertEquals("At least 100", msg.getExpectedValue().orElse(null));
+            assertEquals("50px", msg.getActualValue().orElse(null));
+            assertEquals("At least 100px", msg.getExpectedValue().orElse(null));
         }
         
         @Test

@@ -81,12 +81,23 @@ public final class BlockValidator {
         // Get all blocks from the section
         List<StructuralNode> blocks = section.getBlocks();
         
+        if (blocks == null || blocks.isEmpty()) {
+            return;
+        }
+        
         for (StructuralNode block : blocks) {
+            try {
             // Detect block type
             BlockType actualType = typeDetector.detectType(block);
             
             if (actualType == null) {
-                // Unknown block type, skip
+                // Unknown block type - add validation message
+                messages.add(ValidationMessage.builder()
+                    .severity(Severity.ERROR)
+                    .ruleId("block.type.unknown")
+                    .location(context.createLocation(block))
+                    .message("Unknown block type: " + block.getContext())
+                    .build());
                 continue;
             }
             
@@ -102,6 +113,15 @@ public final class BlockValidator {
                 if (validator != null) {
                     messages.addAll(validator.validate(block, blockConfig, context));
                 }
+            }
+            } catch (Exception e) {
+                // Handle validation exceptions gracefully
+                messages.add(ValidationMessage.builder()
+                    .severity(Severity.ERROR)
+                    .ruleId("block.validation.error")
+                    .location(context.createLocation(block))
+                    .message("Error validating block: " + e.getMessage())
+                    .build());
             }
         }
     }

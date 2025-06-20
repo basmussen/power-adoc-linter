@@ -231,19 +231,20 @@ public final class VerseBlockValidator implements BlockTypeValidator {
             return;
         }
         
-        if (content != null && !content.trim().isEmpty()) {
-            // Validate content length
-            if (config.getMinLength() != null && content.length() < config.getMinLength()) {
-                messages.add(ValidationMessage.builder()
-                    .severity(Severity.ERROR)
-                    .ruleId("verse.content.minLength")
-                    .location(context.createLocation(block))
-                    .message("Verse content is too short")
-                    .actualValue(content.length() + " characters")
-                    .expectedValue("At least " + config.getMinLength() + " characters")
-                    .build());
-            }
-            
+        // Validate content length
+        int contentLength = content != null ? content.length() : 0;
+        if (config.getMinLength() != null && contentLength < config.getMinLength()) {
+            messages.add(ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("verse.content.minLength")
+                .location(context.createLocation(block))
+                .message("Verse content is too short")
+                .actualValue(contentLength + " characters")
+                .expectedValue("At least " + config.getMinLength() + " characters")
+                .build());
+        }
+        
+        if (content != null) {
             if (config.getMaxLength() != null && content.length() > config.getMaxLength()) {
                 messages.add(ValidationMessage.builder()
                     .severity(Severity.ERROR)

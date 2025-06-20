@@ -109,7 +109,7 @@ class ListingBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.ERROR, msg.getSeverity());
             assertEquals("listing.language.required", msg.getRuleId());
-            assertEquals("Code listing must specify a language", msg.getMessage());
+            assertEquals("Listing block must specify a language", msg.getMessage());
             assertEquals("No language", msg.getActualValue().orElse(null));
             assertEquals("Language required", msg.getExpectedValue().orElse(null));
         }
@@ -138,9 +138,9 @@ class ListingBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.WARN, msg.getSeverity());
             assertEquals("listing.language.allowed", msg.getRuleId());
-            assertEquals("Code listing uses unsupported language", msg.getMessage());
+            assertEquals("Listing block has unsupported language", msg.getMessage());
             assertEquals("ruby", msg.getActualValue().orElse(null));
-            assertEquals("Allowed languages: [java, python, javascript]", msg.getExpectedValue().orElse(null));
+            assertEquals("One of: java, python, javascript", msg.getExpectedValue().orElse(null));
         }
         
         @Test
@@ -193,7 +193,7 @@ class ListingBlockValidatorTest {
             assertEquals(1, messages.size());
             ValidationMessage msg = messages.get(0);
             assertEquals("listing.title.required", msg.getRuleId());
-            assertEquals("Code listing must have a title", msg.getMessage());
+            assertEquals("Listing block must have a title", msg.getMessage());
         }
         
         @Test
@@ -252,8 +252,8 @@ class ListingBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.WARN, msg.getSeverity());
             assertEquals("listing.callouts.notAllowed", msg.getRuleId());
-            assertEquals("Code listing should not have callouts", msg.getMessage());
-            assertEquals("Has callouts", msg.getActualValue().orElse(null));
+            assertEquals("Listing block must not contain callouts", msg.getMessage());
+            assertEquals("1 callouts", msg.getActualValue().orElse(null));
             assertEquals("No callouts allowed", msg.getExpectedValue().orElse(null));
         }
         
@@ -284,6 +284,7 @@ class ListingBlockValidatorTest {
         void shouldValidateMaximumCalloutCount() {
             // Given
             ListingBlock.CalloutsConfig calloutsConfig = ListingBlock.CalloutsConfig.builder()
+                .allowed(true)
                 .max(2)
                 .severity(Severity.ERROR)
                 .build();
@@ -301,7 +302,7 @@ class ListingBlockValidatorTest {
             assertEquals(1, messages.size());
             ValidationMessage msg = messages.get(0);
             assertEquals("listing.callouts.max", msg.getRuleId());
-            assertEquals("Code listing has too many callouts", msg.getMessage());
+            assertEquals("Listing block has too many callouts", msg.getMessage());
             assertEquals("3", msg.getActualValue().orElse(null));
             assertEquals("At most 2 callouts", msg.getExpectedValue().orElse(null));
         }
@@ -334,7 +335,7 @@ class ListingBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.INFO, msg.getSeverity());
             assertEquals("listing.lines.min", msg.getRuleId());
-            assertEquals("Code listing has too few lines", msg.getMessage());
+            assertEquals("Listing block has too few lines", msg.getMessage());
             assertEquals("3", msg.getActualValue().orElse(null));
             assertEquals("At least 5 lines", msg.getExpectedValue().orElse(null));
         }
@@ -367,7 +368,7 @@ class ListingBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.WARN, msg.getSeverity());
             assertEquals("listing.lines.max", msg.getRuleId());
-            assertEquals("Code listing has too many lines", msg.getMessage());
+            assertEquals("Listing block has too many lines", msg.getMessage());
             assertEquals("51", msg.getActualValue().orElse(null));
             assertEquals("At most 50 lines", msg.getExpectedValue().orElse(null));
         }

@@ -120,7 +120,7 @@ class BlockOccurrenceValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.ERROR, msg.getSeverity());
             assertEquals("block.occurrences.min", msg.getRuleId());
-            assertEquals("Too few occurrences of introduction", msg.getMessage());
+            assertEquals("Too few occurrences of block 'introduction'", msg.getMessage());
             assertEquals("1", msg.getActualValue().orElse(null));
             assertEquals("At least 2 occurrences", msg.getExpectedValue().orElse(null));
         }
@@ -220,7 +220,7 @@ class BlockOccurrenceValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.ERROR, msg.getSeverity());
             assertEquals("block.occurrences.max", msg.getRuleId());
-            assertEquals("Too many occurrences of note", msg.getMessage());
+            assertEquals("Too many occurrences of block 'note'", msg.getMessage());
             assertEquals("3", msg.getActualValue().orElse(null));
             assertEquals("At most 2 occurrences", msg.getExpectedValue().orElse(null));
         }

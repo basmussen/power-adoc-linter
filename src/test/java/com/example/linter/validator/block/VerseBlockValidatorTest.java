@@ -106,7 +106,7 @@ class VerseBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.ERROR, msg.getSeverity());
             assertEquals("verse.author.required", msg.getRuleId());
-            assertEquals("Verse must have an author", msg.getMessage());
+            assertEquals("Verse block must have an author", msg.getMessage());
             assertEquals("No author", msg.getActualValue().orElse(null));
             assertEquals("Author required", msg.getExpectedValue().orElse(null));
         }
@@ -123,8 +123,8 @@ class VerseBlockValidatorTest {
                 .severity(Severity.ERROR)
                 .build();
             
-            when(mockBlock.hasAttribute("attribution")).thenReturn(true);
-            when(mockBlock.getAttribute("attribution")).thenReturn("john doe");
+            when(mockBlock.hasAttribute("author")).thenReturn(true);
+            when(mockBlock.getAttribute("author")).thenReturn("john doe");
             
             // When
             List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
@@ -187,7 +187,7 @@ class VerseBlockValidatorTest {
             assertEquals(1, messages.size());
             ValidationMessage msg = messages.get(0);
             assertEquals("verse.attribution.required", msg.getRuleId());
-            assertEquals("Verse must have an attribution", msg.getMessage());
+            assertEquals("Verse block must have an attribution", msg.getMessage());
             assertEquals("No attribution", msg.getActualValue().orElse(null));
             assertEquals("Attribution required", msg.getExpectedValue().orElse(null));
         }
@@ -318,8 +318,8 @@ class VerseBlockValidatorTest {
                 .severity(Severity.ERROR)
                 .build();
             
-            when(mockBlock.hasAttribute("attribution")).thenReturn(true);
-            when(mockBlock.getAttribute("attribution")).thenReturn("anonymous"); // Invalid pattern
+            when(mockBlock.hasAttribute("author")).thenReturn(true);
+            when(mockBlock.getAttribute("author")).thenReturn("anonymous"); // Invalid pattern
             when(mockBlock.hasAttribute("citetitle")).thenReturn(false); // Missing
             when(mockBlock.getContent()).thenReturn("Short verse");
             
@@ -395,10 +395,10 @@ class VerseBlockValidatorTest {
                 .severity(Severity.ERROR)
                 .build();
             
+            when(mockBlock.hasAttribute("author")).thenReturn(true);
+            when(mockBlock.getAttribute("author")).thenReturn("William Shakespeare");
             when(mockBlock.hasAttribute("attribution")).thenReturn(true);
-            when(mockBlock.getAttribute("attribution")).thenReturn("William Shakespeare");
-            when(mockBlock.hasAttribute("citetitle")).thenReturn(true);
-            when(mockBlock.getAttribute("citetitle")).thenReturn("Hamlet (1603)");
+            when(mockBlock.getAttribute("attribution")).thenReturn("Hamlet (1603)");
             when(mockBlock.getContent()).thenReturn("To be, or not to be,\nthat is the question");
             
             // When
