@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: https://example.com/schemas/blocks/paragraph-block.schema.yaml
+$id: classpath:/schemas/blocks/paragraph-block.schema.yaml
 title: Paragraph Block Configuration Schema
 description: Schema for validating paragraph block configuration in AsciiDoc linter
 type: object

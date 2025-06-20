@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: https://example.com/schemas/blocks/verse-block.schema.yaml
+$id: classpath:/schemas/blocks/verse-block.schema.yaml
 title: Verse Block Configuration Schema
 description: Schema for validating verse block configuration in AsciiDoc linter
 type: object

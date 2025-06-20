@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: https://example.com/schemas/blocks/listing-block.schema.yaml
+$id: classpath:/schemas/blocks/listing-block.schema.yaml
 title: Listing Block Configuration Schema
 description: Schema for validating listing/code block configuration in AsciiDoc linter
 type: object

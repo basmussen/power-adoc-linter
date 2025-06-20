@@ -6,6 +6,8 @@ import com.example.linter.config.rule.AttributeConfig;
 import com.example.linter.config.rule.OccurrenceConfig;
 import com.example.linter.config.rule.SectionConfig;
 import com.example.linter.config.rule.TitleConfig;
+import com.example.linter.config.validation.RuleSchemaValidator;
+import com.example.linter.config.validation.RuleValidationException;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -26,17 +28,42 @@ import java.util.*;
 public class ConfigurationLoader {
     
     private final Yaml yaml;
+    private final RuleSchemaValidator schemaValidator;
+    private final boolean skipSchemaValidation;
     
     public ConfigurationLoader() {
+        this(false);
+    }
+    
+    public ConfigurationLoader(boolean skipSchemaValidation) {
         LoaderOptions loaderOptions = new LoaderOptions();
         CustomConstructor constructor = new CustomConstructor(loaderOptions);
         DumperOptions dumperOptions = new DumperOptions();
         Representer representer = new Representer(dumperOptions);
         
         this.yaml = new Yaml(constructor, representer, dumperOptions, loaderOptions);
+        this.skipSchemaValidation = skipSchemaValidation;
+        
+        if (!skipSchemaValidation) {
+            this.schemaValidator = new RuleSchemaValidator();
+        } else {
+            this.schemaValidator = null;
+            System.err.println("WARNING: Rule configuration schema validation is DISABLED");
+        }
     }
     
     public LinterConfiguration loadConfiguration(Path configPath) throws IOException {
+        // First: Validate user config against schema
+        if (!skipSchemaValidation && schemaValidator != null) {
+            try {
+                schemaValidator.validateUserConfig(configPath);
+            } catch (RuleValidationException e) {
+                throw new ConfigurationException(
+                    "User configuration does not match schema: " + e.getMessage(), e);
+            }
+        }
+        
+        // Then: Parse the validated config
         try (InputStream inputStream = Files.newInputStream(configPath)) {
             return loadConfiguration(inputStream);
         }
