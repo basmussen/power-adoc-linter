@@ -38,9 +38,3 @@ jobs:
       with:
         name: dependency-check-report
         path: target/dependency-check-report.*
-    
-    - name: Dependabot Security Alerts
-      uses: dependabot/dependabot-core@v0.221.0
-      if: github.event_name == 'schedule'
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
