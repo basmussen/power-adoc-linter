@@ -24,7 +24,7 @@ public final class LinterConfiguration {
         }
 
         public LinterConfiguration build() {
-            Objects.requireNonNull(document, "document is required");
+            // Allow empty configuration
             return new LinterConfiguration(this);
         }
     }
