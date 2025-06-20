@@ -32,6 +32,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should validate document with matching sections")
         void shouldValidateDocumentWithMatchingSections() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -68,11 +69,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(introSection, gettingStartedSection))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertTrue(result.isValid());
             assertEquals(0, result.getMessages().size());
         }
@@ -80,6 +82,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should detect missing required sections")
         void shouldDetectMissingRequiredSections() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -102,11 +105,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(requiredSection))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertFalse(result.isValid());
             assertEquals(2, result.getMessages().size());
             
@@ -124,6 +128,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should detect too many section occurrences")
         void shouldDetectTooManySectionOccurrences() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -149,11 +154,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(section))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertFalse(result.isValid());
             assertEquals(1, result.getMessages().size());
             
@@ -172,6 +178,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should validate section title with pattern")
         void shouldValidateSectionTitleWithPattern() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -197,11 +204,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(chapterSection))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertTrue(result.isValid());
             assertEquals(0, result.getMessages().size());
         }
@@ -209,6 +217,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should detect title pattern mismatch")
         void shouldDetectTitlePatternMismatch() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -231,11 +240,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(section))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertFalse(result.isValid());
             
             ValidationMessage message = result.getMessages().stream()
@@ -257,6 +267,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should detect incorrect section level")
         void shouldDetectIncorrectSectionLevel() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -279,13 +290,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(section))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
-            assertFalse(result.isValid());
-            
+            // Then
             assertFalse(result.isValid());
             
             ValidationMessage unexpectedMessage = result.getMessages().stream()
@@ -306,6 +316,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should validate correct section order")
         void shouldValidateCorrectSectionOrder() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -353,11 +364,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(intro, prereq, install))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertTrue(result.isValid());
             assertEquals(0, result.getMessages().size());
         }
@@ -365,6 +377,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should detect incorrect section order")
         void shouldDetectIncorrectSectionOrder() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -399,11 +412,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(intro, install))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertFalse(result.isValid());
             assertEquals(1, result.getMessages().size());
             
@@ -422,6 +436,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should validate nested subsections")
         void shouldValidateNestedSubsections() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -473,11 +488,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(featuresSection))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertTrue(result.isValid());
             assertEquals(0, result.getMessages().size());
         }
@@ -485,6 +501,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should detect missing required subsections")
         void shouldDetectMissingRequiredSubsections() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -522,11 +539,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(featuresSection))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertFalse(result.isValid());
             assertEquals(2, result.getMessages().size());
             
@@ -549,6 +567,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should handle empty document")
         void shouldHandleEmptyDocument() {
+            // Given
             String content = "= Document Title\n";
             
             SectionConfig section = SectionConfig.builder()
@@ -562,11 +581,12 @@ class SectionValidatorTest {
                 .sections(Arrays.asList(section))
                 .build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertTrue(result.isValid());
             assertEquals(0, result.getMessages().size());
         }
@@ -574,6 +594,7 @@ class SectionValidatorTest {
         @Test
         @DisplayName("should handle document with no configured sections")
         void shouldHandleDocumentWithNoConfiguredSections() {
+            // Given
             String content = """
                 = Document Title
                 
@@ -583,11 +604,12 @@ class SectionValidatorTest {
             
             DocumentConfiguration config = DocumentConfiguration.builder().build();
             
+            // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
             Document document = asciidoctor.load(content, new java.util.HashMap<>());
-            
             ValidationResult result = validator.validate(document);
             
+            // Then
             assertTrue(result.isValid());
             assertEquals(0, result.getMessages().size());
         }
