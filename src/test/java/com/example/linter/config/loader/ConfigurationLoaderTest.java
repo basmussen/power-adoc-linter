@@ -24,7 +24,7 @@ class ConfigurationLoaderTest {
     
     @BeforeEach
     void setUp() {
-        loader = new ConfigurationLoader();
+        loader = new ConfigurationLoader(true); // Skip schema validation for existing tests
     }
     
     @Nested

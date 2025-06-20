@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: https://example.com/schemas/metadata/metadata.schema.yaml
+$id: https://example.com/schemas/metadata/metadata-schema.yaml
 title: Document Metadata Configuration Schema
 description: Schema for validating document metadata configuration in AsciiDoc linter
 type: object

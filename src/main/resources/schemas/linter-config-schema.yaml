@@ -5,10 +5,30 @@ description: Complete schema for the AsciiDoc linter configuration file
 type: object
 required:
   - document
+additionalProperties: false
 properties:
   document:
-    $ref: './document/document-schema.yaml'
-    description: Document-level validation rules
+    type: object
+    additionalProperties: false
+    properties:
+      metadata:
+        $ref: "#/$defs/metadata"
+      sections:
+        type: array
+        minItems: 0
+        items:
+          $ref: "#/$defs/section"
+
+$defs:
+  severity:
+    type: string
+    enum: [error, warn, info]
+  
+  metadata:
+    $ref: './metadata/metadata-schema.yaml'
+  
+  section:
+    $ref: './sections/section-schema.yaml'
 
 examples:
   - document:
