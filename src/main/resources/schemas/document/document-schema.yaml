@@ -1,0 +1,261 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://example.com/schemas/document-schema.yaml
+title: Document Configuration Schema
+description: Schema for the document configuration section of the AsciiDoc linter
+type: object
+required:
+  - metadata
+  - sections
+properties:
+  metadata:
+    $ref: '#/$defs/metadata'
+  sections:
+    type: array
+    description: Defines the allowed structure and order of document sections
+    minItems: 1
+    items:
+      $ref: '#/$defs/section'
+
+$defs:
+  metadata:
+    type: object
+    description: Document metadata requirements in the header
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: array
+        description: List of metadata attributes with validation rules
+        minItems: 1
+        items:
+          $ref: '#/$defs/metadataAttribute'
+  
+  metadataAttribute:
+    type: object
+    description: Definition of a single metadata field with validation rules
+    required:
+      - name
+      - severity
+    properties:
+      name:
+        type: string
+        description: The name of the metadata attribute
+        pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        examples:
+          - title
+          - author
+          - revdate
+          - version
+          - email
+          - copyright
+          - keywords
+      order:
+        type: integer
+        description: Optional order in the document (1-based)
+        minimum: 1
+      required:
+        type: boolean
+        description: Whether this attribute is required
+        default: false
+      minLength:
+        type: integer
+        description: Minimum length of the attribute value
+        minimum: 0
+      maxLength:
+        type: integer
+        description: Maximum length of the attribute value
+        minimum: 1
+      pattern:
+        type: string
+        description: Regular expression pattern the value must match
+        format: regex
+      severity:
+        $ref: '../common/severity-schema.yaml#/$defs/severity'
+    allOf:
+      - if:
+          properties:
+            minLength:
+              type: integer
+            maxLength:
+              type: integer
+        then:
+          properties:
+            maxLength:
+              minimum:
+                $data: "/minLength"
+          errorMessage: "maxLength must be greater than or equal to minLength"
+  
+  section:
+    type: object
+    description: Section definition with allowed content and subsections
+    required:
+      - level
+    properties:
+      name:
+        type: string
+        description: Internal name for references
+        pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
+      order:
+        type: integer
+        description: Required position among sibling sections
+        minimum: 1
+      level:
+        type: integer
+        description: Heading level (1 = ==, 2 = ===, etc.)
+        minimum: 1
+        maximum: 6
+      min:
+        type: integer
+        description: Minimum occurrences of this section
+        minimum: 0
+        default: 0
+      max:
+        type: integer
+        description: Maximum occurrences of this section
+        minimum: 1
+      title:
+        $ref: '#/$defs/titleConfig'
+      allowedBlocks:
+        type: array
+        description: Block types allowed in this section
+        items:
+          $ref: '#/$defs/blockReference'
+      subsections:
+        type: array
+        description: Allowed subsections within this section
+        items:
+          $ref: '#/$defs/section'
+    allOf:
+      - if:
+          properties:
+            min:
+              type: integer
+            max:
+              type: integer
+        then:
+          properties:
+            max:
+              minimum:
+                $data: "/min"
+          errorMessage: "max must be greater than or equal to min"
+      - if:
+          properties:
+            order:
+              type: integer
+          required:
+            - order
+        then:
+          required:
+            - name
+          errorMessage: "name is required when order is specified"
+  
+  titleConfig:
+    type: object
+    description: Title validation rules for a section
+    properties:
+      pattern:
+        type: string
+        description: Regular expression pattern the title must match
+        format: regex
+      exactMatch:
+        type: string
+        description: Exact string the title must match (alternative to pattern)
+    oneOf:
+      - required: [pattern]
+      - required: [exactMatch]
+    additionalProperties: false
+  
+  blockReference:
+    type: object
+    description: Reference to a block type with its configuration
+    minProperties: 1
+    maxProperties: 1
+    patternProperties:
+      "^(paragraph|listing|table|image|verse)$":
+        $ref: '#/$defs/blockConfig'
+    additionalProperties: false
+  
+  blockConfig:
+    type: object
+    description: Configuration for a specific block type
+    required:
+      - severity
+    properties:
+      name:
+        type: string
+        description: Optional specific name for validation messages
+        pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
+      severity:
+        $ref: '../common/severity-schema.yaml#/$defs/severity'
+      occurrence:
+        $ref: '#/$defs/occurrenceConfig'
+    additionalProperties:
+      type: object
+      description: Block-specific configuration properties
+  
+  occurrenceConfig:
+    type: object
+    description: Structural properties for block occurrences
+    properties:
+      order:
+        type: integer
+        description: Required position among sibling blocks
+        minimum: 1
+      min:
+        type: integer
+        description: Minimum occurrences
+        minimum: 0
+        default: 0
+      max:
+        type: integer
+        description: Maximum occurrences
+        minimum: 1
+      severity:
+        $ref: '../common/severity-schema.yaml#/$defs/severity'
+        description: Optional severity override for occurrence violations
+    allOf:
+      - if:
+          properties:
+            min:
+              type: integer
+            max:
+              type: integer
+        then:
+          properties:
+            max:
+              minimum:
+                $data: "/min"
+          errorMessage: "max must be greater than or equal to min"
+
+examples:
+  - metadata:
+      attributes:
+        - name: title
+          order: 1
+          required: true
+          minLength: 5
+          maxLength: 100
+          pattern: "^[A-Z].*"
+          severity: error
+        - name: author
+          order: 2
+          required: true
+          minLength: 5
+          maxLength: 50
+          pattern: "^[A-Z][a-zA-Z\\s\\.]+$"
+          severity: error
+    sections:
+      - name: introduction
+        order: 1
+        level: 1
+        min: 1
+        max: 1
+        title:
+          pattern: "^(Introduction|Einführung|Einleitung)$"
+        allowedBlocks:
+          - paragraph:
+              severity: warn
+              occurrence:
+                min: 1
+                max: 3
+                severity: error

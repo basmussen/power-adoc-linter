@@ -1,0 +1,273 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://example.com/schemas/document/block-configs-schema.yaml
+title: Block Configurations within Document Context
+description: Specific configurations for different block types when used in document sections
+
+$defs:
+  paragraphConfig:
+    type: object
+    description: Paragraph block configuration
+    required:
+      - severity
+    properties:
+      name:
+        type: string
+        description: Optional specific name for validation messages
+      severity:
+        $ref: '../common/severity-schema.yaml#/$defs/severity'
+      occurrence:
+        $ref: '../document/document-schema.yaml#/$defs/occurrenceConfig'
+      lines:
+        type: object
+        description: Line count constraints
+        properties:
+          min:
+            type: integer
+            minimum: 1
+          max:
+            type: integer
+            minimum: 1
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+  
+  listingConfig:
+    type: object
+    description: Listing (code block) configuration
+    required:
+      - severity
+    properties:
+      name:
+        type: string
+        description: Optional specific name for validation messages
+      severity:
+        $ref: '../common/severity-schema.yaml#/$defs/severity'
+      occurrence:
+        $ref: '../document/document-schema.yaml#/$defs/occurrenceConfig'
+      language:
+        type: object
+        description: Programming language constraints
+        properties:
+          required:
+            type: boolean
+            default: false
+          allowed:
+            type: array
+            items:
+              type: string
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      title:
+        type: object
+        description: Title constraints
+        properties:
+          required:
+            type: boolean
+            default: false
+          pattern:
+            type: string
+            format: regex
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      callouts:
+        type: object
+        description: Callout constraints
+        properties:
+          allowed:
+            type: boolean
+            default: true
+          max:
+            type: integer
+            minimum: 0
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+  
+  tableConfig:
+    type: object
+    description: Table block configuration
+    required:
+      - severity
+    properties:
+      name:
+        type: string
+        description: Optional specific name for validation messages
+      severity:
+        $ref: '../common/severity-schema.yaml#/$defs/severity'
+      occurrence:
+        $ref: '../document/document-schema.yaml#/$defs/occurrenceConfig'
+      columns:
+        type: object
+        description: Column constraints
+        properties:
+          min:
+            type: integer
+            minimum: 1
+          max:
+            type: integer
+            minimum: 1
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      rows:
+        type: object
+        description: Row constraints
+        properties:
+          min:
+            type: integer
+            minimum: 1
+          max:
+            type: integer
+            minimum: 1
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      header:
+        type: object
+        description: Header requirements
+        properties:
+          required:
+            type: boolean
+            default: false
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      caption:
+        type: object
+        description: Caption requirements
+        properties:
+          required:
+            type: boolean
+            default: false
+          pattern:
+            type: string
+            format: regex
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      format:
+        type: object
+        description: Table format constraints
+        properties:
+          allowed:
+            type: array
+            items:
+              type: string
+              enum: [csv, dsv, psv]
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+  
+  imageConfig:
+    type: object
+    description: Image block configuration
+    required:
+      - severity
+    properties:
+      name:
+        type: string
+        description: Optional specific name for validation messages
+      severity:
+        $ref: '../common/severity-schema.yaml#/$defs/severity'
+      occurrence:
+        $ref: '../document/document-schema.yaml#/$defs/occurrenceConfig'
+      url:
+        type: object
+        description: URL constraints
+        properties:
+          required:
+            type: boolean
+            default: true
+          pattern:
+            type: string
+            format: regex
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      height:
+        type: object
+        description: Height constraints
+        properties:
+          required:
+            type: boolean
+            default: false
+          minValue:
+            type: integer
+            minimum: 1
+          maxValue:
+            type: integer
+            minimum: 1
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      width:
+        type: object
+        description: Width constraints
+        properties:
+          required:
+            type: boolean
+            default: false
+          minValue:
+            type: integer
+            minimum: 1
+          maxValue:
+            type: integer
+            minimum: 1
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      alt:
+        type: object
+        description: Alt text constraints
+        properties:
+          required:
+            type: boolean
+            default: true
+          minLength:
+            type: integer
+            minimum: 1
+          maxLength:
+            type: integer
+            minimum: 1
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+  
+  verseConfig:
+    type: object
+    description: Verse/quote block configuration
+    required:
+      - severity
+    properties:
+      name:
+        type: string
+        description: Optional specific name for validation messages
+      severity:
+        $ref: '../common/severity-schema.yaml#/$defs/severity'
+      occurrence:
+        $ref: '../document/document-schema.yaml#/$defs/occurrenceConfig'
+      author:
+        type: object
+        description: Author constraints
+        properties:
+          required:
+            type: boolean
+            default: false
+          pattern:
+            type: string
+            format: regex
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      attribution:
+        type: object
+        description: Attribution/source constraints
+        properties:
+          required:
+            type: boolean
+            default: false
+          pattern:
+            type: string
+            format: regex
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'
+      content:
+        type: object
+        description: Content constraints
+        properties:
+          minLength:
+            type: integer
+            minimum: 1
+          maxLength:
+            type: integer
+            minimum: 1
+          severity:
+            $ref: '../common/severity-schema.yaml#/$defs/severity'

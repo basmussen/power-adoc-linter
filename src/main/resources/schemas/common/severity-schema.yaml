@@ -1,0 +1,17 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://example.com/schemas/common/severity-schema.yaml
+title: Common Severity Schema
+description: Reusable severity level definition
+
+$defs:
+  severity:
+    type: string
+    description: Severity level for validation violations
+    enum:
+      - error
+      - warn
+      - info
+    examples:
+      - error   # Validation failure, non-zero exit code
+      - warn    # Warning, may need attention
+      - info    # Informational message only
