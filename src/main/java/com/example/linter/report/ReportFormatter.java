@@ -1,0 +1,25 @@
+package com.example.linter.report;
+
+import com.example.linter.validator.ValidationResult;
+import java.io.PrintWriter;
+
+/**
+ * Interface for formatting validation results in different output formats.
+ */
+public interface ReportFormatter {
+    
+    /**
+     * Formats the validation result and writes it to the provided writer.
+     * 
+     * @param result the validation result to format
+     * @param writer the writer to output the formatted result
+     */
+    void format(ValidationResult result, PrintWriter writer);
+    
+    /**
+     * Returns the name of this formatter (e.g., "console", "json").
+     * 
+     * @return the formatter name
+     */
+    String getName();
+}
