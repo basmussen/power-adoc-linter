@@ -55,6 +55,10 @@ public final class ValidationResult {
     public boolean hasWarnings() {
         return messages.stream().anyMatch(msg -> msg.getSeverity() == Severity.WARN);
     }
+    
+    public boolean hasMessages() {
+        return !messages.isEmpty();
+    }
 
     public int getErrorCount() {
         return (int) messages.stream()

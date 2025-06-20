@@ -74,6 +74,35 @@ public class ReportWriter {
         write(result, format, outputPath != null ? outputPath.toString() : null);
     }
     
+    /**
+     * Writes the validation result to a PrintWriter using the specified format.
+     * 
+     * @param result the validation result to write
+     * @param format the output format
+     * @param writer the writer to write to
+     */
+    public void write(ValidationResult result, String format, PrintWriter writer) {
+        Objects.requireNonNull(result, "result must not be null");
+        Objects.requireNonNull(writer, "writer must not be null");
+        
+        ReportFormatter formatter = getFormatter(format);
+        formatter.format(result, writer);
+        writer.flush();
+    }
+    
+    /**
+     * Writes the validation result to the console using the specified format.
+     * 
+     * @param result the validation result to write
+     * @param format the output format
+     */
+    public void writeToConsole(ValidationResult result, String format) {
+        Objects.requireNonNull(result, "result must not be null");
+        
+        ReportFormatter formatter = getFormatter(format);
+        writeToConsole(result, formatter);
+    }
+    
     private void writeToConsole(ValidationResult result, ReportFormatter formatter) {
         try (PrintWriter writer = new PrintWriter(System.out)) {
             formatter.format(result, writer);
