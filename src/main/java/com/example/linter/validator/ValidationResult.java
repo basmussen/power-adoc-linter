@@ -44,6 +44,10 @@ public final class ValidationResult {
                 ));
     }
 
+    public boolean isValid() {
+        return !hasErrors();
+    }
+
     public boolean hasErrors() {
         return messages.stream().anyMatch(msg -> msg.getSeverity() == Severity.ERROR);
     }

@@ -27,9 +27,11 @@ mvn clean test jacoco:check
 # Run a specific test class
 mvn test -Dtest=ConfigurationLoaderTest
 mvn test -Dtest=BlockValidatorTest
+mvn test -Dtest=SectionValidatorTest
 
 # Run tests from a specific package
 mvn test -Dtest="com.example.linter.config.blocks.*"
+mvn test -Dtest="com.example.linter.validator.*"
 mvn test -Dtest="com.example.linter.validator.block.*"
 
 # Run tests matching a pattern
@@ -73,18 +75,21 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 
 ### Core Design Patterns
 
-1. **Builder Pattern**: All configuration classes use immutable builders
+1. **Builder Pattern**: All configuration classes and validators use immutable builders
    - Example: `LinterConfiguration.builder().build()`
    - Every config class has a static `builder()` method
    - Builders use `Objects.requireNonNull()` for required fields
+   - Validators use `fromConfiguration()` factory methods
 
-2. **Inheritance Hierarchy**: Block types extend `AbstractBlock`
+2. **Inheritance Hierarchy**: 
+   - Block types extend `AbstractBlock`
    - Concrete implementations: `ParagraphBlock`, `ListingBlock`, `TableBlock`, `ImageBlock`, `VerseBlock`
    - Each block type has specific validation rules as inner classes
+   - Validation rules implement `AttributeRule` interface
 
 3. **Configuration Loading**: YAML-based configuration through `ConfigurationLoader`
    - Supports file and stream-based loading
-   - Hierarchical structure: LinterConfiguration → DocumentConfiguration → Sections/Metadata
+   - Hierarchical structure: LinterConfiguration → DocumentConfiguration → Sections/Metadata → Blocks/Rules
    - Uses SnakeYAML with custom constructors for complex types
 
 4. **Validator Pattern**: Each block type has a corresponding validator
@@ -104,16 +109,17 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
   - `ConfigurationLoader` with custom YAML constructors
   - `ConfigurationException` for loading errors
 - `com.example.linter.config.rule`: Reusable rule configurations
-  - `OrderConfig`, `LineConfig`, `OccurrenceConfig`, `AttributeConfig`, etc.
+  - `OrderConfig`, `LineConfig`, `OccurrenceConfig`, `AttributeConfig`, `SectionConfig`, `TitleConfig`
 - `com.example.linter.validator`: Core validation framework
   - `ValidationResult`, `ValidationMessage`, `SourceLocation`
-  - `MetadataValidator`, `BlockValidator` orchestrators
+  - `MetadataValidator`, `SectionValidator`, `BlockValidator` orchestrators
 - `com.example.linter.validator.block`: Block-level validators
   - One validator per block type
   - Supporting validators: `BlockOccurrenceValidator`, `BlockOrderValidator`
   - `BlockTypeDetector` for runtime type detection
 - `com.example.linter.validator.rules`: Generic validation rules
   - `RequiredRule`, `PatternRule`, `LengthRule`, `OrderRule`
+  - All implement `AttributeRule` interface
 
 ### Key Components
 
@@ -145,15 +151,27 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 
 4. **Severity Levels**: ERROR, WARN, INFO for all validation rules
 
+### Validation Architecture
+
+- **Validators** compose multiple **Rules** for flexible validation
+- **Rules** implement the `AttributeRule` interface:
+  - `RequiredRule`: Validates attribute presence
+  - `PatternRule`: Regex-based validation
+  - `LengthRule`: Min/max length constraints
+  - `OrderRule`: Attribute order validation
+- All validation errors include both actualValue and expectedValue
+- Precise source location tracking with line numbers
+
 ### Testing Strategy
 
 - JUnit 5 with nested test classes for organization
 - Test naming pattern: "should..." with @DisplayName annotations
-- Given-When-Then structure in test methods
 - Comprehensive equals/hashCode testing for all domain objects
 - Builder pattern validation (null checks, required fields)
 - Mockito for mocking AsciidoctorJ objects
 - Code coverage tracked with JaCoCo (target: 70% line, 65% branch)
+- Test assertions use exact string matches, not contains()
+- AsciidoctorJ section levels: == is Level 1, === is Level 2
 
 ### Code Coverage Requirements
 
@@ -175,7 +193,7 @@ Current coverage gaps (prioritize these for testing):
 - Use gitflow: master, develop, feature/*, bugfix/* branches
 - Feature branches: `feature/{issue-number}-{description}`
 - Commit format: `#{issue-number} {single sentence description}`
-- Example: `#2 Implement YAML parser for linter configuration`
+- Example: `#4 Implement SectionValidator with hierarchical section structure validation`
 
 ### Code Conventions
 
@@ -185,6 +203,7 @@ Current coverage gaps (prioritize these for testing):
 - Proper equals/hashCode implementations (use Objects.hash, handle nulls)
 - No comments in production code unless absolutely necessary
 - Exception handling: wrap in domain exceptions, provide context
+- All validation messages must include actualValue and expectedValue
 
 ### Adding New Features
 
@@ -196,13 +215,20 @@ Current coverage gaps (prioritize these for testing):
    - Register validator in `BlockValidatorFactory`
    - Add comprehensive test class with nested test structure
 
-2. **New Validation Rules**: 
-   - Create inner classes within the block type
+2. **New Validators**:
+   - Follow MetadataValidator/SectionValidator patterns
+   - Use Builder pattern with `fromConfiguration()` factory
+   - Compose validation rules for flexibility
+   - Return `ValidationResult` with detailed messages
+
+3. **New Validation Rules**: 
+   - Implement `AttributeRule` interface
    - Use builder pattern with required severity field
-   - Implement equals/hashCode properly (handle Pattern objects specially)
+   - Include actualValue/expectedValue in messages
+   - Handle Pattern objects specially in equals/hashCode
    - Add validator logic in corresponding BlockValidator
 
-3. **Configuration Extensions**: 
+4. **Configuration Extensions**: 
    - Update `ConfigurationLoader` to parse new attributes
    - Add test cases in `ConfigurationLoaderTest`
    - Update `linter-config-specification.yaml` with examples
@@ -223,6 +249,7 @@ Current coverage gaps (prioritize these for testing):
 - ✅ Validation rules framework with severity levels
 - ✅ JSON Schema definitions for block types (in `src/main/resources/schemas/blocks/`)
 - ✅ MetadataValidator - validates document metadata attributes
+- ✅ SectionValidator - validates section structure, hierarchy, and ordering
 - ✅ Block-level validators with concrete implementations:
   - ✅ BlockTypeValidator interface and implementations for each block type
   - ✅ ParagraphBlockValidator - validates paragraph line counts
@@ -235,18 +262,21 @@ Current coverage gaps (prioritize these for testing):
   - ✅ BlockValidator orchestrator - coordinates all block validation
 - ✅ ValidationResult and reporting framework
 - ✅ JaCoCo code coverage analysis configured
-- ⏳ AsciiDoc document parsing with AsciidoctorJ integration
-- ⏳ SectionValidator - section structure validation
+- ✅ AsciidoctorJ document parsing integration
 - ⏳ Rule execution engine for complete document validation
 - ⏳ CLI interface
 
 ## Important Files
 
 - **Configuration Specification**: `docs/linter-config-specification.yaml` - Full example configuration
-- **Schema Definitions**: `src/main/resources/schemas/blocks/*.yaml` - JSON Schema 2020-12 for each block type
+- **Schema Definitions**: 
+  - `src/main/resources/schemas/blocks/*.yaml` - JSON Schema 2020-12 for each block type
+  - `src/main/resources/schemas/sections/*.yaml` - JSON Schema for section definitions
 - **Test Configuration**: `src/test/resources/test-config.yaml` - Test configuration examples
 - **Main Test Classes**:
   - `ConfigurationLoaderTest` - YAML parsing examples
+  - `MetadataValidatorTest` - Metadata validation patterns
+  - `SectionValidatorTest` - Section structure validation
   - `BlockValidatorTest` - Block validation orchestration
   - Individual `*BlockValidatorTest` classes - Specific validation logic
 
@@ -262,6 +292,7 @@ Current coverage gaps (prioritize these for testing):
   - File location (line/column) when available
 - Use `ValidationMessage.builder()` with all relevant fields
 - Group related validations to minimize passes over the document
+- Test assertions should use exact string comparisons, not contains()
 
 ## Exception Handling
 
