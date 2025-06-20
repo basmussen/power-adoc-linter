@@ -73,3 +73,7 @@ ehthumbs.db
 *.bak
 *.swp
 *~.nib
+
+# JaCoCo coverage reports
+jacoco.exec
+site/jacoco/
