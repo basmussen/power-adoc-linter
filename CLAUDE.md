@@ -66,6 +66,9 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - `com.example.linter.config`: Core configuration classes and enums
 - `com.example.linter.config.blocks`: Type-specific block implementations
 - `com.example.linter.config.loader`: YAML configuration loading
+- `com.example.linter.config.rule`: Rule configurations (OrderConfig, LineConfig, etc.)
+- `com.example.linter.validator`: Validation framework and validators
+- `com.example.linter.validator.block`: Block-level validators and support classes
 
 ### Key Components
 
@@ -139,7 +142,19 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - ✅ Type-specific block classes with inner rule classes
 - ✅ Validation rules framework with severity levels
 - ✅ JSON Schema definitions for block types (in `src/main/resources/schemas/blocks/`)
-- ⏳ AsciiDoc document parsing with AsciidoctorJ
+- ✅ SectionValidator - validates section structure, title patterns, occurrences, subsections
+- ✅ MetadataValidator - validates document metadata attributes
+- ✅ Block-level validators with concrete implementations:
+  - ✅ BlockTypeValidator interface and implementations for each block type
+  - ✅ ParagraphBlockValidator - validates paragraph line counts
+  - ✅ TableBlockValidator - validates table dimensions, headers, captions
+  - ✅ ImageBlockValidator - validates image URLs, dimensions, alt text
+  - ✅ ListingBlockValidator - validates code blocks with language, callouts
+  - ✅ VerseBlockValidator - validates verse/quote blocks with author, attribution
+  - ✅ BlockOccurrenceValidator - validates min/max block occurrences
+  - ✅ BlockOrderValidator - validates block order constraints
+  - ✅ BlockValidator orchestrator - coordinates all block validation
+- ⏳ AsciiDoc document parsing with AsciidoctorJ integration
 - ⏳ Rule execution engine
 - ⏳ CLI interface
 
