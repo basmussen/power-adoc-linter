@@ -29,22 +29,22 @@ public class ConfigurationLoader {
     
     private final Yaml yaml;
     private final RuleSchemaValidator schemaValidator;
-    private final boolean skipSchemaValidation;
+    private final boolean skipRuleSchemaValidation;
     
     public ConfigurationLoader() {
         this(false);
     }
     
-    public ConfigurationLoader(boolean skipSchemaValidation) {
+    public ConfigurationLoader(boolean skipRuleSchemaValidation) {
         LoaderOptions loaderOptions = new LoaderOptions();
         CustomConstructor constructor = new CustomConstructor(loaderOptions);
         DumperOptions dumperOptions = new DumperOptions();
         Representer representer = new Representer(dumperOptions);
         
         this.yaml = new Yaml(constructor, representer, dumperOptions, loaderOptions);
-        this.skipSchemaValidation = skipSchemaValidation;
+        this.skipRuleSchemaValidation = skipRuleSchemaValidation;
         
-        if (!skipSchemaValidation) {
+        if (!skipRuleSchemaValidation) {
             this.schemaValidator = new RuleSchemaValidator();
         } else {
             this.schemaValidator = null;
@@ -54,7 +54,7 @@ public class ConfigurationLoader {
     
     public LinterConfiguration loadConfiguration(Path configPath) throws IOException {
         // First: Validate user config against schema
-        if (!skipSchemaValidation && schemaValidator != null) {
+        if (!skipRuleSchemaValidation && schemaValidator != null) {
             try {
                 schemaValidator.validateUserConfig(configPath);
             } catch (RuleValidationException e) {

@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: classpath:/schemas/blocks/table-block.schema.yaml
+$id: https://example.com/schemas/blocks/table-block.schema.yaml
 title: Table Block Configuration Schema
 description: Schema for validating table block configuration in AsciiDoc linter
 type: object

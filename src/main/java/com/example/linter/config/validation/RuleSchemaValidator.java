@@ -45,8 +45,8 @@ public class RuleSchemaValidator {
             JsonSchemaFactory factory = JsonSchemaFactory.builder()
                 .defaultMetaSchemaIri(JsonMetaSchema.getV202012().getIri())
                 .schemaMappers(schemaMappers -> {
-                    // Map classpath references to actual file URLs
-                    schemaMappers.mapPrefix("classpath:/schemas/", baseClasspathUrl);
+                    // Map HTTPS references to actual classpath URLs
+                    schemaMappers.mapPrefix("https://example.com/schemas/", baseClasspathUrl);
                 })
                 .addMetaSchema(JsonMetaSchema.getV202012())
                 .build();

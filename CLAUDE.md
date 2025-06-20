@@ -92,6 +92,8 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 3. **Configuration Loading**: YAML-based configuration through `ConfigurationLoader`
    - Supports file and stream-based loading
    - Hierarchical structure: LinterConfiguration → DocumentConfiguration → Sections/Metadata
+   - Integrated schema validation with networknt json-schema-validator
+   - Skip validation with `new ConfigurationLoader(true)` for testing
 
 4. **Validator Pattern**: Each component has dedicated validators
    - `MetadataValidator`, `SectionValidator`, `BlockValidator`
@@ -107,6 +109,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - `com.example.linter.config.blocks`: Type-specific block implementations
 - `com.example.linter.config.loader`: YAML configuration loading
 - `com.example.linter.config.rule`: Reusable rule configurations
+- `com.example.linter.config.validation`: Schema validation for configuration files
 - `com.example.linter.validator`: Core validation framework
 - `com.example.linter.validator.block`: Block-level validators
 - `com.example.linter.validator.rules`: Generic validation rules
@@ -204,7 +207,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - ✅ Report generation (Console and JSON formats)
 - ✅ CLI interface with Apache Commons CLI
 - ✅ Executable JAR with Maven Shade Plugin
-- ⏳ Schema validation for configuration files (#12)
+- ✅ Schema validation for configuration files (#12)
 - ⏳ Additional report formats
 - ⏳ Watch mode for continuous validation
 

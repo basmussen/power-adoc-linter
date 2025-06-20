@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: classpath:/schemas/linter-config-schema.yaml
+$id: https://example.com/schemas/linter-config-schema.yaml
 title: AsciiDoc Linter Configuration Schema
 description: Complete schema for the AsciiDoc linter configuration file
 type: object
