@@ -21,6 +21,38 @@ import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.VerseBlock;
 import com.example.linter.validator.ValidationMessage;
 
+/**
+ * Unit tests for {@link VerseBlockValidator}.
+ * 
+ * <p>This test class validates the behavior of the verse block validator,
+ * which processes verse/quote blocks in AsciiDoc documents. The tests cover
+ * validation rules for author information, source attribution, and verse
+ * content.</p>
+ * 
+ * <p>Test structure follows a nested class pattern for better organization:</p>
+ * <ul>
+ *   <li>Validate - Basic validator functionality and type checking</li>
+ *   <li>AuthorValidation - Author requirements and pattern matching</li>
+ *   <li>AttributionValidation - Source attribution validation</li>
+ *   <li>ContentValidation - Verse content length constraints</li>
+ *   <li>SeverityHierarchy - Block-level severity usage (no nested severity support)</li>
+ *   <li>ComplexScenarios - Combined validation scenarios and edge cases</li>
+ * </ul>
+ * 
+ * <p>The validator supports various AsciiDoc attributes for verse blocks:</p>
+ * <ul>
+ *   <li>author - The author of the verse/quote</li>
+ *   <li>attribution/citetitle - The source or title of the work</li>
+ *   <li>content - The actual verse or quote text</li>
+ * </ul>
+ * 
+ * <p>Note: Like ImageBlock, VerseBlock configurations do not support
+ * individual severity levels for nested rules. All validations use
+ * the block-level severity.</p>
+ * 
+ * @see VerseBlockValidator
+ * @see VerseBlock
+ */
 @DisplayName("VerseBlockValidator")
 class VerseBlockValidatorTest {
     
@@ -142,6 +174,7 @@ class VerseBlockValidatorTest {
             assertEquals("Pattern: ^[A-Z][a-z]+ [A-Z][a-z]+$", msg.getExpectedValue().orElse(null));
         }
         
+        
         @Test
         @DisplayName("should pass when author matches pattern")
         void shouldPassWhenAuthorMatchesPattern() {
@@ -221,6 +254,7 @@ class VerseBlockValidatorTest {
             assertEquals("Verse attribution does not match required pattern", msg.getMessage());
             assertEquals("Book Title", msg.getActualValue().orElse(null));
         }
+        
     }
     
     @Nested
@@ -302,6 +336,86 @@ class VerseBlockValidatorTest {
             
             // Then
             assertTrue(messages.isEmpty());
+        }
+    }
+    
+    @Nested
+    @DisplayName("severity hierarchy")
+    class SeverityHierarchy {
+        
+        @Test
+        @DisplayName("should always use block severity for author validation")
+        void shouldAlwaysUseBlockSeverityForAuthor() {
+            // Given - VerseBlock.AuthorConfig has no severity field
+            VerseBlock.AuthorConfig authorConfig = VerseBlock.AuthorConfig.builder()
+                .required(true)
+                .build();
+            VerseBlock config = VerseBlock.builder()
+                .author(authorConfig)
+                .severity(Severity.WARN) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("attribution")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use block severity (WARN) since AuthorConfig has no severity field");
+            assertEquals("verse.author.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should always use block severity for attribution validation")
+        void shouldAlwaysUseBlockSeverityForAttribution() {
+            // Given - VerseBlock.AttributionConfig has no severity field
+            VerseBlock.AttributionConfig attributionConfig = VerseBlock.AttributionConfig.builder()
+                .required(true)
+                .build();
+            VerseBlock config = VerseBlock.builder()
+                .attribution(attributionConfig)
+                .severity(Severity.INFO) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("citetitle")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use block severity (INFO) since AttributionConfig has no severity field");
+            assertEquals("verse.attribution.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should always use block severity for content validation")
+        void shouldAlwaysUseBlockSeverityForContent() {
+            // Given - VerseBlock.ContentConfig has no severity field
+            VerseBlock.ContentConfig contentConfig = VerseBlock.ContentConfig.builder()
+                .minLength(10)
+                .build();
+            VerseBlock config = VerseBlock.builder()
+                .content(contentConfig)
+                .severity(Severity.ERROR) // Block severity
+                .build();
+            
+            when(mockBlock.getContent()).thenReturn("Short");
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.ERROR, msg.getSeverity(), 
+                "Should use block severity (ERROR) since ContentConfig has no severity field");
+            assertEquals("verse.content.minLength", msg.getRuleId());
         }
     }
     

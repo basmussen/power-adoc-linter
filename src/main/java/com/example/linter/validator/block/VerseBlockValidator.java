@@ -12,7 +12,25 @@ import com.example.linter.config.blocks.VerseBlock;
 import com.example.linter.validator.ValidationMessage;
 
 /**
- * Validator for verse/quote blocks.
+ * Validator for verse/quote blocks in AsciiDoc documents.
+ * 
+ * <p>This validator validates verse blocks based on the YAML schema structure
+ * defined in {@code src/main/resources/schemas/blocks/verse-block.yaml}.
+ * The YAML configuration is parsed into {@link VerseBlock} objects which
+ * define the validation rules.</p>
+ * 
+ * <p>Supported validation rules from YAML schema:</p>
+ * <ul>
+ *   <li><b>author</b>: Validates verse author (required, pattern, length constraints)</li>
+ *   <li><b>attribution</b>: Validates source attribution (required, pattern, length constraints)</li>
+ *   <li><b>content</b>: Validates verse content (required, length constraints, pattern)</li>
+ * </ul>
+ * 
+ * <p>Note: Verse block nested configurations do not support individual severity levels.
+ * All validations use the block-level severity.</p>
+ * 
+ * @see VerseBlock
+ * @see BlockTypeValidator
  */
 public final class VerseBlockValidator implements BlockTypeValidator {
     
@@ -36,17 +54,17 @@ public final class VerseBlockValidator implements BlockTypeValidator {
         
         // Validate author
         if (verseConfig.getAuthor() != null) {
-            validateAuthor(author, verseConfig.getAuthor(), context, block, messages);
+            validateAuthor(author, verseConfig.getAuthor(), context, block, messages, verseConfig);
         }
         
         // Validate attribution
         if (verseConfig.getAttribution() != null) {
-            validateAttribution(attribution, verseConfig.getAttribution(), context, block, messages);
+            validateAttribution(attribution, verseConfig.getAttribution(), context, block, messages, verseConfig);
         }
         
         // Validate content
         if (verseConfig.getContent() != null) {
-            validateContent(content, verseConfig.getContent(), context, block, messages);
+            validateContent(content, verseConfig.getContent(), context, block, messages, verseConfig);
         }
         
         return messages;
@@ -101,12 +119,13 @@ public final class VerseBlockValidator implements BlockTypeValidator {
     private void validateAuthor(String author, VerseBlock.AuthorConfig config,
                               BlockValidationContext context,
                               StructuralNode block,
-                              List<ValidationMessage> messages) {
+                              List<ValidationMessage> messages,
+                              VerseBlock verseConfig) {
         
         // Check if author is required
         if (config.isRequired() && (author == null || author.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(Severity.ERROR)
+                .severity(verseConfig.getSeverity())
                 .ruleId("verse.author.required")
                 .location(context.createLocation(block))
                 .message("Verse block must have an author")
@@ -120,7 +139,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
             // Validate author length
             if (config.getMinLength() != null && author.length() < config.getMinLength()) {
                 messages.add(ValidationMessage.builder()
-                    .severity(Severity.ERROR)
+                    .severity(verseConfig.getSeverity())
                     .ruleId("verse.author.minLength")
                     .location(context.createLocation(block))
                     .message("Verse author is too short")
@@ -131,7 +150,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
             
             if (config.getMaxLength() != null && author.length() > config.getMaxLength()) {
                 messages.add(ValidationMessage.builder()
-                    .severity(Severity.ERROR)
+                    .severity(verseConfig.getSeverity())
                     .ruleId("verse.author.maxLength")
                     .location(context.createLocation(block))
                     .message("Verse author is too long")
@@ -144,7 +163,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
             if (config.getPattern() != null) {
                 if (!config.getPattern().matcher(author).matches()) {
                     messages.add(ValidationMessage.builder()
-                        .severity(Severity.ERROR)
+                        .severity(verseConfig.getSeverity())
                         .ruleId("verse.author.pattern")
                         .location(context.createLocation(block))
                         .message("Verse author does not match required pattern")
@@ -159,12 +178,13 @@ public final class VerseBlockValidator implements BlockTypeValidator {
     private void validateAttribution(String attribution, VerseBlock.AttributionConfig config,
                                    BlockValidationContext context,
                                    StructuralNode block,
-                                   List<ValidationMessage> messages) {
+                                   List<ValidationMessage> messages,
+                                   VerseBlock verseConfig) {
         
         // Check if attribution is required
         if (config.isRequired() && (attribution == null || attribution.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(Severity.ERROR)
+                .severity(verseConfig.getSeverity())
                 .ruleId("verse.attribution.required")
                 .location(context.createLocation(block))
                 .message("Verse block must have an attribution")
@@ -178,7 +198,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
             // Validate attribution length
             if (config.getMinLength() != null && attribution.length() < config.getMinLength()) {
                 messages.add(ValidationMessage.builder()
-                    .severity(Severity.ERROR)
+                    .severity(verseConfig.getSeverity())
                     .ruleId("verse.attribution.minLength")
                     .location(context.createLocation(block))
                     .message("Verse attribution is too short")
@@ -189,7 +209,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
             
             if (config.getMaxLength() != null && attribution.length() > config.getMaxLength()) {
                 messages.add(ValidationMessage.builder()
-                    .severity(Severity.ERROR)
+                    .severity(verseConfig.getSeverity())
                     .ruleId("verse.attribution.maxLength")
                     .location(context.createLocation(block))
                     .message("Verse attribution is too long")
@@ -202,7 +222,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
             if (config.getPattern() != null) {
                 if (!config.getPattern().matcher(attribution).matches()) {
                     messages.add(ValidationMessage.builder()
-                        .severity(Severity.ERROR)
+                        .severity(verseConfig.getSeverity())
                         .ruleId("verse.attribution.pattern")
                         .location(context.createLocation(block))
                         .message("Verse attribution does not match required pattern")
@@ -217,12 +237,13 @@ public final class VerseBlockValidator implements BlockTypeValidator {
     private void validateContent(String content, VerseBlock.ContentConfig config,
                                BlockValidationContext context,
                                StructuralNode block,
-                               List<ValidationMessage> messages) {
+                               List<ValidationMessage> messages,
+                               VerseBlock verseConfig) {
         
         // Check if content is required
         if (config.isRequired() && (content == null || content.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(Severity.ERROR)
+                .severity(verseConfig.getSeverity())
                 .ruleId("verse.content.required")
                 .location(context.createLocation(block))
                 .message("Verse block must have content")
@@ -236,7 +257,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
         int contentLength = content != null ? content.length() : 0;
         if (config.getMinLength() != null && contentLength < config.getMinLength()) {
             messages.add(ValidationMessage.builder()
-                .severity(Severity.ERROR)
+                .severity(verseConfig.getSeverity())
                 .ruleId("verse.content.minLength")
                 .location(context.createLocation(block))
                 .message("Verse content is too short")
@@ -248,7 +269,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
         if (content != null) {
             if (config.getMaxLength() != null && content.length() > config.getMaxLength()) {
                 messages.add(ValidationMessage.builder()
-                    .severity(Severity.ERROR)
+                    .severity(verseConfig.getSeverity())
                     .ruleId("verse.content.maxLength")
                     .location(context.createLocation(block))
                     .message("Verse content is too long")
@@ -261,7 +282,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
             if (config.getPattern() != null) {
                 if (!config.getPattern().matcher(content).matches()) {
                     messages.add(ValidationMessage.builder()
-                        .severity(Severity.ERROR)
+                        .severity(verseConfig.getSeverity())
                         .ruleId("verse.content.pattern")
                         .location(context.createLocation(block))
                         .message("Verse content does not match required pattern")

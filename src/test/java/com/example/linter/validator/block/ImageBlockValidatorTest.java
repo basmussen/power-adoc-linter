@@ -21,6 +21,30 @@ import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.validator.ValidationMessage;
 
+/**
+ * Unit tests for {@link ImageBlockValidator}.
+ * 
+ * <p>This test class validates the behavior of the image block validator,
+ * which processes image elements in AsciiDoc documents. The tests cover
+ * validation rules for image URLs, dimensions, and alternative text.</p>
+ * 
+ * <p>Test structure follows a nested class pattern for better organization:</p>
+ * <ul>
+ *   <li>Validate - Basic validator functionality and type checking</li>
+ *   <li>UrlValidation - URL requirements and pattern matching</li>
+ *   <li>DimensionsValidation - Width and height constraints</li>
+ *   <li>AltTextValidation - Alternative text requirements and length constraints</li>
+ *   <li>SeverityHierarchy - Block-level severity usage (no nested severity support)</li>
+ *   <li>ComplexScenarios - Combined validation scenarios</li>
+ * </ul>
+ * 
+ * <p>Note: Unlike other block validators, ImageBlock configurations do not
+ * support individual severity levels for nested rules. All validations use
+ * the block-level severity.</p>
+ * 
+ * @see ImageBlockValidator
+ * @see ImageBlock
+ */
 @DisplayName("ImageBlockValidator")
 class ImageBlockValidatorTest {
     
@@ -142,6 +166,7 @@ class ImageBlockValidatorTest {
             assertEquals("assets/logo.jpg", msg.getActualValue().orElse(null));
             assertEquals("Pattern: ^images/.*\\.png$", msg.getExpectedValue().orElse(null));
         }
+        
     }
     
     @Nested
@@ -224,6 +249,7 @@ class ImageBlockValidatorTest {
             assertEquals("image.width.required", msg.getRuleId());
             assertEquals("Image must have width specified", msg.getMessage());
         }
+        
         
         @Test
         @DisplayName("should validate height")
@@ -333,6 +359,87 @@ class ImageBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals("image.alt.maxLength", msg.getRuleId());
             assertEquals("Image alt text is too long", msg.getMessage());
+        }
+        
+    }
+    
+    @Nested
+    @DisplayName("severity hierarchy")
+    class SeverityHierarchy {
+        
+        @Test
+        @DisplayName("should always use block severity for URL validation")
+        void shouldAlwaysUseBlockSeverityForUrl() {
+            // Given - ImageBlock.UrlConfig has no severity field
+            ImageBlock.UrlConfig urlConfig = ImageBlock.UrlConfig.builder()
+                .required(true)
+                .build();
+            ImageBlock config = ImageBlock.builder()
+                .url(urlConfig)
+                .severity(Severity.INFO) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("target")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use block severity (INFO) since UrlConfig has no severity field");
+            assertEquals("image.url.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should always use block severity for dimension validation")
+        void shouldAlwaysUseBlockSeverityForDimension() {
+            // Given - ImageBlock.DimensionConfig has no severity field
+            ImageBlock.DimensionConfig widthConfig = ImageBlock.DimensionConfig.builder()
+                .required(true)
+                .build();
+            ImageBlock config = ImageBlock.builder()
+                .width(widthConfig)
+                .severity(Severity.WARN) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("width")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use block severity (WARN) since DimensionConfig has no severity field");
+            assertEquals("image.width.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should always use block severity for alt text validation")
+        void shouldAlwaysUseBlockSeverityForAltText() {
+            // Given - ImageBlock.AltTextConfig has no severity field
+            ImageBlock.AltTextConfig altConfig = ImageBlock.AltTextConfig.builder()
+                .required(true)
+                .build();
+            ImageBlock config = ImageBlock.builder()
+                .alt(altConfig)
+                .severity(Severity.ERROR) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("alt")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.ERROR, msg.getSeverity(), 
+                "Should use block severity (ERROR) since AltTextConfig has no severity field");
+            assertEquals("image.alt.required", msg.getRuleId());
         }
     }
     

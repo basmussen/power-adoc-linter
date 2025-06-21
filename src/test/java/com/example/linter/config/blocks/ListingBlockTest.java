@@ -135,16 +135,6 @@ class ListingBlockTest {
             assertTrue(languageRule.getAllowed().isEmpty());
         }
         
-        @Test
-        @DisplayName("should require severity for LanguageConfig")
-        void shouldRequireSeverityForLanguageConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                ListingBlock.LanguageConfig.builder()
-                        .required(true)
-                        .build();
-            });
-        }
     }
     
     @Nested
@@ -187,17 +177,6 @@ class ListingBlockTest {
             assertEquals(Severity.WARN, titleRule.getSeverity());
         }
         
-        @Test
-        @DisplayName("should require severity for TitleConfig")
-        void shouldRequireSeverityForTitleConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                ListingBlock.TitleConfig.builder()
-                        .required(true)
-                        .pattern("test")
-                        .build();
-            });
-        }
     }
     
     @Nested
@@ -235,17 +214,6 @@ class ListingBlockTest {
             assertEquals(Severity.ERROR, calloutsRule.getSeverity());
         }
         
-        @Test
-        @DisplayName("should require severity for CalloutsConfig")
-        void shouldRequireSeverityForCalloutsConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                ListingBlock.CalloutsConfig.builder()
-                        .allowed(true)
-                        .max(5)
-                        .build();
-            });
-        }
     }
     
     @Nested

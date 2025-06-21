@@ -204,15 +204,18 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for HeaderConfig")
-        void shouldRequireSeverityForHeaderConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                TableBlock.HeaderConfig.builder()
-                        .required(true)
-                        .pattern("test")
-                        .build();
-            });
+        @DisplayName("should allow optional severity for HeaderConfig")
+        void shouldAllowOptionalSeverityForHeaderConfig() {
+            // Given & When
+            TableBlock.HeaderConfig config = TableBlock.HeaderConfig.builder()
+                    .required(true)
+                    .pattern("test")
+                    .build();
+                    
+            // Then
+            assertNull(config.getSeverity());
+            assertTrue(config.isRequired());
+            assertNotNull(config.getPattern());
         }
     }
     
@@ -260,16 +263,20 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for CaptionConfig")
-        void shouldRequireSeverityForCaptionConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                TableBlock.CaptionConfig.builder()
-                        .required(true)
-                        .minLength(10)
-                        .maxLength(50)
-                        .build();
-            });
+        @DisplayName("should allow optional severity for CaptionConfig")
+        void shouldAllowOptionalSeverityForCaptionConfig() {
+            // Given & When
+            TableBlock.CaptionConfig config = TableBlock.CaptionConfig.builder()
+                    .required(true)
+                    .minLength(10)
+                    .maxLength(50)
+                    .build();
+                    
+            // Then
+            assertNull(config.getSeverity());
+            assertTrue(config.isRequired());
+            assertEquals(10, config.getMinLength());
+            assertEquals(50, config.getMaxLength());
         }
     }
     
@@ -324,15 +331,18 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for FormatConfig")
-        void shouldRequireSeverityForFormatConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                TableBlock.FormatConfig.builder()
-                        .style("grid")
-                        .borders(true)
-                        .build();
-            });
+        @DisplayName("should allow optional severity for FormatConfig")
+        void shouldAllowOptionalSeverityForFormatConfig() {
+            // Given & When
+            TableBlock.FormatConfig config = TableBlock.FormatConfig.builder()
+                    .style("grid")
+                    .borders(true)
+                    .build();
+                    
+            // Then
+            assertNull(config.getSeverity());
+            assertEquals("grid", config.getStyle());
+            assertTrue(config.getBorders());
         }
     }
     

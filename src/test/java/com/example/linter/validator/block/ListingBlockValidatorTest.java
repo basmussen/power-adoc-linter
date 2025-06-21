@@ -23,6 +23,27 @@ import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.config.rule.LineConfig;
 import com.example.linter.validator.ValidationMessage;
 
+/**
+ * Unit tests for {@link ListingBlockValidator}.
+ * 
+ * <p>This test class validates the behavior of the listing block validator,
+ * which processes code blocks in AsciiDoc documents. The tests cover all
+ * validation rules including language requirements, title patterns, line
+ * count constraints, and callout restrictions.</p>
+ * 
+ * <p>Test structure follows a nested class pattern for better organization:</p>
+ * <ul>
+ *   <li>Validate - Basic validator functionality</li>
+ *   <li>LanguageValidation - Language specification and allowed values</li>
+ *   <li>TitleValidation - Title requirements and pattern matching</li>
+ *   <li>LinesValidation - Line count constraints</li>
+ *   <li>CalloutsValidation - Callout annotation rules</li>
+ *   <li>ComplexScenarios - Combined validation scenarios</li>
+ * </ul>
+ * 
+ * @see ListingBlockValidator
+ * @see ListingBlock
+ */
 @DisplayName("ListingBlockValidator")
 class ListingBlockValidatorTest {
     
@@ -147,6 +168,57 @@ class ListingBlockValidatorTest {
         }
         
         @Test
+        @DisplayName("should use language severity over block severity")
+        void shouldUseLanguageSeverityOverBlockSeverity() {
+            // Given - language has WARN, block has ERROR
+            ListingBlock.LanguageConfig languageConfig = ListingBlock.LanguageConfig.builder()
+                .required(true)
+                .severity(Severity.WARN)
+                .build();
+            ListingBlock config = ListingBlock.builder()
+                .language(languageConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockBlock.hasAttribute("language")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use language severity (WARN) instead of block severity (ERROR)");
+        }
+        
+        @Test
+        @DisplayName("should use block severity when language severity is not defined")
+        void shouldUseBlockSeverityWhenLanguageSeverityNotDefined() {
+            // Given - language has no severity, block has INFO
+            ListingBlock.LanguageConfig languageConfig = ListingBlock.LanguageConfig.builder()
+                .required(true)
+                // No severity set
+                .build();
+            ListingBlock config = ListingBlock.builder()
+                .language(languageConfig)
+                .severity(Severity.INFO)
+                .build();
+            
+            when(mockBlock.hasAttribute("language")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use block severity (INFO) when language severity is not defined");
+            assertEquals("listing.language.required", msg.getRuleId());
+        }
+        
+        @Test
         @DisplayName("should pass when language is allowed")
         void shouldPassWhenLanguageIsAllowed() {
             // Given
@@ -226,6 +298,57 @@ class ListingBlockValidatorTest {
             assertEquals("Code Example", msg.getActualValue().orElse(null));
             assertEquals("Pattern: ^Listing \\d+:.*", msg.getExpectedValue().orElse(null));
         }
+        
+        @Test
+        @DisplayName("should use title severity over block severity")
+        void shouldUseTitleSeverityOverBlockSeverity() {
+            // Given - title has INFO, block has ERROR
+            ListingBlock.TitleConfig titleConfig = ListingBlock.TitleConfig.builder()
+                .required(true)
+                .severity(Severity.INFO)
+                .build();
+            ListingBlock config = ListingBlock.builder()
+                .title(titleConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockBlock.getTitle()).thenReturn(null);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use title severity (INFO) instead of block severity (ERROR)");
+        }
+        
+        @Test
+        @DisplayName("should use block severity when title severity is not defined")
+        void shouldUseBlockSeverityWhenTitleSeverityNotDefined() {
+            // Given - title has no severity, block has WARN
+            ListingBlock.TitleConfig titleConfig = ListingBlock.TitleConfig.builder()
+                .required(true)
+                // No severity set
+                .build();
+            ListingBlock config = ListingBlock.builder()
+                .title(titleConfig)
+                .severity(Severity.WARN)
+                .build();
+            
+            when(mockBlock.getTitle()).thenReturn(null);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use block severity (WARN) when title severity is not defined");
+            assertEquals("listing.title.required", msg.getRuleId());
+        }
     }
     
     @Nested
@@ -258,6 +381,57 @@ class ListingBlockValidatorTest {
             assertEquals("Listing block must not contain callouts", msg.getMessage());
             assertEquals("1 callouts", msg.getActualValue().orElse(null));
             assertEquals("No callouts allowed", msg.getExpectedValue().orElse(null));
+        }
+        
+        @Test
+        @DisplayName("should use callouts severity over block severity")
+        void shouldUseCalloutsSeverityOverBlockSeverity() {
+            // Given - callouts has WARN, block has ERROR
+            ListingBlock.CalloutsConfig calloutsConfig = ListingBlock.CalloutsConfig.builder()
+                .allowed(false)
+                .severity(Severity.WARN)
+                .build();
+            ListingBlock config = ListingBlock.builder()
+                .callouts(calloutsConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockBlock.getContent()).thenReturn("public class Test { // <1>\n    // code\n}");
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use callouts severity (WARN) instead of block severity (ERROR)");
+        }
+        
+        @Test
+        @DisplayName("should use block severity when callouts severity is not defined")
+        void shouldUseBlockSeverityWhenCalloutsSeverityNotDefined() {
+            // Given - callouts has no severity, block has ERROR
+            ListingBlock.CalloutsConfig calloutsConfig = ListingBlock.CalloutsConfig.builder()
+                .allowed(false)
+                // No severity set
+                .build();
+            ListingBlock config = ListingBlock.builder()
+                .callouts(calloutsConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockBlock.getContent()).thenReturn("public class Test { // <1>\n    // code\n}");
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.ERROR, msg.getSeverity(), 
+                "Should use block severity (ERROR) when callouts severity is not defined");
+            assertEquals("listing.callouts.notAllowed", msg.getRuleId());
         }
         
         @Test

@@ -11,6 +11,18 @@ import com.example.linter.validator.ValidationMessage;
 /**
  * Interface for block type specific validators.
  * Each block type (paragraph, table, image, etc.) has its own implementation.
+ * 
+ * <p>Validators work based on the YAML schema structure for block configurations.
+ * The YAML configuration defines validation rules that are mapped to corresponding
+ * block configuration classes (e.g., {@link com.example.linter.config.blocks.ListingBlock},
+ * {@link com.example.linter.config.blocks.TableBlock}, etc.).</p>
+ * 
+ * <p>The YAML schema is defined in {@code src/main/resources/schemas/blocks/} and
+ * provides the structure for block-specific validation rules including severity levels,
+ * patterns, constraints, and nested rule configurations.</p>
+ * 
+ * @see com.example.linter.config.blocks.Block
+ * @see com.example.linter.config.loader.ConfigurationLoader
  */
 public interface BlockTypeValidator {
     

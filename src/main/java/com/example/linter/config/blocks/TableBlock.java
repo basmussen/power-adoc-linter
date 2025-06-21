@@ -190,7 +190,6 @@ public final class TableBlock extends AbstractBlock {
             }
             
             public HeaderConfig build() {
-                Objects.requireNonNull(severity, "severity is required for HeaderConfig");
                 return new HeaderConfig(this);
             }
         }
@@ -295,7 +294,6 @@ public final class TableBlock extends AbstractBlock {
             }
             
             public CaptionConfig build() {
-                Objects.requireNonNull(severity, "severity is required for CaptionConfig");
                 return new CaptionConfig(this);
             }
         }
@@ -372,7 +370,6 @@ public final class TableBlock extends AbstractBlock {
             }
             
             public FormatConfig build() {
-                Objects.requireNonNull(severity, "severity is required for FormatConfig");
                 return new FormatConfig(this);
             }
         }
