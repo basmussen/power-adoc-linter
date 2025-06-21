@@ -9,7 +9,7 @@ import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.rule.SectionConfig;
 import com.example.linter.validator.block.BlockOccurrenceValidator;
 import com.example.linter.validator.block.BlockOrderValidator;
@@ -108,7 +108,7 @@ public final class BlockValidator {
             }
             
             // Find matching configuration
-            AbstractBlock blockConfig = findBlockConfig(actualType, block, config.allowedBlocks());
+            Block blockConfig = findBlockConfig(actualType, block, config.allowedBlocks());
             
             if (blockConfig != null) {
                 // Track the block
@@ -135,14 +135,14 @@ public final class BlockValidator {
     /**
      * Finds the configuration for a specific block.
      */
-    private AbstractBlock findBlockConfig(BlockType type, 
+    private Block findBlockConfig(BlockType type, 
                                         StructuralNode block,
-                                        List<AbstractBlock> configs) {
+                                        List<Block> configs) {
         // First try to match by name attribute
         Object nameAttr = block.getAttribute("name");
         if (nameAttr != null) {
             String name = nameAttr.toString();
-            for (AbstractBlock config : configs) {
+            for (Block config : configs) {
                 if (config.getType() == type && name.equals(config.getName())) {
                     return config;
                 }
@@ -150,7 +150,7 @@ public final class BlockValidator {
         }
         
         // Then match by type only
-        for (AbstractBlock config : configs) {
+        for (Block config : configs) {
             if (config.getType() == type && config.getName() == null) {
                 return config;
             }

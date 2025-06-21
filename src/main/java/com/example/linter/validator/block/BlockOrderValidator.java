@@ -3,7 +3,7 @@ package com.example.linter.validator.block;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.rule.OrderConfig;
 import com.example.linter.validator.ValidationMessage;
 
@@ -184,7 +184,7 @@ public final class BlockOrderValidator {
     /**
      * Gets the identifier for a block (name or type).
      */
-    private String getBlockIdentifier(AbstractBlock block) {
+    private String getBlockIdentifier(Block block) {
         if (block.getName() != null) {
             return block.getName();
         }

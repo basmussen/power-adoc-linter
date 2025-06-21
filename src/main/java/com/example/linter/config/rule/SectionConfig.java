@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 
 public final class SectionConfig {
     private final String name;
@@ -14,7 +14,7 @@ public final class SectionConfig {
     private final int min;
     private final int max;
     private final TitleConfig title;
-    private final List<AbstractBlock> allowedBlocks;
+    private final List<Block> allowedBlocks;
     private final List<SectionConfig> subsections;
 
     private SectionConfig(Builder builder) {
@@ -34,7 +34,7 @@ public final class SectionConfig {
     public int min() { return min; }
     public int max() { return max; }
     public TitleConfig title() { return title; }
-    public List<AbstractBlock> allowedBlocks() { return allowedBlocks; }
+    public List<Block> allowedBlocks() { return allowedBlocks; }
     public List<SectionConfig> subsections() { return subsections; }
 
     public static Builder builder() {
@@ -48,7 +48,7 @@ public final class SectionConfig {
         private int min = 0;
         private int max = Integer.MAX_VALUE;
         private TitleConfig title;
-        private List<AbstractBlock> allowedBlocks = new ArrayList<>();
+        private List<Block> allowedBlocks = new ArrayList<>();
         private List<SectionConfig> subsections = new ArrayList<>();
 
         public Builder name(String name) {
@@ -81,12 +81,12 @@ public final class SectionConfig {
             return this;
         }
 
-        public Builder allowedBlocks(List<AbstractBlock> allowedBlocks) {
+        public Builder allowedBlocks(List<Block> allowedBlocks) {
             this.allowedBlocks = allowedBlocks != null ? new ArrayList<>(allowedBlocks) : new ArrayList<>();
             return this;
         }
 
-        public Builder addAllowedBlock(AbstractBlock block) {
+        public Builder addAllowedBlock(Block block) {
             this.allowedBlocks.add(block);
             return this;
         }

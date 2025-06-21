@@ -5,7 +5,7 @@ import java.util.List;
 import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.validator.ValidationMessage;
 
 /**
@@ -30,6 +30,6 @@ public interface BlockTypeValidator {
      * @return list of validation messages (errors, warnings, info)
      */
     List<ValidationMessage> validate(StructuralNode block, 
-                                   AbstractBlock config,
+                                   Block config,
                                    BlockValidationContext context);
 }

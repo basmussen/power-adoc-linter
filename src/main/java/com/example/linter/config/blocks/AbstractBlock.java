@@ -6,7 +6,7 @@ import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.rule.OccurrenceConfig;
 
-public abstract class AbstractBlock {
+public abstract class AbstractBlock implements Block {
     private final String name;
     private final Severity severity;
     private final OccurrenceConfig occurrence;

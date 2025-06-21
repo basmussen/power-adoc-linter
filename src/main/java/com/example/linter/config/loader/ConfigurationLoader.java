@@ -19,7 +19,7 @@ import com.example.linter.config.DocumentConfiguration;
 import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.MetadataConfiguration;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.config.blocks.ParagraphBlock;
@@ -174,7 +174,7 @@ public class ConfigurationLoader {
                 .build();
         }
         
-        List<AbstractBlock> allowedBlocks = new ArrayList<>();
+        List<Block> allowedBlocks = new ArrayList<>();
         if (raw.containsKey("allowedBlocks")) {
             List<Map<String, Object>> blocksRaw = (List<Map<String, Object>>) raw.get("allowedBlocks");
             for (Map<String, Object> blockRaw : blocksRaw) {
@@ -205,7 +205,7 @@ public class ConfigurationLoader {
         return builder.build();
     }
     
-    private AbstractBlock parseBlock(Map<String, Object> raw) {
+    private Block parseBlock(Map<String, Object> raw) {
         // The YAML structure has block type as key (e.g., "paragraph:", "listing:")
         Map.Entry<String, Object> entry = raw.entrySet().iterator().next();
         String blockTypeStr = entry.getKey();

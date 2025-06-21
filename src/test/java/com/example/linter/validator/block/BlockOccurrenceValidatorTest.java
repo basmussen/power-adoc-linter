@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.config.rule.OccurrenceConfig;
@@ -46,7 +46,7 @@ class BlockOccurrenceValidatorTest {
         @DisplayName("should return empty list when no blocks configured")
         void shouldReturnEmptyListWhenNoBlocksConfigured() {
             // Given
-            List<AbstractBlock> blocks = new ArrayList<>();
+            List<Block> blocks = new ArrayList<>();
             
             // When
             List<ValidationMessage> messages = validator.validate(context, blocks);
@@ -62,7 +62,7 @@ class BlockOccurrenceValidatorTest {
             ParagraphBlock block = ParagraphBlock.builder()
                 .severity(Severity.ERROR)
                 .build();
-            List<AbstractBlock> blocks = Arrays.asList(block);
+            List<Block> blocks = Arrays.asList(block);
             
             // When
             List<ValidationMessage> messages = validator.validate(context, blocks);
@@ -75,7 +75,7 @@ class BlockOccurrenceValidatorTest {
         @DisplayName("should throw when context is null")
         void shouldThrowWhenContextIsNull() {
             // Given
-            List<AbstractBlock> blocks = new ArrayList<>();
+            List<Block> blocks = new ArrayList<>();
             
             // When/Then
             assertThrows(NullPointerException.class, () -> 
@@ -109,7 +109,7 @@ class BlockOccurrenceValidatorTest {
                 .occurrence(occurrenceConfig)
                 .severity(Severity.ERROR)
                 .build();
-            List<AbstractBlock> blocks = Arrays.asList(block);
+            List<Block> blocks = Arrays.asList(block);
             
             // Add only one occurrence to context
             StructuralNode node = mock(StructuralNode.class);
@@ -142,7 +142,7 @@ class BlockOccurrenceValidatorTest {
                 .occurrence(occurrenceConfig)
                 .severity(Severity.ERROR)
                 .build();
-            List<AbstractBlock> blocks = Arrays.asList(block);
+            List<Block> blocks = Arrays.asList(block);
             
             // Add two occurrences to context
             StructuralNode node1 = mock(StructuralNode.class);
@@ -171,7 +171,7 @@ class BlockOccurrenceValidatorTest {
                 .occurrence(occurrenceConfig)
                 .severity(Severity.ERROR)
                 .build();
-            List<AbstractBlock> blocks = Arrays.asList(block);
+            List<Block> blocks = Arrays.asList(block);
             
             // No blocks tracked in context
             
@@ -205,7 +205,7 @@ class BlockOccurrenceValidatorTest {
                 .occurrence(occurrenceConfig)
                 .severity(Severity.ERROR)
                 .build();
-            List<AbstractBlock> blocks = Arrays.asList(block);
+            List<Block> blocks = Arrays.asList(block);
             
             // Add three occurrences to context
             StructuralNode node1 = mock(StructuralNode.class);
@@ -241,7 +241,7 @@ class BlockOccurrenceValidatorTest {
                 .occurrence(occurrenceConfig)
                 .severity(Severity.ERROR)
                 .build();
-            List<AbstractBlock> blocks = Arrays.asList(block);
+            List<Block> blocks = Arrays.asList(block);
             
             // Add three occurrences to context (exactly at max)
             StructuralNode node1 = mock(StructuralNode.class);
@@ -289,7 +289,7 @@ class BlockOccurrenceValidatorTest {
                 .severity(Severity.ERROR)
                 .build();
             
-            List<AbstractBlock> blocks = Arrays.asList(paragraphBlock, tableBlock);
+            List<Block> blocks = Arrays.asList(paragraphBlock, tableBlock);
             
             // Add no paragraph blocks (violates min)
             // Add one table block (violates min)
@@ -334,7 +334,7 @@ class BlockOccurrenceValidatorTest {
                 .occurrence(occurrenceConfig)
                 .severity(Severity.ERROR)
                 .build();
-            List<AbstractBlock> blocks = Arrays.asList(block);
+            List<Block> blocks = Arrays.asList(block);
             
             // Add two occurrences (violates max)
             StructuralNode node1 = mock(StructuralNode.class);
@@ -371,7 +371,7 @@ class BlockOccurrenceValidatorTest {
                 .occurrence(occurrenceConfig)
                 .severity(Severity.ERROR)
                 .build();
-            List<AbstractBlock> blocks = Arrays.asList(block);
+            List<Block> blocks = Arrays.asList(block);
             
             // Test with exactly 3 occurrences
             StructuralNode node1 = mock(StructuralNode.class);
@@ -401,7 +401,7 @@ class BlockOccurrenceValidatorTest {
                 .occurrence(occurrenceConfig)
                 .severity(Severity.ERROR)
                 .build();
-            List<AbstractBlock> blocks = Arrays.asList(block);
+            List<Block> blocks = Arrays.asList(block);
             
             // Add 4 occurrences
             for (int i = 0; i < 4; i++) {

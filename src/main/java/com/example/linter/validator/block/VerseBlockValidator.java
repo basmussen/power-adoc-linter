@@ -7,7 +7,7 @@ import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.VerseBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -23,7 +23,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
     
     @Override
     public List<ValidationMessage> validate(StructuralNode block, 
-                                          AbstractBlock config,
+                                          Block config,
                                           BlockValidationContext context) {
         
         VerseBlock verseConfig = (VerseBlock) config;
