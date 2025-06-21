@@ -284,15 +284,17 @@ document:
               maxLength: 50             # Maximal 50 Zeichen
               severity: error           # Strenge Vorgabe für Titel
             content:
+              required: false           # Inhalt optional
               minLength: 10             # Mindestens 10 Zeichen Inhalt
               maxLength: 500            # Maximal 500 Zeichen
               severity: warn            # Warnung bei zu kurzem/langem Inhalt
-            lines:
-              min: 1                    # Mindestens 1 Zeile
-              max: 10                   # Maximal 10 Zeilen
-              severity: info            # Nur Hinweis
+              lines:
+                min: 1                  # Mindestens 1 Zeile
+                max: 10                 # Maximal 10 Zeilen
+                severity: info          # Nur Hinweis
             icon:
-              enabled: true             # Icons sollen angezeigt werden
+              required: true            # Icons sind erforderlich
+              pattern: "^(info|warning|caution|tip|note)$"  # Erlaubte Icon-Namen
               severity: info            # Nur Hinweis wenn fehlt
             # Type-spezifische Occurrence-Limits
             NOTE:

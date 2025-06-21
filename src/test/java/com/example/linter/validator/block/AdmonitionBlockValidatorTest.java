@@ -302,6 +302,84 @@ class AdmonitionBlockValidatorTest {
     }
     
     @Nested
+    @DisplayName("Type Validation")
+    class TypeValidation {
+        
+        @Test
+        @DisplayName("should validate type is required")
+        void shouldValidateTypeRequired() {
+            // Given
+            when(mockBlock.getStyle()).thenReturn(null);
+            
+            AdmonitionBlock config = AdmonitionBlock.builder()
+                .severity(Severity.ERROR)
+                .type(AdmonitionBlock.TypeConfig.builder()
+                    .required(true)
+                    .severity(Severity.WARN)
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            assertEquals("admonition.type.required", messages.get(0).getRuleId());
+            assertEquals(Severity.WARN, messages.get(0).getSeverity());
+            assertTrue(messages.get(0).getActualValue().isPresent());
+            assertEquals("No type", messages.get(0).getActualValue().get());
+        }
+        
+        @Test
+        @DisplayName("should validate allowed types")
+        void shouldValidateAllowedTypes() {
+            // Given
+            when(mockBlock.getStyle()).thenReturn("CUSTOM");
+            
+            AdmonitionBlock config = AdmonitionBlock.builder()
+                .severity(Severity.ERROR)
+                .type(AdmonitionBlock.TypeConfig.builder()
+                    .allowed(List.of("NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"))
+                    .severity(Severity.ERROR)
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            assertEquals("admonition.type.allowed", messages.get(0).getRuleId());
+            assertEquals(Severity.ERROR, messages.get(0).getSeverity());
+            assertTrue(messages.get(0).getActualValue().isPresent());
+            assertEquals("CUSTOM", messages.get(0).getActualValue().get());
+            assertTrue(messages.get(0).getExpectedValue().isPresent());
+            assertTrue(messages.get(0).getExpectedValue().get().contains("NOTE"));
+        }
+        
+        @Test
+        @DisplayName("should accept valid types")
+        void shouldAcceptValidTypes() {
+            // Given
+            when(mockBlock.getStyle()).thenReturn("NOTE");
+            
+            AdmonitionBlock config = AdmonitionBlock.builder()
+                .severity(Severity.ERROR)
+                .type(AdmonitionBlock.TypeConfig.builder()
+                    .required(true)
+                    .allowed(List.of("NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"))
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertTrue(messages.isEmpty());
+        }
+    }
+    
+    @Nested
     @DisplayName("Type Occurrences Validation")
     class TypeOccurrencesValidation {
         
