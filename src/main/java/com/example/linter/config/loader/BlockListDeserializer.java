@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.linter.config.BlockType;
+import com.example.linter.config.blocks.AdmonitionBlock;
 import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.config.blocks.ListingBlock;
@@ -70,6 +71,7 @@ public class BlockListDeserializer extends JsonDeserializer<List<Block>> {
                 case TABLE -> mapper.treeToValue(blockData, TableBlock.class);
                 case IMAGE -> mapper.treeToValue(blockData, ImageBlock.class);
                 case VERSE -> mapper.treeToValue(blockData, VerseBlock.class);
+                case ADMONITION -> mapper.treeToValue(blockData, AdmonitionBlock.class);
                 case PASS -> mapper.treeToValue(blockData, PassBlock.class);
                 case LITERAL -> mapper.treeToValue(blockData, LiteralBlock.class);
             };

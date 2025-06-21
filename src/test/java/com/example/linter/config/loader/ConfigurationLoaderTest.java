@@ -21,6 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 import com.example.linter.config.BlockType;
 import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.AdmonitionBlock;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.config.blocks.LiteralBlock;
@@ -1296,6 +1297,107 @@ class ConfigurationLoaderTest {
             assertEquals(8, paragraphBlock.getSentence().getWords().getMin());
             assertEquals(25, paragraphBlock.getSentence().getWords().getMax());
             assertEquals(Severity.INFO, paragraphBlock.getSentence().getWords().getSeverity());
+        }
+    }
+    
+    @Nested
+    @DisplayName("AdmonitionBlock Loading")
+    class AdmonitionBlockTest {
+        
+        @Test
+        @DisplayName("should load AdmonitionBlock with type validation and nested rules")
+        void shouldLoadAdmonitionBlockWithTypeValidation() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: notes-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - admonition:
+                            name: content-notes
+                            severity: warn
+                            occurrence:
+                              min: 0
+                              max: 10
+                            type:
+                              required: true
+                              allowed: ["NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"]
+                              severity: error
+                            title:
+                              required: true
+                              pattern: "^[A-Z][A-Za-z\\\\s]{2,49}$"
+                              minLength: 3
+                              maxLength: 50
+                              severity: error
+                            content:
+                              required: false
+                              minLength: 10
+                              maxLength: 500
+                              severity: warn
+                              lines:
+                                min: 1
+                                max: 10
+                                severity: info
+                            icon:
+                              required: true
+                              pattern: "^(info|warning|caution|tip|note)$"
+                              severity: info
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var notesSection = sections.get(0);
+            assertEquals("notes-section", notesSection.name());
+            assertEquals(1, notesSection.allowedBlocks().size());
+            
+            var admonitionBlock = (AdmonitionBlock) notesSection.allowedBlocks().get(0);
+            assertEquals("content-notes", admonitionBlock.getName());
+            assertEquals(Severity.WARN, admonitionBlock.getSeverity());
+            
+            // Type validation
+            assertNotNull(admonitionBlock.getTypeConfig());
+            assertTrue(admonitionBlock.getTypeConfig().isRequired());
+            assertEquals(5, admonitionBlock.getTypeConfig().getAllowed().size());
+            assertTrue(admonitionBlock.getTypeConfig().getAllowed().contains("NOTE"));
+            assertTrue(admonitionBlock.getTypeConfig().getAllowed().contains("TIP"));
+            assertEquals(Severity.ERROR, admonitionBlock.getTypeConfig().getSeverity());
+            
+            // Title validation
+            assertNotNull(admonitionBlock.getTitle());
+            assertTrue(admonitionBlock.getTitle().isRequired());
+            assertEquals("^[A-Z][A-Za-z\\s]{2,49}$", admonitionBlock.getTitle().getPattern().pattern());
+            assertEquals(3, admonitionBlock.getTitle().getMinLength());
+            assertEquals(50, admonitionBlock.getTitle().getMaxLength());
+            assertEquals(Severity.ERROR, admonitionBlock.getTitle().getSeverity());
+            
+            // Content validation with nested lines
+            assertNotNull(admonitionBlock.getContent());
+            assertFalse(admonitionBlock.getContent().isRequired());
+            assertEquals(10, admonitionBlock.getContent().getMinLength());
+            assertEquals(500, admonitionBlock.getContent().getMaxLength());
+            assertEquals(Severity.WARN, admonitionBlock.getContent().getSeverity());
+            
+            // Lines validation (nested in content)
+            assertNotNull(admonitionBlock.getContent().getLines());
+            assertEquals(1, admonitionBlock.getContent().getLines().min());
+            assertEquals(10, admonitionBlock.getContent().getLines().max());
+            assertEquals(Severity.INFO, admonitionBlock.getContent().getLines().severity());
+            
+            // Icon validation
+            assertNotNull(admonitionBlock.getIcon());
+            assertTrue(admonitionBlock.getIcon().isRequired());
+            assertEquals("^(info|warning|caution|tip|note)$", admonitionBlock.getIcon().getPattern().pattern());
+            assertEquals(Severity.INFO, admonitionBlock.getIcon().getSeverity());
         }
     }
     

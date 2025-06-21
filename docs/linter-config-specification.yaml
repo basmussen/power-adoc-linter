@@ -247,6 +247,7 @@ document:
               min: 0
               max: 5
               # Kein severity = verwendet Block-Severity (warn)
+              
             # Image-spezifische Attribute für Diagramme
             url:
               required: true         # URL ist Pflicht
@@ -263,6 +264,38 @@ document:
               required: true         # Alt-Text ist Pflicht
               minLength: 15          # Mindestens 15 Zeichen für Diagrammbeschreibung
               maxLength: 300         # Maximal 300 Zeichen
+              
+        - admonition:
+            name: "content-notes"       # Optional: Benannter Block für Hinweise
+            severity: warn              # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 10                   # Maximal 10 Admonitions insgesamt
+              severity: info            # Optional: Überschreibt Block-Severity
+            # Admonition-spezifische Attribute
+            type:
+              required: true            # Typ ist Pflicht
+              allowed: ["NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"]
+              severity: error           # Nur erlaubte Typen
+            title:
+              required: true            # Titel ist Pflicht
+              pattern: "^[A-Z][A-Za-z\\s]{2,49}$"  # Beginnt mit Großbuchstabe, 3-50 Zeichen
+              minLength: 3              # Mindestens 3 Zeichen
+              maxLength: 50             # Maximal 50 Zeichen
+              severity: error           # Strenge Vorgabe für Titel
+            content:
+              required: false           # Inhalt optional
+              minLength: 10             # Mindestens 10 Zeichen Inhalt
+              maxLength: 500            # Maximal 500 Zeichen
+              severity: warn            # Warnung bei zu kurzem/langem Inhalt
+              lines:
+                min: 1                  # Mindestens 1 Zeile
+                max: 10                 # Maximal 10 Zeilen
+                severity: info          # Nur Hinweis
+            icon:
+              required: true            # Icons sind erforderlich
+              pattern: "^(info|warning|caution|tip|note)$"  # Erlaubte Icon-Namen
+              severity: info            # Nur Hinweis wenn fehlt
           
       # Verschachtelte Struktur bis Level 3
       subsections:
@@ -396,6 +429,21 @@ document:
                 - listing:
                     min: 1
                     max: 3
+                    severity: warn           # PFLICHT: Default-Severity
+                - admonition:
+                    name: "code-warnings"    # Warnhinweise für Code-Beispiele
+                    severity: info           # PFLICHT: Default-Severity
+                    occurrence:
+                      min: 0
+                      max: 3                 # Maximal 3 Hinweise bei Code-Beispielen
+                    # Einfacheres Beispiel ohne alle Optionen
+                    type:
+                      required: true
+                      allowed: ["WARNING", "CAUTION"]  # Nur Warnungen bei Code erlaubt
+                    title:
+                      required: false        # Titel optional für einfache Hinweise
+                    content:
+                      minLength: 20          # Mindestens 20 Zeichen für sinnvollen Hinweis
                     
         # Generische weitere Unterabschnitte (ohne feste Vorgaben)
         - level: 2           # === Überschrift

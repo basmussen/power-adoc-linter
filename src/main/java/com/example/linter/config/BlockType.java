@@ -9,6 +9,7 @@ public enum BlockType {
     TABLE,
     IMAGE,
     VERSE,
+    ADMONITION,
     PASS,
     LITERAL;
     
@@ -26,6 +27,7 @@ public enum BlockType {
             case "table" -> TABLE;
             case "image" -> IMAGE;
             case "verse" -> VERSE;
+            case "admonition" -> ADMONITION;
             case "pass" -> PASS;
             case "literal" -> LITERAL;
             default -> throw new IllegalArgumentException("Unknown block type: " + value);
