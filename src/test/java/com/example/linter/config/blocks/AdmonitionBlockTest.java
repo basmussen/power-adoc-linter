@@ -1,8 +1,6 @@
 package com.example.linter.config.blocks;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.example.linter.config.Severity;
+import com.example.linter.config.rule.LineConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,21 +38,22 @@ class AdmonitionBlockTest {
                 .build();
                 
             AdmonitionBlock.ContentConfig contentConfig = AdmonitionBlock.ContentConfig.builder()
+                .required(true)
                 .minLength(10)
                 .maxLength(500)
                 .severity(Severity.WARN)
                 .build();
                 
             AdmonitionBlock.IconConfig iconConfig = AdmonitionBlock.IconConfig.builder()
-                .enabled(true)
+                .required(false)
+                .pattern("^(fa-|icon-|octicon-).*$")
                 .severity(Severity.INFO)
                 .build();
                 
-            Map<String, AdmonitionBlock.TypeOccurrenceConfig> typeOccurrences = new HashMap<>();
-            typeOccurrences.put("NOTE", AdmonitionBlock.TypeOccurrenceConfig.builder()
+            AdmonitionBlock.TypeOccurrenceConfig noteOccurrence = AdmonitionBlock.TypeOccurrenceConfig.builder()
                 .max(5)
                 .severity(Severity.WARN)
-                .build());
+                .build();
             
             // When
             AdmonitionBlock block = AdmonitionBlock.builder()
@@ -62,7 +62,7 @@ class AdmonitionBlockTest {
                 .title(titleConfig)
                 .content(contentConfig)
                 .icon(iconConfig)
-                .typeOccurrences(typeOccurrences)
+                .noteOccurrence(noteOccurrence)
                 .build();
             
             // Then
@@ -72,8 +72,8 @@ class AdmonitionBlockTest {
             assertEquals(titleConfig, block.getTitle());
             assertEquals(contentConfig, block.getContent());
             assertEquals(iconConfig, block.getIcon());
-            assertEquals(1, block.getTypeOccurrences().size());
-            assertNotNull(block.getTypeOccurrences().get("NOTE"));
+            assertNotNull(block.getNoteOccurrence());
+            assertEquals(5, block.getNoteOccurrence().getMax());
         }
         
         @Test
@@ -175,16 +175,27 @@ class AdmonitionBlockTest {
         @Test
         @DisplayName("should build content config with all properties")
         void shouldBuildCompleteContentConfig() {
+            // Given
+            LineConfig lineConfig = LineConfig.builder()
+                .min(1)
+                .max(10)
+                .severity(Severity.INFO)
+                .build();
+            
             // When
             AdmonitionBlock.ContentConfig config = AdmonitionBlock.ContentConfig.builder()
+                .required(true)
                 .minLength(10)
                 .maxLength(500)
+                .lines(lineConfig)
                 .severity(Severity.WARN)
                 .build();
             
             // Then
+            assertTrue(config.isRequired());
             assertEquals(10, config.getMinLength());
             assertEquals(500, config.getMaxLength());
+            assertNotNull(config.getLines());
             assertEquals(Severity.WARN, config.getSeverity());
         }
         
@@ -196,8 +207,10 @@ class AdmonitionBlockTest {
                 .build();
             
             // Then
+            assertFalse(config.isRequired());
             assertNull(config.getMinLength());
             assertNull(config.getMaxLength());
+            assertNull(config.getLines());
             assertNull(config.getSeverity());
         }
     }
@@ -211,24 +224,31 @@ class AdmonitionBlockTest {
         void shouldBuildCompleteIconConfig() {
             // When
             AdmonitionBlock.IconConfig config = AdmonitionBlock.IconConfig.builder()
-                .enabled(true)
+                .required(false)
+                .pattern("^(fa-|icon-|octicon-).*$")
                 .severity(Severity.INFO)
                 .build();
             
             // Then
-            assertTrue(config.isEnabled());
+            assertFalse(config.isRequired());
+            assertNotNull(config.getPattern());
+            assertEquals("^(fa-|icon-|octicon-).*$", config.getPattern().pattern());
             assertEquals(Severity.INFO, config.getSeverity());
         }
         
         @Test
-        @DisplayName("should default to false for enabled")
-        void shouldDefaultToFalse() {
+        @DisplayName("should handle pattern as Pattern object")
+        void shouldHandlePatternObject() {
+            // Given
+            Pattern pattern = Pattern.compile("^icon-.*");
+            
             // When
             AdmonitionBlock.IconConfig config = AdmonitionBlock.IconConfig.builder()
+                .pattern(pattern)
                 .build();
             
             // Then
-            assertFalse(config.isEnabled());
+            assertEquals(pattern, config.getPattern());
         }
     }
     

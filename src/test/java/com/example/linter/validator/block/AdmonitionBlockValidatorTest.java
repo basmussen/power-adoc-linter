@@ -186,9 +186,11 @@ class AdmonitionBlockValidatorTest {
             
             AdmonitionBlock config = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
-                .lines(LineConfig.builder()
-                    .min(2)
-                    .severity(Severity.INFO)
+                .content(AdmonitionBlock.ContentConfig.builder()
+                    .lines(LineConfig.builder()
+                        .min(2)
+                        .severity(Severity.INFO)
+                        .build())
                     .build())
                 .build();
             
@@ -197,7 +199,7 @@ class AdmonitionBlockValidatorTest {
             
             // Then
             assertEquals(1, messages.size());
-            assertEquals("admonition.lines.min", messages.get(0).getRuleId());
+            assertEquals("admonition.content.lines.min", messages.get(0).getRuleId());
             assertEquals(Severity.INFO, messages.get(0).getSeverity());
         }
         
@@ -210,8 +212,10 @@ class AdmonitionBlockValidatorTest {
             
             AdmonitionBlock config = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
-                .lines(LineConfig.builder()
-                    .max(3)
+                .content(AdmonitionBlock.ContentConfig.builder()
+                    .lines(LineConfig.builder()
+                        .max(3)
+                        .build())
                     .build())
                 .build();
             
@@ -220,7 +224,7 @@ class AdmonitionBlockValidatorTest {
             
             // Then
             assertEquals(1, messages.size());
-            assertEquals("admonition.lines.max", messages.get(0).getRuleId());
+            assertEquals("admonition.content.lines.max", messages.get(0).getRuleId());
         }
     }
     
@@ -239,7 +243,7 @@ class AdmonitionBlockValidatorTest {
             AdmonitionBlock config = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
                 .icon(AdmonitionBlock.IconConfig.builder()
-                    .enabled(true)
+                    .required(true)
                     .severity(Severity.ERROR)
                     .build())
                 .build();
@@ -253,16 +257,17 @@ class AdmonitionBlockValidatorTest {
         }
         
         @Test
-        @DisplayName("should validate icon is not allowed")
-        void shouldValidateIconNotAllowed() {
+        @DisplayName("should validate icon pattern")
+        void shouldValidateIconPattern() {
             // Given
             when(mockDocument.getAttribute("icons")).thenReturn("font");
+            when(mockBlock.getAttribute("icon")).thenReturn("invalid-icon");
             when(mockBlock.getStyle()).thenReturn("NOTE");
             
             AdmonitionBlock config = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
                 .icon(AdmonitionBlock.IconConfig.builder()
-                    .enabled(false)
+                    .pattern("^(info|warning|caution|tip|note)$")
                     .build())
                 .build();
             
@@ -271,7 +276,7 @@ class AdmonitionBlockValidatorTest {
             
             // Then
             assertEquals(1, messages.size());
-            assertEquals("admonition.icon.notAllowed", messages.get(0).getRuleId());
+            assertEquals("admonition.icon.pattern", messages.get(0).getRuleId());
         }
         
         @Test
@@ -284,7 +289,7 @@ class AdmonitionBlockValidatorTest {
             AdmonitionBlock config = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
                 .icon(AdmonitionBlock.IconConfig.builder()
-                    .enabled(true)
+                    .required(true)
                     .build())
                 .build();
             
@@ -306,15 +311,12 @@ class AdmonitionBlockValidatorTest {
             // Given
             when(mockBlock.getStyle()).thenReturn("NOTE");
             
-            Map<String, AdmonitionBlock.TypeOccurrenceConfig> typeOccurrences = new HashMap<>();
-            typeOccurrences.put("NOTE", AdmonitionBlock.TypeOccurrenceConfig.builder()
-                .max(2)
-                .severity(Severity.WARN)
-                .build());
-            
             AdmonitionBlock config = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
-                .typeOccurrences(typeOccurrences)
+                .noteOccurrence(AdmonitionBlock.TypeOccurrenceConfig.builder()
+                    .max(2)
+                    .severity(Severity.WARN)
+                    .build())
                 .build();
             
             // When - validate three NOTE blocks
@@ -324,7 +326,7 @@ class AdmonitionBlockValidatorTest {
             
             // Then
             assertEquals(1, messages.size());
-            assertEquals("admonition.typeOccurrences.max", messages.get(0).getRuleId());
+            assertEquals("admonition.NOTE.max", messages.get(0).getRuleId());
             assertEquals(Severity.WARN, messages.get(0).getSeverity());
         }
         
@@ -340,17 +342,14 @@ class AdmonitionBlockValidatorTest {
             when(tipBlock.getStyle()).thenReturn("TIP");
             when(tipBlock.getDocument()).thenReturn(mockDocument);
             
-            Map<String, AdmonitionBlock.TypeOccurrenceConfig> typeOccurrences = new HashMap<>();
-            typeOccurrences.put("NOTE", AdmonitionBlock.TypeOccurrenceConfig.builder()
-                .max(1)
-                .build());
-            typeOccurrences.put("TIP", AdmonitionBlock.TypeOccurrenceConfig.builder()
-                .max(1)
-                .build());
-            
             AdmonitionBlock config = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
-                .typeOccurrences(typeOccurrences)
+                .noteOccurrence(AdmonitionBlock.TypeOccurrenceConfig.builder()
+                    .max(1)
+                    .build())
+                .tipOccurrence(AdmonitionBlock.TypeOccurrenceConfig.builder()
+                    .max(1)
+                    .build())
                 .build();
             
             // When
@@ -362,7 +361,7 @@ class AdmonitionBlockValidatorTest {
             assertTrue(noteMessages1.isEmpty());
             assertTrue(tipMessages1.isEmpty());
             assertEquals(1, noteMessages2.size());
-            assertEquals("admonition.typeOccurrences.max", noteMessages2.get(0).getRuleId());
+            assertEquals("admonition.NOTE.max", noteMessages2.get(0).getRuleId());
         }
     }
     
@@ -411,14 +410,11 @@ class AdmonitionBlockValidatorTest {
             // Given
             when(mockBlock.getStyle()).thenReturn("note");
             
-            Map<String, AdmonitionBlock.TypeOccurrenceConfig> typeOccurrences = new HashMap<>();
-            typeOccurrences.put("NOTE", AdmonitionBlock.TypeOccurrenceConfig.builder()
-                .max(1)
-                .build());
-            
             AdmonitionBlock config = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
-                .typeOccurrences(typeOccurrences)
+                .noteOccurrence(AdmonitionBlock.TypeOccurrenceConfig.builder()
+                    .max(1)
+                    .build())
                 .build();
             
             // When

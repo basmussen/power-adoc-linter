@@ -25,6 +25,16 @@ public final class AdmonitionBlock extends AbstractBlock {
     private final ContentConfig content;
     @JsonProperty("icon")
     private final IconConfig icon;
+    @JsonProperty("NOTE")
+    private final TypeOccurrenceConfig noteOccurrence;
+    @JsonProperty("TIP")
+    private final TypeOccurrenceConfig tipOccurrence;
+    @JsonProperty("IMPORTANT")
+    private final TypeOccurrenceConfig importantOccurrence;
+    @JsonProperty("WARNING")
+    private final TypeOccurrenceConfig warningOccurrence;
+    @JsonProperty("CAUTION")
+    private final TypeOccurrenceConfig cautionOccurrence;
     
     private AdmonitionBlock(Builder builder) {
         super(builder);
@@ -32,6 +42,11 @@ public final class AdmonitionBlock extends AbstractBlock {
         this.title = builder.title;
         this.content = builder.content;
         this.icon = builder.icon;
+        this.noteOccurrence = builder.noteOccurrence;
+        this.tipOccurrence = builder.tipOccurrence;
+        this.importantOccurrence = builder.importantOccurrence;
+        this.warningOccurrence = builder.warningOccurrence;
+        this.cautionOccurrence = builder.cautionOccurrence;
     }
     
     @Override
@@ -51,16 +66,28 @@ public final class AdmonitionBlock extends AbstractBlock {
         return content;
     }
     
-    public LineConfig getLines() {
-        return lines;
-    }
-    
     public IconConfig getIcon() {
         return icon;
     }
     
-    public Map<String, TypeOccurrenceConfig> getTypeOccurrences() {
-        return new HashMap<>(typeOccurrences);
+    public TypeOccurrenceConfig getNoteOccurrence() {
+        return noteOccurrence;
+    }
+    
+    public TypeOccurrenceConfig getTipOccurrence() {
+        return tipOccurrence;
+    }
+    
+    public TypeOccurrenceConfig getImportantOccurrence() {
+        return importantOccurrence;
+    }
+    
+    public TypeOccurrenceConfig getWarningOccurrence() {
+        return warningOccurrence;
+    }
+    
+    public TypeOccurrenceConfig getCautionOccurrence() {
+        return cautionOccurrence;
     }
     
     public static Builder builder() {
@@ -250,17 +277,27 @@ public final class AdmonitionBlock extends AbstractBlock {
     
     @JsonDeserialize(builder = ContentConfig.ContentConfigBuilder.class)
     public static class ContentConfig {
+        @JsonProperty("required")
+        private final boolean required;
         @JsonProperty("minLength")
         private final Integer minLength;
         @JsonProperty("maxLength")
         private final Integer maxLength;
+        @JsonProperty("lines")
+        private final LineConfig lines;
         @JsonProperty("severity")
         private final Severity severity;
         
         private ContentConfig(ContentConfigBuilder builder) {
+            this.required = builder.required;
             this.minLength = builder.minLength;
             this.maxLength = builder.maxLength;
+            this.lines = builder.lines;
             this.severity = builder.severity;
+        }
+        
+        public boolean isRequired() {
+            return required;
         }
         
         public Integer getMinLength() {
@@ -269,6 +306,10 @@ public final class AdmonitionBlock extends AbstractBlock {
         
         public Integer getMaxLength() {
             return maxLength;
+        }
+        
+        public LineConfig getLines() {
+            return lines;
         }
         
         public Severity getSeverity() {
@@ -281,9 +322,16 @@ public final class AdmonitionBlock extends AbstractBlock {
         
         @JsonPOJOBuilder(withPrefix = "")
         public static class ContentConfigBuilder {
+            private boolean required;
             private Integer minLength;
             private Integer maxLength;
+            private LineConfig lines;
             private Severity severity;
+            
+            public ContentConfigBuilder required(boolean required) {
+                this.required = required;
+                return this;
+            }
             
             public ContentConfigBuilder minLength(Integer minLength) {
                 this.minLength = minLength;
@@ -292,6 +340,11 @@ public final class AdmonitionBlock extends AbstractBlock {
             
             public ContentConfigBuilder maxLength(Integer maxLength) {
                 this.maxLength = maxLength;
+                return this;
+            }
+            
+            public ContentConfigBuilder lines(LineConfig lines) {
+                this.lines = lines;
                 return this;
             }
             
@@ -309,31 +362,40 @@ public final class AdmonitionBlock extends AbstractBlock {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof ContentConfig that)) return false;
-            return Objects.equals(minLength, that.minLength) &&
+            return required == that.required &&
+                   Objects.equals(minLength, that.minLength) &&
                    Objects.equals(maxLength, that.maxLength) &&
+                   Objects.equals(lines, that.lines) &&
                    severity == that.severity;
         }
         
         @Override
         public int hashCode() {
-            return Objects.hash(minLength, maxLength, severity);
+            return Objects.hash(required, minLength, maxLength, lines, severity);
         }
     }
     
     @JsonDeserialize(builder = IconConfig.IconConfigBuilder.class)
     public static class IconConfig {
-        @JsonProperty("enabled")
-        private final boolean enabled;
+        @JsonProperty("required")
+        private final boolean required;
+        @JsonProperty("pattern")
+        private final Pattern pattern;
         @JsonProperty("severity")
         private final Severity severity;
         
         private IconConfig(IconConfigBuilder builder) {
-            this.enabled = builder.enabled;
+            this.required = builder.required;
+            this.pattern = builder.pattern;
             this.severity = builder.severity;
         }
         
-        public boolean isEnabled() {
-            return enabled;
+        public boolean isRequired() {
+            return required;
+        }
+        
+        public Pattern getPattern() {
+            return pattern;
         }
         
         public Severity getSeverity() {
@@ -346,11 +408,22 @@ public final class AdmonitionBlock extends AbstractBlock {
         
         @JsonPOJOBuilder(withPrefix = "")
         public static class IconConfigBuilder {
-            private boolean enabled;
+            private boolean required;
+            private Pattern pattern;
             private Severity severity;
             
-            public IconConfigBuilder enabled(boolean enabled) {
-                this.enabled = enabled;
+            public IconConfigBuilder required(boolean required) {
+                this.required = required;
+                return this;
+            }
+            
+            public IconConfigBuilder pattern(Pattern pattern) {
+                this.pattern = pattern;
+                return this;
+            }
+            
+            public IconConfigBuilder pattern(String pattern) {
+                this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
@@ -368,13 +441,15 @@ public final class AdmonitionBlock extends AbstractBlock {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof IconConfig that)) return false;
-            return enabled == that.enabled &&
+            return required == that.required &&
+                   Objects.equals(pattern == null ? null : pattern.pattern(),
+                                 that.pattern == null ? null : that.pattern.pattern()) &&
                    severity == that.severity;
         }
         
         @Override
         public int hashCode() {
-            return Objects.hash(enabled, severity);
+            return Objects.hash(required, pattern == null ? null : pattern.pattern(), severity);
         }
     }
     
@@ -441,9 +516,12 @@ public final class AdmonitionBlock extends AbstractBlock {
         private TypeConfig type;
         private TitleConfig title;
         private ContentConfig content;
-        private LineConfig lines;
         private IconConfig icon;
-        private Map<String, TypeOccurrenceConfig> typeOccurrences;
+        private TypeOccurrenceConfig noteOccurrence;
+        private TypeOccurrenceConfig tipOccurrence;
+        private TypeOccurrenceConfig importantOccurrence;
+        private TypeOccurrenceConfig warningOccurrence;
+        private TypeOccurrenceConfig cautionOccurrence;
         
         public Builder type(TypeConfig type) {
             this.type = type;
@@ -460,18 +538,38 @@ public final class AdmonitionBlock extends AbstractBlock {
             return this;
         }
         
-        public Builder lines(LineConfig lines) {
-            this.lines = lines;
-            return this;
-        }
-        
         public Builder icon(IconConfig icon) {
             this.icon = icon;
             return this;
         }
         
-        public Builder typeOccurrences(Map<String, TypeOccurrenceConfig> typeOccurrences) {
-            this.typeOccurrences = typeOccurrences;
+        @JsonProperty("NOTE")
+        public Builder noteOccurrence(TypeOccurrenceConfig noteOccurrence) {
+            this.noteOccurrence = noteOccurrence;
+            return this;
+        }
+        
+        @JsonProperty("TIP")
+        public Builder tipOccurrence(TypeOccurrenceConfig tipOccurrence) {
+            this.tipOccurrence = tipOccurrence;
+            return this;
+        }
+        
+        @JsonProperty("IMPORTANT")
+        public Builder importantOccurrence(TypeOccurrenceConfig importantOccurrence) {
+            this.importantOccurrence = importantOccurrence;
+            return this;
+        }
+        
+        @JsonProperty("WARNING")
+        public Builder warningOccurrence(TypeOccurrenceConfig warningOccurrence) {
+            this.warningOccurrence = warningOccurrence;
+            return this;
+        }
+        
+        @JsonProperty("CAUTION")
+        public Builder cautionOccurrence(TypeOccurrenceConfig cautionOccurrence) {
+            this.cautionOccurrence = cautionOccurrence;
             return this;
         }
         
@@ -490,13 +588,18 @@ public final class AdmonitionBlock extends AbstractBlock {
         return Objects.equals(type, that.type) &&
                Objects.equals(title, that.title) &&
                Objects.equals(content, that.content) &&
-               Objects.equals(lines, that.lines) &&
                Objects.equals(icon, that.icon) &&
-               Objects.equals(typeOccurrences, that.typeOccurrences);
+               Objects.equals(noteOccurrence, that.noteOccurrence) &&
+               Objects.equals(tipOccurrence, that.tipOccurrence) &&
+               Objects.equals(importantOccurrence, that.importantOccurrence) &&
+               Objects.equals(warningOccurrence, that.warningOccurrence) &&
+               Objects.equals(cautionOccurrence, that.cautionOccurrence);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), type, title, content, lines, icon, typeOccurrences);
+        return Objects.hash(super.hashCode(), type, title, content, icon, 
+                           noteOccurrence, tipOccurrence, importantOccurrence, 
+                           warningOccurrence, cautionOccurrence);
     }
 }
