@@ -45,7 +45,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         
         // Validate lines
         if (listingConfig.getLines() != null) {
-            validateLines(content, listingConfig.getLines(), context, block, messages);
+            validateLines(content, listingConfig.getLines(), listingConfig, context, block, messages);
         }
         
         // Validate callouts
@@ -162,6 +162,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
     }
     
     private void validateLines(String content, com.example.linter.config.rule.LineConfig config,
+                             ListingBlock listingConfig,
                              BlockValidationContext context,
                              StructuralNode block,
                              List<ValidationMessage> messages) {
@@ -172,7 +173,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         // Validate min lines
         if (config.min() != null && lineCount < config.min()) {
             messages.add(ValidationMessage.builder()
-                .severity(config.severity())
+                .severity(listingConfig.getSeverity())
                 .ruleId("listing.lines.min")
                 .location(context.createLocation(block))
                 .message("Listing block has too few lines")
@@ -184,7 +185,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         // Validate max lines
         if (config.max() != null && lineCount > config.max()) {
             messages.add(ValidationMessage.builder()
-                .severity(config.severity())
+                .severity(listingConfig.getSeverity())
                 .ruleId("listing.lines.max")
                 .location(context.createLocation(block))
                 .message("Listing block has too many lines")

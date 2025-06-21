@@ -321,7 +321,6 @@ class ListingBlockValidatorTest {
             // Given
             LineConfig lineConfig = LineConfig.builder()
                 .min(5)
-                .severity(Severity.INFO)
                 .build();
             ListingBlock config = ListingBlock.builder()
                 .lines(lineConfig)
@@ -336,7 +335,7 @@ class ListingBlockValidatorTest {
             // Then
             assertEquals(1, messages.size());
             ValidationMessage msg = messages.get(0);
-            assertEquals(Severity.INFO, msg.getSeverity());
+            assertEquals(Severity.ERROR, msg.getSeverity()); // Now uses block severity
             assertEquals("listing.lines.min", msg.getRuleId());
             assertEquals("Listing block has too few lines", msg.getMessage());
             assertEquals("3", msg.getActualValue().orElse(null));
@@ -349,7 +348,6 @@ class ListingBlockValidatorTest {
             // Given
             LineConfig lineConfig = LineConfig.builder()
                 .max(50)
-                .severity(Severity.WARN)
                 .build();
             ListingBlock config = ListingBlock.builder()
                 .lines(lineConfig)
@@ -369,7 +367,7 @@ class ListingBlockValidatorTest {
             // Then
             assertEquals(1, messages.size());
             ValidationMessage msg = messages.get(0);
-            assertEquals(Severity.WARN, msg.getSeverity());
+            assertEquals(Severity.ERROR, msg.getSeverity()); // Now uses block severity
             assertEquals("listing.lines.max", msg.getRuleId());
             assertEquals("Listing block has too many lines", msg.getMessage());
             assertEquals("51", msg.getActualValue().orElse(null));
@@ -397,7 +395,6 @@ class ListingBlockValidatorTest {
                     .build())
                 .lines(LineConfig.builder()
                     .max(10)
-                    .severity(Severity.INFO)
                     .build())
                 .severity(Severity.ERROR)
                 .build();
@@ -423,7 +420,6 @@ class ListingBlockValidatorTest {
             // Given
             LineConfig lineConfig = LineConfig.builder()
                 .min(1)
-                .severity(Severity.ERROR)
                 .build();
             ListingBlock config = ListingBlock.builder()
                 .lines(lineConfig)

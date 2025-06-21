@@ -34,7 +34,7 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
         // Validate line count if configured
         if (paragraphConfig.getLines() != null) {
             int lineCount = countLines(content);
-            validateLineCount(lineCount, paragraphConfig.getLines(), context, block, messages);
+            validateLineCount(lineCount, paragraphConfig.getLines(), paragraphConfig, context, block, messages);
         }
         
         return messages;
@@ -79,13 +79,14 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
     
     private void validateLineCount(int actualLines, 
                                  com.example.linter.config.rule.LineConfig lineConfig,
+                                 ParagraphBlock paragraphConfig,
                                  BlockValidationContext context,
                                  StructuralNode block,
                                  List<ValidationMessage> messages) {
         
         if (lineConfig.min() != null && actualLines < lineConfig.min()) {
             messages.add(ValidationMessage.builder()
-                .severity(lineConfig.severity())
+                .severity(paragraphConfig.getSeverity())
                 .ruleId("paragraph.lines.min")
                 .location(context.createLocation(block))
                 .message("Paragraph has too few lines")
@@ -96,7 +97,7 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
         
         if (lineConfig.max() != null && actualLines > lineConfig.max()) {
             messages.add(ValidationMessage.builder()
-                .severity(lineConfig.severity())
+                .severity(paragraphConfig.getSeverity())
                 .ruleId("paragraph.lines.max")
                 .location(context.createLocation(block))
                 .message("Paragraph has too many lines")

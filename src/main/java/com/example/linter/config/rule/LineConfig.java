@@ -2,7 +2,6 @@ package com.example.linter.config.rule;
 
 import java.util.Objects;
 
-import com.example.linter.config.Severity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -11,12 +10,10 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public final class LineConfig {
     private final Integer min;
     private final Integer max;
-    private final Severity severity;
 
     private LineConfig(Builder builder) {
         this.min = builder.min;
         this.max = builder.max;
-        this.severity = builder.severity;
     }
 
     @JsonProperty("min")
@@ -24,9 +21,6 @@ public final class LineConfig {
     
     @JsonProperty("max")
     public Integer max() { return max; }
-    
-    @JsonProperty("severity")
-    public Severity severity() { return severity; }
 
     public static Builder builder() {
         return new Builder();
@@ -36,7 +30,6 @@ public final class LineConfig {
     public static class Builder {
         private Integer min;
         private Integer max;
-        private Severity severity;
 
         @JsonProperty("min")
         public Builder min(Integer min) {
@@ -47,12 +40,6 @@ public final class LineConfig {
         @JsonProperty("max")
         public Builder max(Integer max) {
             this.max = max;
-            return this;
-        }
-
-        @JsonProperty("severity")
-        public Builder severity(Severity severity) {
-            this.severity = severity;
             return this;
         }
 
@@ -67,12 +54,11 @@ public final class LineConfig {
         if (o == null || getClass() != o.getClass()) return false;
         LineConfig lineRule = (LineConfig) o;
         return Objects.equals(min, lineRule.min) &&
-               Objects.equals(max, lineRule.max) &&
-               severity == lineRule.severity;
+               Objects.equals(max, lineRule.max);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(min, max, severity);
+        return Objects.hash(min, max);
     }
 }

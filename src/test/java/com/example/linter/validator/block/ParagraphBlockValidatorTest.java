@@ -73,7 +73,6 @@ class ParagraphBlockValidatorTest {
             // Given
             LineConfig lineConfig = LineConfig.builder()
                 .min(3)
-                .severity(Severity.ERROR)
                 .build();
             ParagraphBlock config = ParagraphBlock.builder()
                 .lines(lineConfig)
@@ -100,7 +99,6 @@ class ParagraphBlockValidatorTest {
             // Given
             LineConfig lineConfig = LineConfig.builder()
                 .max(2)
-                .severity(Severity.WARN)
                 .build();
             ParagraphBlock config = ParagraphBlock.builder()
                 .lines(lineConfig)
@@ -114,7 +112,7 @@ class ParagraphBlockValidatorTest {
             // Then
             assertEquals(1, messages.size());
             ValidationMessage msg = messages.get(0);
-            assertEquals(Severity.WARN, msg.getSeverity());
+            assertEquals(Severity.ERROR, msg.getSeverity()); // Now uses block severity
             assertEquals("paragraph.lines.max", msg.getRuleId());
             assertEquals("Paragraph has too many lines", msg.getMessage());
             assertEquals("3", msg.getActualValue().orElse(null));
@@ -128,7 +126,6 @@ class ParagraphBlockValidatorTest {
             LineConfig lineConfig = LineConfig.builder()
                 .min(2)
                 .max(5)
-                .severity(Severity.ERROR)
                 .build();
             ParagraphBlock config = ParagraphBlock.builder()
                 .lines(lineConfig)
@@ -149,7 +146,6 @@ class ParagraphBlockValidatorTest {
             // Given
             LineConfig lineConfig = LineConfig.builder()
                 .min(2)
-                .severity(Severity.ERROR)
                 .build();
             ParagraphBlock config = ParagraphBlock.builder()
                 .lines(lineConfig)
@@ -170,7 +166,6 @@ class ParagraphBlockValidatorTest {
             // Given
             LineConfig lineConfig = LineConfig.builder()
                 .min(1)
-                .severity(Severity.ERROR)
                 .build();
             ParagraphBlock config = ParagraphBlock.builder()
                 .lines(lineConfig)
@@ -192,7 +187,6 @@ class ParagraphBlockValidatorTest {
             // Given
             LineConfig lineConfig = LineConfig.builder()
                 .min(1)
-                .severity(Severity.ERROR)
                 .build();
             ParagraphBlock config = ParagraphBlock.builder()
                 .lines(lineConfig)
@@ -215,7 +209,6 @@ class ParagraphBlockValidatorTest {
             // Given
             LineConfig lineConfig = LineConfig.builder()
                 .min(1)
-                .severity(Severity.ERROR)
                 .build();
             ParagraphBlock config = ParagraphBlock.builder()
                 .lines(lineConfig)
