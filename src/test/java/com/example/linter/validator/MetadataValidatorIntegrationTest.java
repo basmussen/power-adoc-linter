@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.ast.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -89,7 +90,7 @@ class MetadataValidatorIntegrationTest {
             This is a valid document.
             """;
         File docFile = createTempFile("valid-doc.adoc", content);
-        Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.loadFile(docFile, Options.builder().sourcemap(true).toFile(false).build());
         
         // When
         ValidationResult result = validator.validate(document);
@@ -111,7 +112,7 @@ class MetadataValidatorIntegrationTest {
             Content without required metadata.
             """;
         File docFile = createTempFile("missing-attrs.adoc", content);
-        Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.loadFile(docFile, Options.builder().sourcemap(true).toFile(false).build());
         
         // When
         ValidationResult result = validator.validate(document);
@@ -141,7 +142,7 @@ class MetadataValidatorIntegrationTest {
             Content with invalid metadata patterns.
             """;
         File docFile = createTempFile("invalid-patterns.adoc", content);
-        Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.loadFile(docFile, Options.builder().sourcemap(true).toFile(false).build());
         
         // When
         ValidationResult result = validator.validate(document);
@@ -181,7 +182,7 @@ class MetadataValidatorIntegrationTest {
             Short title and author.
             """;
         File docFile = createTempFile("length-violations.adoc", content);
-        Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.loadFile(docFile, Options.builder().sourcemap(true).toFile(false).build());
         
         // When
         ValidationResult result = validator.validate(document);
@@ -209,7 +210,7 @@ class MetadataValidatorIntegrationTest {
             Attributes can be in any order.
             """;
         File docFile = createTempFile("any-order.adoc", content);
-        Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.loadFile(docFile, Options.builder().sourcemap(true).toFile(false).build());
         
         // When
         ValidationResult result = validator.validate(document);
@@ -225,7 +226,7 @@ class MetadataValidatorIntegrationTest {
         // Given
         String content = "";
         File docFile = createTempFile("empty.adoc", content);
-        Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.loadFile(docFile, Options.builder().sourcemap(true).toFile(false).build());
         
         // When
         ValidationResult result = validator.validate(document);
@@ -246,7 +247,7 @@ class MetadataValidatorIntegrationTest {
             Invalid document.
             """;
         File docFile = createTempFile("report-test.adoc", content);
-        Document document = asciidoctor.loadFile(docFile, org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.loadFile(docFile, Options.builder().sourcemap(true).toFile(false).build());
         ValidationResult result = validator.validate(document);
         
         // When

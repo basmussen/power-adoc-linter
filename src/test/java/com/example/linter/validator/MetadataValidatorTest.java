@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.ast.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -67,7 +68,7 @@ class MetadataValidatorTest {
             
             Content here.
             """;
-        Document document = asciidoctor.load(content, org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
         MetadataValidator validator = MetadataValidator.fromConfiguration(testConfig).build();
         
         // When
@@ -90,7 +91,7 @@ class MetadataValidatorTest {
             """;
         Path tempFile = Files.createTempFile("test", ".adoc");
         Files.writeString(tempFile, content);
-        Document document = asciidoctor.loadFile(tempFile.toFile(), org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.loadFile(tempFile.toFile(), Options.builder().sourcemap(true).toFile(false).build());
         MetadataValidator validator = MetadataValidator.fromConfiguration(testConfig).build();
         
         // When
@@ -117,7 +118,7 @@ class MetadataValidatorTest {
             
             Content.
             """;
-        Document document = asciidoctor.load(content, org.asciidoctor.Options.builder().build());
+        Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
         MetadataConfiguration config = MetadataConfiguration.builder()
             .attributes(Arrays.asList(
                 AttributeConfig.builder()

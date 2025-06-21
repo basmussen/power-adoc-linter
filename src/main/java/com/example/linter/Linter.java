@@ -17,6 +17,7 @@ import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.StructuralNode;
 
@@ -131,7 +132,11 @@ public class Linter {
         
         try {
             // Parse the document
-            Document document = asciidoctor.loadFile(file.toFile(), org.asciidoctor.Options.builder().build());
+            Options options = Options.builder()
+                .sourcemap(true)  // Enable source location tracking
+                .toFile(false)    // Don't write output file
+                .build();
+        Document document = asciidoctor.loadFile(file.toFile(), options);
             
             // Run validators
             List<ValidationMessage> messages = new ArrayList<>();
