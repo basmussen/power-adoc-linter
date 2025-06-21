@@ -26,6 +26,31 @@ import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.validator.ValidationMessage;
 
+/**
+ * Unit tests for {@link TableBlockValidator}.
+ * 
+ * <p>This test class validates the behavior of the table block validator,
+ * which processes table structures in AsciiDoc documents. The tests cover
+ * comprehensive validation rules for table dimensions, headers, captions,
+ * and formatting options.</p>
+ * 
+ * <p>Test structure follows a nested class pattern for better organization:</p>
+ * <ul>
+ *   <li>Validate - Basic validator functionality and type checking</li>
+ *   <li>ColumnsValidation - Column count constraints and severity hierarchy</li>
+ *   <li>RowsValidation - Row count constraints and severity hierarchy</li>
+ *   <li>HeaderValidation - Header requirements and pattern matching</li>
+ *   <li>CaptionValidation - Caption requirements, patterns, and length constraints</li>
+ *   <li>FormatValidation - Table formatting options (style, borders)</li>
+ * </ul>
+ * 
+ * <p>Each nested test class includes severity hierarchy tests to verify that
+ * nested configuration severity overrides block-level severity when specified,
+ * and falls back to block severity when not specified.</p>
+ * 
+ * @see TableBlockValidator
+ * @see TableBlock
+ */
 @DisplayName("TableBlockValidator")
 class TableBlockValidatorTest {
     

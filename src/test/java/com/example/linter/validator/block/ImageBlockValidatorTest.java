@@ -21,6 +21,30 @@ import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.validator.ValidationMessage;
 
+/**
+ * Unit tests for {@link ImageBlockValidator}.
+ * 
+ * <p>This test class validates the behavior of the image block validator,
+ * which processes image elements in AsciiDoc documents. The tests cover
+ * validation rules for image URLs, dimensions, and alternative text.</p>
+ * 
+ * <p>Test structure follows a nested class pattern for better organization:</p>
+ * <ul>
+ *   <li>Validate - Basic validator functionality and type checking</li>
+ *   <li>UrlValidation - URL requirements and pattern matching</li>
+ *   <li>DimensionsValidation - Width and height constraints</li>
+ *   <li>AltTextValidation - Alternative text requirements and length constraints</li>
+ *   <li>SeverityHierarchy - Block-level severity usage (no nested severity support)</li>
+ *   <li>ComplexScenarios - Combined validation scenarios</li>
+ * </ul>
+ * 
+ * <p>Note: Unlike other block validators, ImageBlock configurations do not
+ * support individual severity levels for nested rules. All validations use
+ * the block-level severity.</p>
+ * 
+ * @see ImageBlockValidator
+ * @see ImageBlock
+ */
 @DisplayName("ImageBlockValidator")
 class ImageBlockValidatorTest {
     

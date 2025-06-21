@@ -23,6 +23,27 @@ import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.config.rule.LineConfig;
 import com.example.linter.validator.ValidationMessage;
 
+/**
+ * Unit tests for {@link ListingBlockValidator}.
+ * 
+ * <p>This test class validates the behavior of the listing block validator,
+ * which processes code blocks in AsciiDoc documents. The tests cover all
+ * validation rules including language requirements, title patterns, line
+ * count constraints, and callout restrictions.</p>
+ * 
+ * <p>Test structure follows a nested class pattern for better organization:</p>
+ * <ul>
+ *   <li>Validate - Basic validator functionality</li>
+ *   <li>LanguageValidation - Language specification and allowed values</li>
+ *   <li>TitleValidation - Title requirements and pattern matching</li>
+ *   <li>LinesValidation - Line count constraints</li>
+ *   <li>CalloutsValidation - Callout annotation rules</li>
+ *   <li>ComplexScenarios - Combined validation scenarios</li>
+ * </ul>
+ * 
+ * @see ListingBlockValidator
+ * @see ListingBlock
+ */
 @DisplayName("ListingBlockValidator")
 class ListingBlockValidatorTest {
     

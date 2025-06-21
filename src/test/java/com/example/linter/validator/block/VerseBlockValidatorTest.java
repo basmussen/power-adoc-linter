@@ -21,6 +21,38 @@ import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.VerseBlock;
 import com.example.linter.validator.ValidationMessage;
 
+/**
+ * Unit tests for {@link VerseBlockValidator}.
+ * 
+ * <p>This test class validates the behavior of the verse block validator,
+ * which processes verse/quote blocks in AsciiDoc documents. The tests cover
+ * validation rules for author information, source attribution, and verse
+ * content.</p>
+ * 
+ * <p>Test structure follows a nested class pattern for better organization:</p>
+ * <ul>
+ *   <li>Validate - Basic validator functionality and type checking</li>
+ *   <li>AuthorValidation - Author requirements and pattern matching</li>
+ *   <li>AttributionValidation - Source attribution validation</li>
+ *   <li>ContentValidation - Verse content length constraints</li>
+ *   <li>SeverityHierarchy - Block-level severity usage (no nested severity support)</li>
+ *   <li>ComplexScenarios - Combined validation scenarios and edge cases</li>
+ * </ul>
+ * 
+ * <p>The validator supports various AsciiDoc attributes for verse blocks:</p>
+ * <ul>
+ *   <li>author - The author of the verse/quote</li>
+ *   <li>attribution/citetitle - The source or title of the work</li>
+ *   <li>content - The actual verse or quote text</li>
+ * </ul>
+ * 
+ * <p>Note: Like ImageBlock, VerseBlock configurations do not support
+ * individual severity levels for nested rules. All validations use
+ * the block-level severity.</p>
+ * 
+ * @see VerseBlockValidator
+ * @see VerseBlock
+ */
 @DisplayName("VerseBlockValidator")
 class VerseBlockValidatorTest {
     

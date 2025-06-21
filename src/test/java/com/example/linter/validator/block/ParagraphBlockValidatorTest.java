@@ -21,6 +21,30 @@ import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.config.rule.LineConfig;
 import com.example.linter.validator.ValidationMessage;
 
+/**
+ * Unit tests for {@link ParagraphBlockValidator}.
+ * 
+ * <p>This test class validates the behavior of the paragraph block validator,
+ * which processes text paragraph blocks in AsciiDoc documents. The tests focus
+ * on line count validation rules including minimum and maximum constraints.</p>
+ * 
+ * <p>Test scenarios include:</p>
+ * <ul>
+ *   <li>Basic validator functionality</li>
+ *   <li>Line count validation (min/max)</li>
+ *   <li>Empty and null content handling</li>
+ *   <li>Non-empty line counting logic</li>
+ *   <li>Content extraction from nested blocks</li>
+ *   <li>Severity hierarchy with fallback to block severity</li>
+ * </ul>
+ * 
+ * <p>The validator counts only non-empty lines, ignoring blank lines and
+ * lines containing only whitespace.</p>
+ * 
+ * @see ParagraphBlockValidator
+ * @see ParagraphBlock
+ * @see LineConfig
+ */
 @DisplayName("ParagraphBlockValidator")
 class ParagraphBlockValidatorTest {
     
