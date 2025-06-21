@@ -1,18 +1,25 @@
 package com.example.linter.report;
 
-import com.example.linter.config.Severity;
-import com.example.linter.validator.SourceLocation;
-import com.example.linter.validator.ValidationMessage;
-import com.example.linter.validator.ValidationResult;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import com.example.linter.config.Severity;
+import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
+import com.example.linter.validator.ValidationResult;
 
 @DisplayName("ReportWriter")
 class ReportWriterTest {

@@ -1,10 +1,10 @@
 package com.example.linter.config.blocks;
 
-import com.example.linter.config.BlockType;
-import com.example.linter.config.Severity;
-
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import com.example.linter.config.BlockType;
+import com.example.linter.config.Severity;
 
 public final class TableBlock extends AbstractBlock {
     private final DimensionConfig columns;

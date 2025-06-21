@@ -1,10 +1,11 @@
 package com.example.linter.config.validation;
 
-import com.networknt.schema.ValidationMessage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.networknt.schema.ValidationMessage;
 
 /**
  * Result of schema validation containing validation errors.

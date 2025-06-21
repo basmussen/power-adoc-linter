@@ -1,7 +1,5 @@
 package com.example.linter.report;
 
-import com.example.linter.validator.ValidationResult;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import com.example.linter.validator.ValidationResult;
 
 /**
  * Facade for writing validation reports in different formats.

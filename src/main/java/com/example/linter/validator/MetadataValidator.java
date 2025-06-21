@@ -1,13 +1,23 @@
 package com.example.linter.validator;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import org.asciidoctor.ast.Document;
+
 import com.example.linter.config.MetadataConfiguration;
 import com.example.linter.config.rule.AttributeConfig;
-import com.example.linter.validator.rules.*;
-import org.asciidoctor.ast.Document;
-import org.asciidoctor.ast.StructuralNode;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import com.example.linter.validator.rules.AttributeRule;
+import com.example.linter.validator.rules.LengthRule;
+import com.example.linter.validator.rules.OrderRule;
+import com.example.linter.validator.rules.PatternRule;
+import com.example.linter.validator.rules.RequiredRule;
 
 public final class MetadataValidator {
     private final MetadataConfiguration configuration;

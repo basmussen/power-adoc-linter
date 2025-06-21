@@ -1,16 +1,22 @@
 package com.example.linter.validator;
 
-import com.example.linter.config.rule.SectionConfig;
-import com.example.linter.config.blocks.AbstractBlock;
-import com.example.linter.config.BlockType;
-import com.example.linter.config.Severity;
-import com.example.linter.validator.block.*;
-import org.asciidoctor.ast.Section;
-import org.asciidoctor.ast.StructuralNode;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import org.asciidoctor.ast.Section;
+import org.asciidoctor.ast.StructuralNode;
+
+import com.example.linter.config.BlockType;
+import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.rule.SectionConfig;
+import com.example.linter.validator.block.BlockOccurrenceValidator;
+import com.example.linter.validator.block.BlockOrderValidator;
+import com.example.linter.validator.block.BlockTypeDetector;
+import com.example.linter.validator.block.BlockTypeValidator;
+import com.example.linter.validator.block.BlockValidationContext;
+import com.example.linter.validator.block.BlockValidatorFactory;
 
 /**
  * Main validator for blocks within sections.

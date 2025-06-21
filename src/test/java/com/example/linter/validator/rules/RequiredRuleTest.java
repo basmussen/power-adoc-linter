@@ -1,18 +1,21 @@
 package com.example.linter.validator.rules;
 
-import com.example.linter.config.Severity;
-import com.example.linter.validator.SourceLocation;
-import com.example.linter.validator.ValidationMessage;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import com.example.linter.config.Severity;
+import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
 
 @DisplayName("RequiredRule")
 class RequiredRuleTest {

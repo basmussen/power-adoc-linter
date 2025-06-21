@@ -1,11 +1,17 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.blocks.AbstractBlock;
-import com.example.linter.validator.SourceLocation;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
 
-import java.util.*;
+import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.validator.SourceLocation;
 
 /**
  * Context for block validation containing section information and tracking data.

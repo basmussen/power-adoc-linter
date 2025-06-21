@@ -1,11 +1,11 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.blocks.AbstractBlock;
-import com.example.linter.validator.ValidationMessage;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.validator.ValidationMessage;
 
 /**
  * Validates block occurrence rules (min/max occurrences).

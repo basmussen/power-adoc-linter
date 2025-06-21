@@ -1,11 +1,11 @@
 package com.example.linter.config.rule;
 
-import com.example.linter.config.blocks.AbstractBlock;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import com.example.linter.config.blocks.AbstractBlock;
 
 public final class SectionConfig {
     private final String name;

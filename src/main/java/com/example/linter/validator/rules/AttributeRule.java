@@ -1,8 +1,9 @@
 package com.example.linter.validator.rules;
 
-import com.example.linter.validator.ValidationMessage;
-import com.example.linter.validator.SourceLocation;
 import java.util.List;
+
+import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
 
 public interface AttributeRule {
     

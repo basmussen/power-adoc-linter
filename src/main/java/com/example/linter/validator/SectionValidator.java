@@ -1,16 +1,22 @@
 package com.example.linter.validator;
 
-import com.example.linter.config.DocumentConfiguration;
-import com.example.linter.config.rule.SectionConfig;
-import com.example.linter.config.rule.TitleConfig;
-import com.example.linter.config.Severity;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
 
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import com.example.linter.config.DocumentConfiguration;
+import com.example.linter.config.Severity;
+import com.example.linter.config.rule.SectionConfig;
+import com.example.linter.config.rule.TitleConfig;
 
 public final class SectionValidator {
     private final DocumentConfiguration configuration;

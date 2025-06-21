@@ -1,11 +1,14 @@
 package com.example.linter.config.blocks;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
+
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.rule.LineConfig;
-
-import java.util.*;
-import java.util.regex.Pattern;
 
 public final class ListingBlock extends AbstractBlock {
     private final LanguageConfig language;

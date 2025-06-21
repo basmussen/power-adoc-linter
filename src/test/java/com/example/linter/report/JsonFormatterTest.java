@@ -1,20 +1,23 @@
 package com.example.linter.report;
 
-import com.example.linter.config.Severity;
-import com.example.linter.validator.SourceLocation;
-import com.example.linter.validator.ValidationMessage;
-import com.example.linter.validator.ValidationResult;
-import com.jayway.jsonpath.JsonPath;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import com.example.linter.config.Severity;
+import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
+import com.example.linter.validator.ValidationResult;
+import com.jayway.jsonpath.JsonPath;
 
 @DisplayName("JsonFormatter")
 class JsonFormatterTest {

@@ -1,16 +1,31 @@
 package com.example.linter;
 
-import com.example.linter.config.LinterConfiguration;
-import com.example.linter.config.rule.SectionConfig;
-import com.example.linter.validator.*;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.StructuralNode;
 
-import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import com.example.linter.config.LinterConfiguration;
+import com.example.linter.config.rule.SectionConfig;
+import com.example.linter.validator.BlockValidator;
+import com.example.linter.validator.MetadataValidator;
+import com.example.linter.validator.SectionValidator;
+import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
+import com.example.linter.validator.ValidationResult;
 
 /**
  * Main entry point for the AsciiDoc linter.

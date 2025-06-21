@@ -1,29 +1,36 @@
 package com.example.linter.config.loader;
 
-import com.example.linter.config.*;
-import com.example.linter.config.blocks.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.representer.Representer;
+
+import com.example.linter.config.BlockType;
+import com.example.linter.config.DocumentConfiguration;
+import com.example.linter.config.LinterConfiguration;
+import com.example.linter.config.MetadataConfiguration;
+import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.ImageBlock;
+import com.example.linter.config.blocks.ListingBlock;
+import com.example.linter.config.blocks.ParagraphBlock;
+import com.example.linter.config.blocks.TableBlock;
+import com.example.linter.config.blocks.VerseBlock;
 import com.example.linter.config.rule.AttributeConfig;
 import com.example.linter.config.rule.OccurrenceConfig;
 import com.example.linter.config.rule.SectionConfig;
 import com.example.linter.config.rule.TitleConfig;
 import com.example.linter.config.validation.RuleSchemaValidator;
 import com.example.linter.config.validation.RuleValidationException;
-
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.nodes.Node;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.ScalarNode;
-import org.yaml.snakeyaml.representer.Representer;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
 
 public class ConfigurationLoader {
     

@@ -1,16 +1,16 @@
 package com.example.linter.report;
 
+import java.io.PrintWriter;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+
 import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.ValidationResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import java.io.PrintWriter;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Formats validation results as JSON.

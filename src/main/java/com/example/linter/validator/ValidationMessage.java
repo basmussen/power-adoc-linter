@@ -1,8 +1,9 @@
 package com.example.linter.validator;
 
-import com.example.linter.config.Severity;
 import java.util.Objects;
 import java.util.Optional;
+
+import com.example.linter.config.Severity;
 
 public final class ValidationMessage {
     private final Severity severity;

@@ -1,7 +1,8 @@
 package com.example.linter.validator.block;
 
+import org.asciidoctor.ast.StructuralNode;
+
 import com.example.linter.config.BlockType;
-import org.asciidoctor.ast.*;
 
 /**
  * Detects the type of AsciidoctorJ blocks and maps them to our BlockType enum.

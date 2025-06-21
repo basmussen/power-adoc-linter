@@ -1,11 +1,12 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.blocks.AbstractBlock;
-import com.example.linter.config.BlockType;
-import com.example.linter.validator.ValidationMessage;
+import java.util.List;
+
 import org.asciidoctor.ast.StructuralNode;
 
-import java.util.List;
+import com.example.linter.config.BlockType;
+import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.validator.ValidationMessage;
 
 /**
  * Interface for block type specific validators.

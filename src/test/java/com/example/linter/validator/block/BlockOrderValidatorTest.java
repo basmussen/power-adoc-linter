@@ -1,12 +1,12 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.BlockType;
-import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.ImageBlock;
-import com.example.linter.config.blocks.ParagraphBlock;
-import com.example.linter.config.blocks.TableBlock;
-import com.example.linter.config.rule.OrderConfig;
-import com.example.linter.validator.ValidationMessage;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +14,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.ImageBlock;
+import com.example.linter.config.blocks.ParagraphBlock;
+import com.example.linter.config.blocks.TableBlock;
+import com.example.linter.config.rule.OrderConfig;
+import com.example.linter.validator.ValidationMessage;
 
 @DisplayName("BlockOrderValidator")
 class BlockOrderValidatorTest {

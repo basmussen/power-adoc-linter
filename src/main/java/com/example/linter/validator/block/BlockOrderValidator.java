@@ -1,12 +1,11 @@
 package com.example.linter.validator.block;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.linter.config.blocks.AbstractBlock;
 import com.example.linter.config.rule.OrderConfig;
 import com.example.linter.validator.ValidationMessage;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Validates block order constraints within sections.

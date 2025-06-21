@@ -1,7 +1,8 @@
 package com.example.linter.report;
 
-import com.example.linter.validator.ValidationResult;
 import java.io.PrintWriter;
+
+import com.example.linter.validator.ValidationResult;
 
 /**
  * Interface for formatting validation results in different output formats.

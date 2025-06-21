@@ -1,11 +1,17 @@
 package com.example.linter.validator.rules;
 
-import com.example.linter.config.Severity;
-import com.example.linter.validator.ValidationMessage;
-import com.example.linter.validator.SourceLocation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import com.example.linter.config.Severity;
+import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
 
 public final class PatternRule implements AttributeRule {
     private final Map<String, PatternConfig> patternConfigs;

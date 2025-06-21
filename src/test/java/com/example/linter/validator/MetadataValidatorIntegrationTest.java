@@ -1,13 +1,8 @@
 package com.example.linter.validator;
 
-import com.example.linter.config.MetadataConfiguration;
-import com.example.linter.config.Severity;
-import com.example.linter.config.rule.AttributeConfig;
-import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.ast.Document;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +10,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.ast.Document;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import com.example.linter.config.MetadataConfiguration;
+import com.example.linter.config.Severity;
+import com.example.linter.config.rule.AttributeConfig;
 
 @DisplayName("MetadataValidator Integration Test")
 class MetadataValidatorIntegrationTest {

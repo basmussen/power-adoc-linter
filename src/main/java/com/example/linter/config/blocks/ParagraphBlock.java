@@ -1,10 +1,9 @@
 package com.example.linter.config.blocks;
 
-import com.example.linter.config.BlockType;
-import com.example.linter.config.Severity;
-import com.example.linter.config.rule.LineConfig;
-
 import java.util.Objects;
+
+import com.example.linter.config.BlockType;
+import com.example.linter.config.rule.LineConfig;
 
 public final class ParagraphBlock extends AbstractBlock {
     private final LineConfig lines;

@@ -1,8 +1,16 @@
 package com.example.linter.validator;
 
-import com.example.linter.config.Severity;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import com.example.linter.config.Severity;
 
 public final class ValidationResult {
     private final List<ValidationMessage> messages;

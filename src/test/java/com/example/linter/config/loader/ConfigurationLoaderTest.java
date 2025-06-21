@@ -1,9 +1,14 @@
 package com.example.linter.config.loader;
 
-import com.example.linter.config.*;
-import com.example.linter.config.blocks.*;
-import com.example.linter.config.rule.AttributeConfig;
-import com.example.linter.config.rule.SectionConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,11 +16,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.example.linter.config.BlockType;
+import com.example.linter.config.LinterConfiguration;
+import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.ImageBlock;
+import com.example.linter.config.blocks.ListingBlock;
+import com.example.linter.config.blocks.ParagraphBlock;
+import com.example.linter.config.blocks.TableBlock;
+import com.example.linter.config.blocks.VerseBlock;
 
 @DisplayName("ConfigurationLoader")
 class ConfigurationLoaderTest {

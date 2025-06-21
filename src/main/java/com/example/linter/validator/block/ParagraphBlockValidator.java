@@ -1,13 +1,14 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.blocks.AbstractBlock;
-import com.example.linter.config.blocks.ParagraphBlock;
-import com.example.linter.config.BlockType;
-import com.example.linter.validator.ValidationMessage;
-import org.asciidoctor.ast.StructuralNode;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.asciidoctor.ast.StructuralNode;
+
+import com.example.linter.config.BlockType;
+import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.ParagraphBlock;
+import com.example.linter.validator.ValidationMessage;
 
 /**
  * Validator for paragraph blocks.

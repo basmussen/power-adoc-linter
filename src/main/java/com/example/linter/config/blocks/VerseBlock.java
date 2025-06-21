@@ -1,10 +1,9 @@
 package com.example.linter.config.blocks;
 
-import com.example.linter.config.BlockType;
-import com.example.linter.config.Severity;
-
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import com.example.linter.config.BlockType;
 
 public final class VerseBlock extends AbstractBlock {
     private final AuthorConfig author;

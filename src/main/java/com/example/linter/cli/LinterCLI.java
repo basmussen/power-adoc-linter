@@ -1,10 +1,15 @@
 package com.example.linter.cli;
 
-import com.example.linter.config.Severity;
-import org.apache.commons.cli.*;
-
-import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
+import com.example.linter.config.Severity;
 
 /**
  * Main CLI entry point for the AsciiDoc linter.

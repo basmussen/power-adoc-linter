@@ -1,10 +1,10 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.BlockType;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import com.example.linter.config.BlockType;
 
 /**
  * Factory for creating block type validators.

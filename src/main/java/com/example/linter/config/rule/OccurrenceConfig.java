@@ -1,8 +1,8 @@
 package com.example.linter.config.rule;
 
-import com.example.linter.config.Severity;
-
 import java.util.Objects;
+
+import com.example.linter.config.Severity;
 
 public final class OccurrenceConfig {
     private final Integer order;

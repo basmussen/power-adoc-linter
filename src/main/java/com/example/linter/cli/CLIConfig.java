@@ -1,9 +1,9 @@
 package com.example.linter.cli;
 
-import com.example.linter.config.Severity;
-
 import java.nio.file.Path;
 import java.util.Objects;
+
+import com.example.linter.config.Severity;
 
 /**
  * Configuration object containing parsed CLI arguments.

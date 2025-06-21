@@ -1,9 +1,11 @@
 package com.example.linter.validator;
 
-import com.example.linter.config.DocumentConfiguration;
-import com.example.linter.config.Severity;
-import com.example.linter.config.rule.SectionConfig;
-import com.example.linter.config.rule.TitleConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
+
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.ast.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,10 +13,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.example.linter.config.DocumentConfiguration;
+import com.example.linter.config.Severity;
+import com.example.linter.config.rule.SectionConfig;
+import com.example.linter.config.rule.TitleConfig;
 
 class SectionValidatorTest {
     

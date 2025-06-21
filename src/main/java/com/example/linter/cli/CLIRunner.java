@@ -1,18 +1,18 @@
 package com.example.linter.cli;
 
-import com.example.linter.Linter;
-import com.example.linter.config.LinterConfiguration;
-import com.example.linter.config.Severity;
-import com.example.linter.config.loader.ConfigurationLoader;
-import com.example.linter.validator.ValidationMessage;
-import com.example.linter.validator.ValidationResult;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+
+import com.example.linter.Linter;
+import com.example.linter.config.LinterConfiguration;
+import com.example.linter.config.Severity;
+import com.example.linter.config.loader.ConfigurationLoader;
+import com.example.linter.validator.ValidationMessage;
+import com.example.linter.validator.ValidationResult;
 
 /**
  * Executes the linter based on CLI configuration.

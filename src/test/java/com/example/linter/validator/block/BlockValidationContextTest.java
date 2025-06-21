@@ -1,9 +1,13 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.BlockType;
-import com.example.linter.config.blocks.AbstractBlock;
-import com.example.linter.config.blocks.ParagraphBlock;
-import com.example.linter.validator.SourceLocation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import org.asciidoctor.ast.Cursor;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
@@ -12,10 +16,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.example.linter.config.BlockType;
+import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.ParagraphBlock;
+import com.example.linter.validator.SourceLocation;
 
 @DisplayName("BlockValidationContext")
 class BlockValidationContextTest {

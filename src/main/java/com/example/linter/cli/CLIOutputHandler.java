@@ -1,14 +1,14 @@
 package com.example.linter.cli;
 
-import com.example.linter.report.ReportWriter;
-import com.example.linter.validator.ValidationResult;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+
+import com.example.linter.report.ReportWriter;
+import com.example.linter.validator.ValidationResult;
 
 /**
  * Handles output routing for CLI based on configuration.

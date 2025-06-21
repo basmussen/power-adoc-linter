@@ -1,10 +1,10 @@
 package com.example.linter.config.blocks;
 
+import java.util.Objects;
+
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.rule.OccurrenceConfig;
-
-import java.util.Objects;
 
 public abstract class AbstractBlock {
     private final String name;

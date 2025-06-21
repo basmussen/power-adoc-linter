@@ -1,13 +1,13 @@
 package com.example.linter.report;
 
-import com.example.linter.validator.ValidationMessage;
-import com.example.linter.validator.ValidationResult;
-import com.example.linter.config.Severity;
-
 import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import com.example.linter.config.Severity;
+import com.example.linter.validator.ValidationMessage;
+import com.example.linter.validator.ValidationResult;
 
 /**
  * Formats validation results for console output.
