@@ -1006,7 +1006,7 @@ class ConfigurationLoaderTest {
                               maxLength: 1000
                               pattern: "^<[^>]+>.*</[^>]+>$"
                               severity: error
-                            justification:
+                            reason:
                               required: true
                               minLength: 20
                               maxLength: 200
@@ -1051,13 +1051,13 @@ class ConfigurationLoaderTest {
             assertEquals("^<[^>]+>.*</[^>]+>$", contentConfig.getPattern().pattern());
             assertEquals(Severity.ERROR, contentConfig.getSeverity());
             
-            // Then - Justification config
-            var justificationConfig = passBlock.getJustification();
-            assertNotNull(justificationConfig);
-            assertTrue(justificationConfig.isRequired());
-            assertEquals(20, justificationConfig.getMinLength());
-            assertEquals(200, justificationConfig.getMaxLength());
-            assertEquals(Severity.ERROR, justificationConfig.getSeverity());
+            // Then - Reason config
+            var reasonConfig = passBlock.getReason();
+            assertNotNull(reasonConfig);
+            assertTrue(reasonConfig.isRequired());
+            assertEquals(20, reasonConfig.getMinLength());
+            assertEquals(200, reasonConfig.getMaxLength());
+            assertEquals(Severity.ERROR, reasonConfig.getSeverity());
         }
         
         @Test
@@ -1094,7 +1094,7 @@ class ConfigurationLoaderTest {
             assertNull(passBlock.getOccurrence());
             assertNull(passBlock.getTypeConfig());
             assertNull(passBlock.getContent());
-            assertNull(passBlock.getJustification());
+            assertNull(passBlock.getReason());
         }
     }
     

@@ -454,8 +454,8 @@ document:
                   maxLength: 1000            # Begrenzte Länge
                   pattern: "^<[^>]+>.*</[^>]+>$"  # Muss wie HTML aussehen
                   severity: error
-                justification:
-                  required: true             # Begründung warum Pass-Block nötig ist
+                reason:
+                  required: true             # Grund warum Pass-Block nötig ist
                   minLength: 20
                   maxLength: 200
                   severity: error

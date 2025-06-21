@@ -23,7 +23,7 @@ import com.example.linter.validator.ValidationMessage;
  * This validator uses custom attributes that are not native to AsciiDoc:</p>
  * <ul>
  *   <li><b>pass-type</b>: Custom attribute specifying content type (html, xml, svg)</li>
- *   <li><b>pass-reason</b>: Custom attribute providing justification for using raw passthrough</li>
+ *   <li><b>pass-reason</b>: Custom attribute providing reason for using raw passthrough</li>
  * </ul>
  * 
  * <p>Example usage in AsciiDoc:</p>
@@ -40,7 +40,7 @@ import com.example.linter.validator.ValidationMessage;
  * <ul>
  *   <li><b>type</b>: Validates content type specification (required, allowed values)</li>
  *   <li><b>content</b>: Validates content (required, maxLength, pattern)</li>
- *   <li><b>justification</b>: Validates justification (required, minLength, maxLength)</li>
+ *   <li><b>reason</b>: Validates reason (required, minLength, maxLength)</li>
  * </ul>
  * 
  * <p>Each nested configuration can optionally define its own severity level.
@@ -79,9 +79,9 @@ public final class PassBlockValidator implements BlockTypeValidator {
             validateContent(content, passConfig.getContent(), passConfig, context, block, messages);
         }
         
-        // Validate justification
-        if (passConfig.getJustification() != null) {
-            validateJustification(passReason, passConfig.getJustification(), passConfig, context, block, messages);
+        // Validate reason
+        if (passConfig.getReason() != null) {
+            validateReason(passReason, passConfig.getReason(), passConfig, context, block, messages);
         }
         
         return messages;
@@ -200,7 +200,7 @@ public final class PassBlockValidator implements BlockTypeValidator {
         }
     }
     
-    private void validateJustification(String passReason, PassBlock.JustificationConfig config,
+    private void validateReason(String passReason, PassBlock.ReasonConfig config,
                                      PassBlock blockConfig,
                                      BlockValidationContext context,
                                      StructuralNode block,
@@ -209,15 +209,15 @@ public final class PassBlockValidator implements BlockTypeValidator {
         // Get severity with fallback to block severity
         Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
         
-        // Check if justification is required
+        // Check if reason is required
         if (config.isRequired() && (passReason == null || passReason.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
                 .severity(severity)
-                .ruleId("pass.justification.required")
+                .ruleId("pass.reason.required")
                 .location(context.createLocation(block))
-                .message("Pass block must provide justification via pass-reason attribute")
-                .actualValue("No justification provided")
-                .expectedValue("Justification required (pass-reason attribute)")
+                .message("Pass block must provide reason via pass-reason attribute")
+                .actualValue("No reason provided")
+                .expectedValue("Reason required (pass-reason attribute)")
                 .build());
             return;
         }
@@ -229,9 +229,9 @@ public final class PassBlockValidator implements BlockTypeValidator {
             if (config.getMinLength() != null && reasonLength < config.getMinLength()) {
                 messages.add(ValidationMessage.builder()
                     .severity(severity)
-                    .ruleId("pass.justification.minLength")
+                    .ruleId("pass.reason.minLength")
                     .location(context.createLocation(block))
-                    .message("Pass block justification is too short")
+                    .message("Pass block reason is too short")
                     .actualValue(reasonLength + " characters")
                     .expectedValue("At least " + config.getMinLength() + " characters")
                     .build());
@@ -241,9 +241,9 @@ public final class PassBlockValidator implements BlockTypeValidator {
             if (config.getMaxLength() != null && reasonLength > config.getMaxLength()) {
                 messages.add(ValidationMessage.builder()
                     .severity(severity)
-                    .ruleId("pass.justification.maxLength")
+                    .ruleId("pass.reason.maxLength")
                     .location(context.createLocation(block))
-                    .message("Pass block justification is too long")
+                    .message("Pass block reason is too long")
                     .actualValue(reasonLength + " characters")
                     .expectedValue("At most " + config.getMaxLength() + " characters")
                     .build());

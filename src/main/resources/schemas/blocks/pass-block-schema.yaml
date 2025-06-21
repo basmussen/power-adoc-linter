@@ -52,7 +52,6 @@ properties:
         type: string
         enum: [error, warn, info]
         description: Severity for type violations
-    required: [severity]
     additionalProperties: false
   content:
     type: object
@@ -73,28 +72,26 @@ properties:
         type: string
         enum: [error, warn, info]
         description: Severity for content violations
-    required: [severity]
     additionalProperties: false
-  justification:
+  reason:
     type: object
-    description: Justification attribute validation rules via pass-reason attribute
+    description: Reason attribute validation rules via pass-reason attribute
     properties:
       required:
         type: boolean
-        description: Whether justification is required
+        description: Whether reason is required
       minLength:
         type: integer
-        description: Minimum justification length
+        description: Minimum reason length
         minimum: 1
       maxLength:
         type: integer
-        description: Maximum justification length
+        description: Maximum reason length
         minimum: 1
       severity:
         type: string
         enum: [error, warn, info]
-        description: Severity for justification violations
-    required: [severity]
+        description: Severity for reason violations
     additionalProperties: false
 required: [severity]
 additionalProperties: false

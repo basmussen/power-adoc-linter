@@ -17,7 +17,7 @@ import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.PassBlock;
 import com.example.linter.config.blocks.PassBlock.ContentConfig;
-import com.example.linter.config.blocks.PassBlock.JustificationConfig;
+import com.example.linter.config.blocks.PassBlock.ReasonConfig;
 import com.example.linter.config.blocks.PassBlock.TypeConfig;
 import com.example.linter.validator.SourceLocation;
 import com.example.linter.validator.ValidationMessage;
@@ -255,18 +255,18 @@ class PassBlockValidatorTest {
     }
     
     @Nested
-    @DisplayName("Justification Validation")
-    class JustificationValidationTests {
+    @DisplayName("Reason Validation")
+    class ReasonValidationTests {
         
         @Test
-        @DisplayName("should validate required justification when missing")
-        void shouldValidateRequiredJustificationWhenMissing() {
+        @DisplayName("should validate required reason when missing")
+        void shouldValidateRequiredReasonWhenMissing() {
             // Given
             when(mockBlock.getAttribute("pass-reason")).thenReturn(null);
             
             PassBlock config = PassBlock.builder()
                 .severity(Severity.ERROR)
-                .justification(JustificationConfig.builder()
+                .reason(ReasonConfig.builder()
                     .required(true)
                     .severity(Severity.ERROR)
                     .build())
@@ -279,19 +279,19 @@ class PassBlockValidatorTest {
             assertEquals(1, messages.size());
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.ERROR, message.getSeverity());
-            assertEquals("pass.justification.required", message.getRuleId());
-            assertTrue(message.getMessage().contains("must provide justification"));
+            assertEquals("pass.reason.required", message.getRuleId());
+            assertTrue(message.getMessage().contains("must provide reason"));
         }
         
         @Test
-        @DisplayName("should validate min length of justification")
-        void shouldValidateMinLengthOfJustification() {
+        @DisplayName("should validate min length of reason")
+        void shouldValidateMinLengthOfReason() {
             // Given
             when(mockBlock.getAttribute("pass-reason")).thenReturn("Too short");
             
             PassBlock config = PassBlock.builder()
                 .severity(Severity.ERROR)
-                .justification(JustificationConfig.builder()
+                .reason(ReasonConfig.builder()
                     .required(true)
                     .minLength(20)
                     .severity(Severity.WARN)
@@ -305,21 +305,21 @@ class PassBlockValidatorTest {
             assertEquals(1, messages.size());
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.WARN, message.getSeverity());
-            assertEquals("pass.justification.minLength", message.getRuleId());
+            assertEquals("pass.reason.minLength", message.getRuleId());
             assertEquals("9 characters", message.getActualValue().orElse(null));
             assertEquals("At least 20 characters", message.getExpectedValue().orElse(null));
         }
         
         @Test
-        @DisplayName("should validate max length of justification")
-        void shouldValidateMaxLengthOfJustification() {
+        @DisplayName("should validate max length of reason")
+        void shouldValidateMaxLengthOfReason() {
             // Given
-            String longReason = "This is a very long justification that exceeds the maximum allowed length";
+            String longReason = "This is a very long reason that exceeds the maximum allowed length";
             when(mockBlock.getAttribute("pass-reason")).thenReturn(longReason);
             
             PassBlock config = PassBlock.builder()
                 .severity(Severity.ERROR)
-                .justification(JustificationConfig.builder()
+                .reason(ReasonConfig.builder()
                     .required(true)
                     .maxLength(50)
                     .severity(Severity.INFO)
@@ -333,18 +333,18 @@ class PassBlockValidatorTest {
             assertEquals(1, messages.size());
             ValidationMessage message = messages.get(0);
             assertEquals(Severity.INFO, message.getSeverity());
-            assertEquals("pass.justification.maxLength", message.getRuleId());
+            assertEquals("pass.reason.maxLength", message.getRuleId());
         }
         
         @Test
-        @DisplayName("should pass when justification is valid")
-        void shouldPassWhenJustificationIsValid() {
+        @DisplayName("should pass when reason is valid")
+        void shouldPassWhenReasonIsValid() {
             // Given
             when(mockBlock.getAttribute("pass-reason")).thenReturn("Custom widget for product gallery display");
             
             PassBlock config = PassBlock.builder()
                 .severity(Severity.ERROR)
-                .justification(JustificationConfig.builder()
+                .reason(ReasonConfig.builder()
                     .required(true)
                     .minLength(20)
                     .maxLength(200)
@@ -386,7 +386,7 @@ class PassBlockValidatorTest {
                     .pattern("^<[^>]+>.*</[^>]+>$")
                     .severity(Severity.ERROR)
                     .build())
-                .justification(JustificationConfig.builder()
+                .reason(ReasonConfig.builder()
                     .required(true)
                     .minLength(20)
                     .maxLength(200)
@@ -419,7 +419,7 @@ class PassBlockValidatorTest {
                     .required(true)
                     .severity(Severity.WARN)
                     .build())
-                .justification(JustificationConfig.builder()
+                .reason(ReasonConfig.builder()
                     .required(true)
                     .minLength(20)
                     .severity(Severity.INFO)
@@ -436,6 +436,131 @@ class PassBlockValidatorTest {
             assertTrue(messages.stream().anyMatch(m -> m.getSeverity() == Severity.ERROR));
             assertTrue(messages.stream().anyMatch(m -> m.getSeverity() == Severity.WARN));
             assertTrue(messages.stream().anyMatch(m -> m.getSeverity() == Severity.INFO));
+        }
+    }
+    
+    @Nested
+    @DisplayName("Severity Hierarchy Tests")
+    class SeverityHierarchyTests {
+        
+        @Test
+        @DisplayName("should use nested severity when specified for all configs")
+        void shouldUseNestedSeverityWhenSpecified() {
+            // Given
+            when(mockBlock.getAttribute("pass-type")).thenReturn("javascript");
+            when(mockBlock.getAttribute("pass-reason")).thenReturn("Short");
+            when(mockBlock.getContent()).thenReturn("x".repeat(100));
+            
+            PassBlock config = PassBlock.builder()
+                .severity(Severity.ERROR) // Block severity
+                .type(TypeConfig.builder()
+                    .required(true)
+                    .allowed(Arrays.asList("html", "xml", "svg"))
+                    .severity(Severity.INFO) // Override with INFO
+                    .build())
+                .content(ContentConfig.builder()
+                    .maxLength(50)
+                    .severity(Severity.WARN) // Override with WARN
+                    .build())
+                .reason(ReasonConfig.builder()
+                    .minLength(20)
+                    .severity(Severity.ERROR) // Keep ERROR
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, mockContext);
+            
+            // Then
+            assertEquals(3, messages.size());
+            
+            // Type validation should use INFO
+            ValidationMessage typeMessage = messages.stream()
+                .filter(m -> m.getRuleId().equals("pass.type.allowed"))
+                .findFirst().orElseThrow();
+            assertEquals(Severity.INFO, typeMessage.getSeverity());
+            
+            // Content validation should use WARN
+            ValidationMessage contentMessage = messages.stream()
+                .filter(m -> m.getRuleId().equals("pass.content.maxLength"))
+                .findFirst().orElseThrow();
+            assertEquals(Severity.WARN, contentMessage.getSeverity());
+            
+            // Reason validation should use ERROR
+            ValidationMessage reasonMessage = messages.stream()
+                .filter(m -> m.getRuleId().equals("pass.reason.minLength"))
+                .findFirst().orElseThrow();
+            assertEquals(Severity.ERROR, reasonMessage.getSeverity());
+        }
+        
+        @Test
+        @DisplayName("should fallback to block severity when nested severity is null")
+        void shouldFallbackToBlockSeverityWhenNull() {
+            // Given
+            when(mockBlock.getAttribute("pass-type")).thenReturn(null);
+            when(mockBlock.getAttribute("pass-reason")).thenReturn(null);
+            when(mockBlock.getContent()).thenReturn("");
+            
+            PassBlock config = PassBlock.builder()
+                .severity(Severity.WARN) // Block severity
+                .type(TypeConfig.builder()
+                    .required(true)
+                    .severity(null) // No severity specified
+                    .build())
+                .content(ContentConfig.builder()
+                    .required(true)
+                    .severity(null) // No severity specified
+                    .build())
+                .reason(ReasonConfig.builder()
+                    .required(true)
+                    .severity(null) // No severity specified
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, mockContext);
+            
+            // Then
+            assertEquals(3, messages.size());
+            
+            // All messages should use block severity (WARN)
+            assertTrue(messages.stream().allMatch(m -> m.getSeverity() == Severity.WARN));
+        }
+        
+        @Test
+        @DisplayName("should handle mixed severity configurations")
+        void shouldHandleMixedSeverityConfigurations() {
+            // Given
+            when(mockBlock.getAttribute("pass-type")).thenReturn("invalid");
+            when(mockBlock.getAttribute("pass-reason")).thenReturn("Valid reason for using pass block");
+            when(mockBlock.getContent()).thenReturn("<div>Valid content</div>");
+            
+            PassBlock config = PassBlock.builder()
+                .severity(Severity.INFO) // Block severity
+                .type(TypeConfig.builder()
+                    .required(true)
+                    .allowed(Arrays.asList("html", "xml"))
+                    .severity(Severity.ERROR) // Override type severity
+                    .build())
+                .content(ContentConfig.builder()
+                    .required(true)
+                    .severity(null) // Use block severity
+                    .build())
+                .reason(ReasonConfig.builder()
+                    .required(true)
+                    .severity(null) // Use block severity
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, mockContext);
+            
+            // Then
+            assertEquals(1, messages.size()); // Only type validation fails
+            
+            ValidationMessage message = messages.get(0);
+            assertEquals("pass.type.allowed", message.getRuleId());
+            assertEquals(Severity.ERROR, message.getSeverity()); // Uses nested severity
         }
     }
 }

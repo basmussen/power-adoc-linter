@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This validator supports custom attributes that are not native to AsciiDoc:
  * <ul>
  *   <li>{@code pass-type}: Specifies the content type (html, xml, svg)</li>
- *   <li>{@code pass-reason}: Provides justification for using raw passthrough</li>
+ *   <li>{@code pass-reason}: Provides reason for using raw passthrough</li>
  * </ul>
  * 
  * <p>Example usage:
@@ -40,14 +40,14 @@ public final class PassBlock extends AbstractBlock {
     private final TypeConfig type;
     @JsonProperty("content")
     private final ContentConfig content;
-    @JsonProperty("justification")
-    private final JustificationConfig justification;
+    @JsonProperty("reason")
+    private final ReasonConfig reason;
     
     private PassBlock(Builder builder) {
         super(builder);
         this.type = builder.type;
         this.content = builder.content;
-        this.justification = builder.justification;
+        this.reason = builder.reason;
     }
     
     @Override
@@ -63,8 +63,8 @@ public final class PassBlock extends AbstractBlock {
         return content;
     }
     
-    public JustificationConfig getJustification() {
-        return justification;
+    public ReasonConfig getReason() {
+        return reason;
     }
     
     public static Builder builder() {
@@ -238,8 +238,8 @@ public final class PassBlock extends AbstractBlock {
         }
     }
     
-    @JsonDeserialize(builder = JustificationConfig.JustificationConfigBuilder.class)
-    public static class JustificationConfig {
+    @JsonDeserialize(builder = ReasonConfig.ReasonConfigBuilder.class)
+    public static class ReasonConfig {
         @JsonProperty("required")
         private final boolean required;
         @JsonProperty("minLength")
@@ -249,7 +249,7 @@ public final class PassBlock extends AbstractBlock {
         @JsonProperty("severity")
         private final Severity severity;
         
-        private JustificationConfig(JustificationConfigBuilder builder) {
+        private ReasonConfig(ReasonConfigBuilder builder) {
             this.required = builder.required;
             this.minLength = builder.minLength;
             this.maxLength = builder.maxLength;
@@ -272,46 +272,46 @@ public final class PassBlock extends AbstractBlock {
             return severity;
         }
         
-        public static JustificationConfigBuilder builder() {
-            return new JustificationConfigBuilder();
+        public static ReasonConfigBuilder builder() {
+            return new ReasonConfigBuilder();
         }
         
         @JsonPOJOBuilder(withPrefix = "")
-        public static class JustificationConfigBuilder {
+        public static class ReasonConfigBuilder {
             private boolean required;
             private Integer minLength;
             private Integer maxLength;
             private Severity severity;
             
-            public JustificationConfigBuilder required(boolean required) {
+            public ReasonConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
             }
             
-            public JustificationConfigBuilder minLength(Integer minLength) {
+            public ReasonConfigBuilder minLength(Integer minLength) {
                 this.minLength = minLength;
                 return this;
             }
             
-            public JustificationConfigBuilder maxLength(Integer maxLength) {
+            public ReasonConfigBuilder maxLength(Integer maxLength) {
                 this.maxLength = maxLength;
                 return this;
             }
             
-            public JustificationConfigBuilder severity(Severity severity) {
+            public ReasonConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
-            public JustificationConfig build() {
-                return new JustificationConfig(this);
+            public ReasonConfig build() {
+                return new ReasonConfig(this);
             }
         }
         
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof JustificationConfig that)) return false;
+            if (!(o instanceof ReasonConfig that)) return false;
             return required == that.required &&
                    Objects.equals(minLength, that.minLength) &&
                    Objects.equals(maxLength, that.maxLength) &&
@@ -328,7 +328,7 @@ public final class PassBlock extends AbstractBlock {
     public static class Builder extends AbstractBuilder<Builder> {
         private TypeConfig type;
         private ContentConfig content;
-        private JustificationConfig justification;
+        private ReasonConfig reason;
         
         public Builder type(TypeConfig type) {
             this.type = type;
@@ -340,8 +340,8 @@ public final class PassBlock extends AbstractBlock {
             return this;
         }
         
-        public Builder justification(JustificationConfig justification) {
-            this.justification = justification;
+        public Builder reason(ReasonConfig reason) {
+            this.reason = reason;
             return this;
         }
         
@@ -359,11 +359,11 @@ public final class PassBlock extends AbstractBlock {
         if (!super.equals(o)) return false;
         return Objects.equals(type, that.type) &&
                Objects.equals(content, that.content) &&
-               Objects.equals(justification, that.justification);
+               Objects.equals(reason, that.reason);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), type, content, justification);
+        return Objects.hash(super.hashCode(), type, content, reason);
     }
 }

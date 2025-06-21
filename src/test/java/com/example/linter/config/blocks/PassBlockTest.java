@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.PassBlock.ContentConfig;
-import com.example.linter.config.blocks.PassBlock.JustificationConfig;
+import com.example.linter.config.blocks.PassBlock.ReasonConfig;
 import com.example.linter.config.blocks.PassBlock.TypeConfig;
 import com.example.linter.config.rule.OccurrenceConfig;
 
@@ -40,7 +40,7 @@ class PassBlockTest {
                 .severity(Severity.ERROR)
                 .build();
                 
-            JustificationConfig justificationConfig = JustificationConfig.builder()
+            ReasonConfig reasonConfig = ReasonConfig.builder()
                 .required(true)
                 .minLength(20)
                 .maxLength(200)
@@ -53,7 +53,7 @@ class PassBlockTest {
                 .severity(Severity.ERROR)
                 .type(typeConfig)
                 .content(contentConfig)
-                .justification(justificationConfig)
+                .reason(reasonConfig)
                 .build();
             
             // Then
@@ -63,7 +63,7 @@ class PassBlockTest {
             assertEquals(BlockType.PASS, block.getType());
             assertEquals(typeConfig, block.getTypeConfig());
             assertEquals(contentConfig, block.getContent());
-            assertEquals(justificationConfig, block.getJustification());
+            assertEquals(reasonConfig, block.getReason());
         }
         
         @Test
@@ -277,14 +277,14 @@ class PassBlockTest {
     }
     
     @Nested
-    @DisplayName("JustificationConfig")
-    class JustificationConfigTests {
+    @DisplayName("ReasonConfig")
+    class ReasonConfigTests {
         
         @Test
-        @DisplayName("should create JustificationConfig with builder")
-        void shouldCreateJustificationConfigWithBuilder() {
+        @DisplayName("should create ReasonConfig with builder")
+        void shouldCreateReasonConfigWithBuilder() {
             // When
-            JustificationConfig config = JustificationConfig.builder()
+            ReasonConfig config = ReasonConfig.builder()
                 .required(true)
                 .minLength(20)
                 .maxLength(200)
@@ -302,7 +302,7 @@ class PassBlockTest {
         @DisplayName("should handle optional lengths")
         void shouldHandleOptionalLengths() {
             // When
-            JustificationConfig config = JustificationConfig.builder()
+            ReasonConfig config = ReasonConfig.builder()
                 .required(false)
                 .severity(Severity.WARN)
                 .build();
@@ -318,21 +318,21 @@ class PassBlockTest {
         @DisplayName("should support equals and hashCode")
         void shouldSupportEqualsAndHashCode() {
             // Given
-            JustificationConfig config1 = JustificationConfig.builder()
+            ReasonConfig config1 = ReasonConfig.builder()
                 .required(true)
                 .minLength(10)
                 .maxLength(100)
                 .severity(Severity.ERROR)
                 .build();
                 
-            JustificationConfig config2 = JustificationConfig.builder()
+            ReasonConfig config2 = ReasonConfig.builder()
                 .required(true)
                 .minLength(10)
                 .maxLength(100)
                 .severity(Severity.ERROR)
                 .build();
                 
-            JustificationConfig config3 = JustificationConfig.builder()
+            ReasonConfig config3 = ReasonConfig.builder()
                 .required(true)
                 .minLength(20)
                 .maxLength(100)
@@ -387,7 +387,7 @@ class PassBlockTest {
                 .severity(Severity.ERROR)
                 .build();
                 
-            JustificationConfig justificationConfig = JustificationConfig.builder()
+            ReasonConfig reasonConfig = ReasonConfig.builder()
                 .required(true)
                 .minLength(20)
                 .maxLength(200)
@@ -407,7 +407,7 @@ class PassBlockTest {
                 .occurrence(occurrence)
                 .type(typeConfig)
                 .content(contentConfig)
-                .justification(justificationConfig)
+                .reason(reasonConfig)
                 .build();
             
             // Then
@@ -417,7 +417,7 @@ class PassBlockTest {
             assertEquals(occurrence, block.getOccurrence());
             assertEquals(typeConfig, block.getTypeConfig());
             assertEquals(contentConfig, block.getContent());
-            assertEquals(justificationConfig, block.getJustification());
+            assertEquals(reasonConfig, block.getReason());
         }
     }
 }
