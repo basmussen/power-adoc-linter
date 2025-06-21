@@ -38,7 +38,7 @@ public class CLIOptions {
             .longOpt("report-format")
             .hasArg()
             .argName("format")
-            .desc("Report format: console, json (default: console)")
+            .desc("Report format: console, json, json-compact (default: console)")
             .build());
         
         // Report output

@@ -28,6 +28,7 @@ public class ReportWriter {
     private void registerDefaultFormatters() {
         registerFormatter(new ConsoleFormatter());
         registerFormatter(new JsonFormatter());
+        registerFormatter(new JsonCompactFormatter());
     }
     
     /**

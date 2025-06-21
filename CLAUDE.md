@@ -56,6 +56,9 @@ java -jar target/power-adoc-linter.jar -i /path/to/docs -p "*.adoc" -r
 # JSON output to file
 java -jar target/power-adoc-linter.jar -i document.adoc -f json -o report.json
 
+# Compact JSON output (single line)
+java -jar target/power-adoc-linter.jar -i document.adoc -f json-compact
+
 # Set fail level (default: error)
 java -jar target/power-adoc-linter.jar -i document.adoc -l warn
 ```
@@ -113,7 +116,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
    - All validators work based on YAML schema structure
 
 5. **Strategy Pattern**: Report formatters
-   - `ReportFormatter` interface with `ConsoleFormatter` and `JsonFormatter`
+   - `ReportFormatter` interface with `ConsoleFormatter`, `JsonFormatter`, and `JsonCompactFormatter`
    - Factory pattern for formatter selection
 
 6. **Severity Hierarchy**: Nested configuration severity overrides block-level severity
@@ -151,7 +154,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 4. **SectionConfiguration**: Hierarchical section definitions with allowed blocks
 
 5. **Block Types**: 
-   - `ParagraphBlock`: Basic text blocks with line count validation
+   - `ParagraphBlock`: Basic text blocks with line count and sentence validation
    - `ListingBlock`: Code blocks with language, title, and callout support
    - `TableBlock`: Tables with column/row counts, headers, captions
    - `ImageBlock`: Images with URL pattern, dimensions, alt text validation
@@ -256,6 +259,8 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - ✅ Schema validation for configuration files (#12)
 - ✅ Jackson migration with custom deserializers (#23)
 - ✅ Logging framework with Log4j2
+- ✅ Sentence validation for paragraph blocks (#28)
+- ✅ JSON compact format for pipeline integration (#30)
 - ⏳ Additional report formats
 - ⏳ Watch mode for continuous validation
 
