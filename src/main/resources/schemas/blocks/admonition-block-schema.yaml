@@ -1,0 +1,173 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://example.com/schemas/blocks/admonition-block.schema.yaml
+title: Admonition Block Configuration Schema
+description: Schema for validating admonition block configuration in AsciiDoc linter
+type: object
+properties:
+  name:
+    type: string
+    description: Optional name for the admonition block for better error messages
+    minLength: 1
+    maxLength: 50
+  severity:
+    type: string
+    description: Default severity level for all rules in this block
+    enum: [error, warn, info]
+  occurrence:
+    type: object
+    description: Occurrence rules for this block type
+    properties:
+      order:
+        type: integer
+        description: Order in which this block should appear
+        minimum: 1
+      min:
+        type: integer
+        description: Minimum number of occurrences
+        minimum: 0
+      max:
+        type: integer
+        description: Maximum number of occurrences
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
+    additionalProperties: false
+  title:
+    type: object
+    description: Title validation rules for admonition blocks
+    properties:
+      required:
+        type: boolean
+        description: Whether title is required
+      pattern:
+        type: string
+        description: Regular expression pattern for title validation
+        format: regex
+      minLength:
+        type: integer
+        description: Minimum length of title
+        minimum: 1
+      maxLength:
+        type: integer
+        description: Maximum length of title
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for title violations
+    additionalProperties: false
+  content:
+    type: object
+    description: Content validation rules
+    properties:
+      minLength:
+        type: integer
+        description: Minimum length of content in characters
+        minimum: 1
+      maxLength:
+        type: integer
+        description: Maximum length of content in characters
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for content violations
+    additionalProperties: false
+  lines:
+    type: object
+    description: Line count validation rules
+    properties:
+      min:
+        type: integer
+        description: Minimum number of lines
+        minimum: 1
+      max:
+        type: integer
+        description: Maximum number of lines
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for line count violations
+    additionalProperties: false
+  icon:
+    type: object
+    description: Icon validation rules
+    properties:
+      enabled:
+        type: boolean
+        description: Whether icons should be enabled
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for icon violations
+    additionalProperties: false
+  typeOccurrences:
+    type: object
+    description: Maximum occurrences per admonition type
+    properties:
+      NOTE:
+        type: object
+        properties:
+          max:
+            type: integer
+            description: Maximum number of NOTE admonitions
+            minimum: 1
+          severity:
+            type: string
+            enum: [error, warn, info]
+            description: Severity for occurrence violations
+        additionalProperties: false
+      TIP:
+        type: object
+        properties:
+          max:
+            type: integer
+            description: Maximum number of TIP admonitions
+            minimum: 1
+          severity:
+            type: string
+            enum: [error, warn, info]
+            description: Severity for occurrence violations
+        additionalProperties: false
+      IMPORTANT:
+        type: object
+        properties:
+          max:
+            type: integer
+            description: Maximum number of IMPORTANT admonitions
+            minimum: 1
+          severity:
+            type: string
+            enum: [error, warn, info]
+            description: Severity for occurrence violations
+        additionalProperties: false
+      WARNING:
+        type: object
+        properties:
+          max:
+            type: integer
+            description: Maximum number of WARNING admonitions
+            minimum: 1
+          severity:
+            type: string
+            enum: [error, warn, info]
+            description: Severity for occurrence violations
+        additionalProperties: false
+      CAUTION:
+        type: object
+        properties:
+          max:
+            type: integer
+            description: Maximum number of CAUTION admonitions
+            minimum: 1
+          severity:
+            type: string
+            enum: [error, warn, info]
+            description: Severity for occurrence violations
+        additionalProperties: false
+    additionalProperties: false
+required: [severity]
+additionalProperties: false

@@ -1,0 +1,419 @@
+package com.example.linter.config.blocks;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Pattern;
+
+import com.example.linter.config.BlockType;
+import com.example.linter.config.Severity;
+import com.example.linter.config.rule.LineConfig;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+@JsonDeserialize(builder = AdmonitionBlock.Builder.class)
+public final class AdmonitionBlock extends AbstractBlock {
+    @JsonProperty("title")
+    private final TitleConfig title;
+    @JsonProperty("content")
+    private final ContentConfig content;
+    @JsonProperty("lines")
+    private final LineConfig lines;
+    @JsonProperty("icon")
+    private final IconConfig icon;
+    @JsonProperty("typeOccurrences")
+    private final Map<String, TypeOccurrenceConfig> typeOccurrences;
+    
+    private AdmonitionBlock(Builder builder) {
+        super(builder);
+        this.title = builder.title;
+        this.content = builder.content;
+        this.lines = builder.lines;
+        this.icon = builder.icon;
+        this.typeOccurrences = builder.typeOccurrences != null ? 
+            new HashMap<>(builder.typeOccurrences) : 
+            new HashMap<>();
+    }
+    
+    @Override
+    public BlockType getType() {
+        return BlockType.ADMONITION;
+    }
+    
+    public TitleConfig getTitle() {
+        return title;
+    }
+    
+    public ContentConfig getContent() {
+        return content;
+    }
+    
+    public LineConfig getLines() {
+        return lines;
+    }
+    
+    public IconConfig getIcon() {
+        return icon;
+    }
+    
+    public Map<String, TypeOccurrenceConfig> getTypeOccurrences() {
+        return new HashMap<>(typeOccurrences);
+    }
+    
+    public static Builder builder() {
+        return new Builder();
+    }
+    
+    @JsonDeserialize(builder = TitleConfig.TitleConfigBuilder.class)
+    public static class TitleConfig {
+        @JsonProperty("required")
+        private final boolean required;
+        @JsonProperty("pattern")
+        private final Pattern pattern;
+        @JsonProperty("minLength")
+        private final Integer minLength;
+        @JsonProperty("maxLength")
+        private final Integer maxLength;
+        @JsonProperty("severity")
+        private final Severity severity;
+        
+        private TitleConfig(TitleConfigBuilder builder) {
+            this.required = builder.required;
+            this.pattern = builder.pattern;
+            this.minLength = builder.minLength;
+            this.maxLength = builder.maxLength;
+            this.severity = builder.severity;
+        }
+        
+        public boolean isRequired() {
+            return required;
+        }
+        
+        public Pattern getPattern() {
+            return pattern;
+        }
+        
+        public Integer getMinLength() {
+            return minLength;
+        }
+        
+        public Integer getMaxLength() {
+            return maxLength;
+        }
+        
+        public Severity getSeverity() {
+            return severity;
+        }
+        
+        public static TitleConfigBuilder builder() {
+            return new TitleConfigBuilder();
+        }
+        
+        @JsonPOJOBuilder(withPrefix = "")
+        public static class TitleConfigBuilder {
+            private boolean required;
+            private Pattern pattern;
+            private Integer minLength;
+            private Integer maxLength;
+            private Severity severity;
+            
+            public TitleConfigBuilder required(boolean required) {
+                this.required = required;
+                return this;
+            }
+            
+            public TitleConfigBuilder pattern(Pattern pattern) {
+                this.pattern = pattern;
+                return this;
+            }
+            
+            public TitleConfigBuilder pattern(String pattern) {
+                this.pattern = pattern != null ? Pattern.compile(pattern) : null;
+                return this;
+            }
+            
+            public TitleConfigBuilder minLength(Integer minLength) {
+                this.minLength = minLength;
+                return this;
+            }
+            
+            public TitleConfigBuilder maxLength(Integer maxLength) {
+                this.maxLength = maxLength;
+                return this;
+            }
+            
+            public TitleConfigBuilder severity(Severity severity) {
+                this.severity = severity;
+                return this;
+            }
+            
+            public TitleConfig build() {
+                return new TitleConfig(this);
+            }
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof TitleConfig that)) return false;
+            return required == that.required &&
+                   Objects.equals(pattern == null ? null : pattern.pattern(),
+                                 that.pattern == null ? null : that.pattern.pattern()) &&
+                   Objects.equals(minLength, that.minLength) &&
+                   Objects.equals(maxLength, that.maxLength) &&
+                   severity == that.severity;
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(required, pattern == null ? null : pattern.pattern(), 
+                               minLength, maxLength, severity);
+        }
+    }
+    
+    @JsonDeserialize(builder = ContentConfig.ContentConfigBuilder.class)
+    public static class ContentConfig {
+        @JsonProperty("minLength")
+        private final Integer minLength;
+        @JsonProperty("maxLength")
+        private final Integer maxLength;
+        @JsonProperty("severity")
+        private final Severity severity;
+        
+        private ContentConfig(ContentConfigBuilder builder) {
+            this.minLength = builder.minLength;
+            this.maxLength = builder.maxLength;
+            this.severity = builder.severity;
+        }
+        
+        public Integer getMinLength() {
+            return minLength;
+        }
+        
+        public Integer getMaxLength() {
+            return maxLength;
+        }
+        
+        public Severity getSeverity() {
+            return severity;
+        }
+        
+        public static ContentConfigBuilder builder() {
+            return new ContentConfigBuilder();
+        }
+        
+        @JsonPOJOBuilder(withPrefix = "")
+        public static class ContentConfigBuilder {
+            private Integer minLength;
+            private Integer maxLength;
+            private Severity severity;
+            
+            public ContentConfigBuilder minLength(Integer minLength) {
+                this.minLength = minLength;
+                return this;
+            }
+            
+            public ContentConfigBuilder maxLength(Integer maxLength) {
+                this.maxLength = maxLength;
+                return this;
+            }
+            
+            public ContentConfigBuilder severity(Severity severity) {
+                this.severity = severity;
+                return this;
+            }
+            
+            public ContentConfig build() {
+                return new ContentConfig(this);
+            }
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ContentConfig that)) return false;
+            return Objects.equals(minLength, that.minLength) &&
+                   Objects.equals(maxLength, that.maxLength) &&
+                   severity == that.severity;
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(minLength, maxLength, severity);
+        }
+    }
+    
+    @JsonDeserialize(builder = IconConfig.IconConfigBuilder.class)
+    public static class IconConfig {
+        @JsonProperty("enabled")
+        private final boolean enabled;
+        @JsonProperty("severity")
+        private final Severity severity;
+        
+        private IconConfig(IconConfigBuilder builder) {
+            this.enabled = builder.enabled;
+            this.severity = builder.severity;
+        }
+        
+        public boolean isEnabled() {
+            return enabled;
+        }
+        
+        public Severity getSeverity() {
+            return severity;
+        }
+        
+        public static IconConfigBuilder builder() {
+            return new IconConfigBuilder();
+        }
+        
+        @JsonPOJOBuilder(withPrefix = "")
+        public static class IconConfigBuilder {
+            private boolean enabled;
+            private Severity severity;
+            
+            public IconConfigBuilder enabled(boolean enabled) {
+                this.enabled = enabled;
+                return this;
+            }
+            
+            public IconConfigBuilder severity(Severity severity) {
+                this.severity = severity;
+                return this;
+            }
+            
+            public IconConfig build() {
+                return new IconConfig(this);
+            }
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof IconConfig that)) return false;
+            return enabled == that.enabled &&
+                   severity == that.severity;
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(enabled, severity);
+        }
+    }
+    
+    @JsonDeserialize(builder = TypeOccurrenceConfig.TypeOccurrenceConfigBuilder.class)
+    public static class TypeOccurrenceConfig {
+        @JsonProperty("max")
+        private final Integer max;
+        @JsonProperty("severity")
+        private final Severity severity;
+        
+        private TypeOccurrenceConfig(TypeOccurrenceConfigBuilder builder) {
+            this.max = builder.max;
+            this.severity = builder.severity;
+        }
+        
+        public Integer getMax() {
+            return max;
+        }
+        
+        public Severity getSeverity() {
+            return severity;
+        }
+        
+        public static TypeOccurrenceConfigBuilder builder() {
+            return new TypeOccurrenceConfigBuilder();
+        }
+        
+        @JsonPOJOBuilder(withPrefix = "")
+        public static class TypeOccurrenceConfigBuilder {
+            private Integer max;
+            private Severity severity;
+            
+            public TypeOccurrenceConfigBuilder max(Integer max) {
+                this.max = max;
+                return this;
+            }
+            
+            public TypeOccurrenceConfigBuilder severity(Severity severity) {
+                this.severity = severity;
+                return this;
+            }
+            
+            public TypeOccurrenceConfig build() {
+                return new TypeOccurrenceConfig(this);
+            }
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof TypeOccurrenceConfig that)) return false;
+            return Objects.equals(max, that.max) &&
+                   severity == that.severity;
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(max, severity);
+        }
+    }
+    
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class Builder extends AbstractBuilder<Builder> {
+        private TitleConfig title;
+        private ContentConfig content;
+        private LineConfig lines;
+        private IconConfig icon;
+        private Map<String, TypeOccurrenceConfig> typeOccurrences;
+        
+        public Builder title(TitleConfig title) {
+            this.title = title;
+            return this;
+        }
+        
+        public Builder content(ContentConfig content) {
+            this.content = content;
+            return this;
+        }
+        
+        public Builder lines(LineConfig lines) {
+            this.lines = lines;
+            return this;
+        }
+        
+        public Builder icon(IconConfig icon) {
+            this.icon = icon;
+            return this;
+        }
+        
+        public Builder typeOccurrences(Map<String, TypeOccurrenceConfig> typeOccurrences) {
+            this.typeOccurrences = typeOccurrences;
+            return this;
+        }
+        
+        @Override
+        public AdmonitionBlock build() {
+            Objects.requireNonNull(severity, "severity is required");
+            return new AdmonitionBlock(this);
+        }
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AdmonitionBlock that)) return false;
+        if (!super.equals(o)) return false;
+        return Objects.equals(title, that.title) &&
+               Objects.equals(content, that.content) &&
+               Objects.equals(lines, that.lines) &&
+               Objects.equals(icon, that.icon) &&
+               Objects.equals(typeOccurrences, that.typeOccurrences);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), title, content, lines, icon, typeOccurrences);
+    }
+}
