@@ -247,6 +247,7 @@ document:
               min: 0
               max: 5
               # Kein severity = verwendet Block-Severity (warn)
+              
             # Image-spezifische Attribute für Diagramme
             url:
               required: true         # URL ist Pflicht
@@ -263,6 +264,48 @@ document:
               required: true         # Alt-Text ist Pflicht
               minLength: 15          # Mindestens 15 Zeichen für Diagrammbeschreibung
               maxLength: 300         # Maximal 300 Zeichen
+              
+        - admonition:
+            name: "content-notes"       # Optional: Benannter Block für Hinweise
+            severity: warn              # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 10                   # Maximal 10 Admonitions insgesamt
+              severity: info            # Optional: Überschreibt Block-Severity
+            # Admonition-spezifische Attribute
+            title:
+              required: true            # Titel ist Pflicht
+              pattern: "^[A-Z][A-Za-z\\s]{2,49}$"  # Beginnt mit Großbuchstabe, 3-50 Zeichen
+              minLength: 3              # Mindestens 3 Zeichen
+              maxLength: 50             # Maximal 50 Zeichen
+              severity: error           # Strenge Vorgabe für Titel
+            content:
+              minLength: 10             # Mindestens 10 Zeichen Inhalt
+              maxLength: 500            # Maximal 500 Zeichen
+              severity: warn            # Warnung bei zu kurzem/langem Inhalt
+            lines:
+              min: 1                    # Mindestens 1 Zeile
+              max: 10                   # Maximal 10 Zeilen
+              severity: info            # Nur Hinweis
+            icon:
+              enabled: true             # Icons sollen angezeigt werden
+              severity: info            # Nur Hinweis wenn fehlt
+            typeOccurrences:
+              NOTE:
+                max: 5                  # Maximal 5 NOTE-Blöcke
+                severity: warn          # Warnung bei zu vielen
+              TIP:
+                max: 5                  # Maximal 5 TIP-Blöcke
+                severity: warn          # Warnung bei zu vielen
+              IMPORTANT:
+                max: 5                  # Maximal 5 IMPORTANT-Blöcke
+                severity: warn          # Warnung bei zu vielen
+              WARNING:
+                max: 3                  # Maximal 3 WARNING-Blöcke
+                severity: error         # Fehler bei zu vielen Warnungen
+              CAUTION:
+                max: 2                  # Maximal 2 CAUTION-Blöcke
+                severity: error         # Fehler bei zu vielen Vorsichts-Hinweisen
           
       # Verschachtelte Struktur bis Level 3
       subsections:
@@ -396,6 +439,23 @@ document:
                 - listing:
                     min: 1
                     max: 3
+                    severity: warn           # PFLICHT: Default-Severity
+                - admonition:
+                    name: "code-warnings"    # Warnhinweise für Code-Beispiele
+                    severity: info           # PFLICHT: Default-Severity
+                    occurrence:
+                      min: 0
+                      max: 3                 # Maximal 3 Hinweise bei Code-Beispielen
+                    # Einfacheres Beispiel ohne alle Optionen
+                    title:
+                      required: false        # Titel optional für einfache Hinweise
+                    content:
+                      minLength: 20          # Mindestens 20 Zeichen für sinnvollen Hinweis
+                    typeOccurrences:
+                      WARNING:
+                        max: 2               # Maximal 2 Warnungen bei Code
+                      CAUTION:
+                        max: 1               # Maximal 1 Vorsichts-Hinweis
                     
         # Generische weitere Unterabschnitte (ohne feste Vorgaben)
         - level: 2           # === Überschrift
