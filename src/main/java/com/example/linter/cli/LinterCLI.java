@@ -83,9 +83,9 @@ public class LinterCLI {
         // Report format
         if (cmd.hasOption("report-format")) {
             String format = cmd.getOptionValue("report-format");
-            if (!format.equals("console") && !format.equals("json")) {
+            if (!format.equals("console") && !format.equals("json") && !format.equals("json-compact")) {
                 throw new IllegalArgumentException("Invalid report format: " + format + 
-                    ". Valid values are: console, json");
+                    ". Valid values are: console, json, json-compact");
             }
             builder.reportFormat(format);
         }

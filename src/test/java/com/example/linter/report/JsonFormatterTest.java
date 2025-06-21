@@ -28,7 +28,7 @@ class JsonFormatterTest {
     
     @BeforeEach
     void setUp() {
-        formatter = new JsonFormatter();
+        formatter = JsonFormatter.pretty();
         stringWriter = new StringWriter();
         printWriter = new PrintWriter(stringWriter);
     }
