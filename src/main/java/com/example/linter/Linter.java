@@ -14,7 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.StructuralNode;
 
@@ -32,6 +35,8 @@ import com.example.linter.validator.ValidationResult;
  * Provides methods to validate AsciiDoc files against a configuration.
  */
 public class Linter {
+    
+    private static final Logger logger = LogManager.getLogger(Linter.class);
     
     private final Asciidoctor asciidoctor;
     
@@ -127,7 +132,11 @@ public class Linter {
         
         try {
             // Parse the document
-            Document document = asciidoctor.loadFile(file.toFile(), Map.of());
+            Options options = Options.builder()
+                .sourcemap(true)  // Enable source location tracking
+                .toFile(false)    // Don't write output file
+                .build();
+        Document document = asciidoctor.loadFile(file.toFile(), options);
             
             // Run validators
             List<ValidationMessage> messages = new ArrayList<>();
@@ -207,7 +216,7 @@ public class Linter {
             @Override
             public FileVisitResult visitFileFailed(Path file, IOException exc) {
                 // Log warning but continue
-                System.err.println("Warning: Could not access file: " + file + " (" + exc.getMessage() + ")");
+                logger.warn("Could not access file: {} ({})", file, exc.getMessage());
                 return FileVisitResult.CONTINUE;
             }
         });

@@ -10,7 +10,7 @@ import java.util.Objects;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
 
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.validator.SourceLocation;
 
 /**
@@ -55,7 +55,7 @@ public final class BlockValidationContext {
     /**
      * Tracks a block occurrence for validation.
      */
-    public void trackBlock(AbstractBlock config, StructuralNode block) {
+    public void trackBlock(Block config, StructuralNode block) {
         String key = createOccurrenceKey(config);
         
         BlockOccurrence occurrence = new BlockOccurrence(config, block, blockOrder.size());
@@ -67,7 +67,7 @@ public final class BlockValidationContext {
     /**
      * Gets all occurrences for a specific block configuration.
      */
-    public List<BlockOccurrence> getOccurrences(AbstractBlock config) {
+    public List<BlockOccurrence> getOccurrences(Block config) {
         String key = createOccurrenceKey(config);
         return occurrences.getOrDefault(key, Collections.emptyList());
     }
@@ -75,7 +75,7 @@ public final class BlockValidationContext {
     /**
      * Gets the count of occurrences for a specific block configuration.
      */
-    public int getOccurrenceCount(AbstractBlock config) {
+    public int getOccurrenceCount(Block config) {
         return getOccurrences(config).size();
     }
     
@@ -89,14 +89,14 @@ public final class BlockValidationContext {
     /**
      * Gets a human-readable name for the block.
      */
-    public String getBlockName(AbstractBlock config) {
+    public String getBlockName(Block config) {
         if (config.getName() != null) {
             return "block '" + config.getName() + "'";
         }
         return config.getType().toString().toLowerCase() + " block";
     }
     
-    private String createOccurrenceKey(AbstractBlock config) {
+    private String createOccurrenceKey(Block config) {
         if (config.getName() != null) {
             return config.getType() + ":" + config.getName();
         }
@@ -107,17 +107,17 @@ public final class BlockValidationContext {
      * Represents a block occurrence with its configuration and position.
      */
     public static final class BlockOccurrence {
-        private final AbstractBlock config;
+        private final Block config;
         private final StructuralNode block;
         private final int position;
         
-        BlockOccurrence(AbstractBlock config, StructuralNode block, int position) {
+        BlockOccurrence(Block config, StructuralNode block, int position) {
             this.config = config;
             this.block = block;
             this.position = position;
         }
         
-        public AbstractBlock getConfig() { return config; }
+        public Block getConfig() { return config; }
         public StructuralNode getBlock() { return block; }
         public int getPosition() { return position; }
     }
@@ -126,17 +126,17 @@ public final class BlockValidationContext {
      * Represents a block's position in the document.
      */
     public static final class BlockPosition {
-        private final AbstractBlock config;
+        private final Block config;
         private final StructuralNode block;
         private final int index;
         
-        BlockPosition(AbstractBlock config, StructuralNode block, int index) {
+        BlockPosition(Block config, StructuralNode block, int index) {
             this.config = config;
             this.block = block;
             this.index = index;
         }
         
-        public AbstractBlock getConfig() { return config; }
+        public Block getConfig() { return config; }
         public StructuralNode getBlock() { return block; }
         public int getIndex() { return index; }
     }

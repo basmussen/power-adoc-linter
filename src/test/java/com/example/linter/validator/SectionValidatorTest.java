@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.ast.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -73,7 +74,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -109,7 +110,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -158,7 +159,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -208,7 +209,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -244,7 +245,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -294,7 +295,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -368,7 +369,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -416,7 +417,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -492,7 +493,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -543,7 +544,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -585,7 +586,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then
@@ -608,7 +609,7 @@ class SectionValidatorTest {
             
             // When
             SectionValidator validator = SectionValidator.fromConfiguration(config).build();
-            Document document = asciidoctor.load(content, new java.util.HashMap<>());
+            Document document = asciidoctor.load(content, Options.builder().sourcemap(true).toFile(false).build());
             ValidationResult result = validator.validate(document);
             
             // Then

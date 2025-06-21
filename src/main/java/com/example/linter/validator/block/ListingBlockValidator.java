@@ -6,7 +6,7 @@ import java.util.List;
 import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -22,7 +22,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
     
     @Override
     public List<ValidationMessage> validate(StructuralNode block, 
-                                          AbstractBlock config,
+                                          Block config,
                                           BlockValidationContext context) {
         
         ListingBlock listingConfig = (ListingBlock) config;

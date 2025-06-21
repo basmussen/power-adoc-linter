@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.validator.ValidationMessage;
 
 /**
@@ -20,13 +20,13 @@ public final class BlockOccurrenceValidator {
      * @return list of validation messages
      */
     public List<ValidationMessage> validate(BlockValidationContext context,
-                                          List<AbstractBlock> blocks) {
+                                          List<Block> blocks) {
         Objects.requireNonNull(context, "context must not be null");
         Objects.requireNonNull(blocks, "blocks must not be null");
         
         List<ValidationMessage> messages = new ArrayList<>();
         
-        for (AbstractBlock block : blocks) {
+        for (Block block : blocks) {
             if (block.getOccurrence() != null) {
                 validateOccurrences(block, context, messages);
             }
@@ -38,7 +38,7 @@ public final class BlockOccurrenceValidator {
     /**
      * Validates occurrences for a specific block configuration.
      */
-    private void validateOccurrences(AbstractBlock block,
+    private void validateOccurrences(Block block,
                                    BlockValidationContext context,
                                    List<ValidationMessage> messages) {
         

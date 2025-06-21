@@ -7,6 +7,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.example.linter.Linter;
 import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.Severity;
@@ -19,6 +22,7 @@ import com.example.linter.validator.ValidationResult;
  */
 public class CLIRunner {
     
+    private static final Logger logger = LogManager.getLogger(CLIRunner.class);
     private static final String DEFAULT_CONFIG_FILE = ".linter-config.yaml";
     
     private final FileDiscoveryService fileDiscoveryService;
@@ -48,13 +52,13 @@ public class CLIRunner {
             List<Path> filesToValidate = fileDiscoveryService.discoverFiles(config);
             
             if (filesToValidate.isEmpty()) {
-                System.err.println("No files found matching pattern: " + config.getPattern());
+                logger.error("No files found matching pattern: {}", config.getPattern());
                 return 2;
             }
             
             // Print files being validated
             if (filesToValidate.size() > 1) {
-                System.err.println("Validating " + filesToValidate.size() + " files...");
+                logger.info("Validating {} files...", filesToValidate.size());
             }
             
             // Validate files
@@ -72,11 +76,10 @@ public class CLIRunner {
             }
             
         } catch (IOException e) {
-            System.err.println("I/O error: " + e.getMessage());
+            logger.error("I/O error: {}", e.getMessage());
             return 2;
         } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error: {}", e.getMessage(), e);
             return 2;
         } finally {
             linter.close();

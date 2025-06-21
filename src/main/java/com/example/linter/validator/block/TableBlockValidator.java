@@ -10,7 +10,7 @@ import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.ast.Table;
 
 import com.example.linter.config.BlockType;
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -26,7 +26,7 @@ public final class TableBlockValidator implements BlockTypeValidator {
     
     @Override
     public List<ValidationMessage> validate(StructuralNode block, 
-                                          AbstractBlock config,
+                                          Block config,
                                           BlockValidationContext context) {
         
         if (!(block instanceof Table)) {

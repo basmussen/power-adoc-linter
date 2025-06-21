@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.example.linter.config.BlockType;
-import com.example.linter.config.blocks.AbstractBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.validator.SourceLocation;
 
@@ -117,7 +117,7 @@ class BlockValidationContextTest {
         @DisplayName("should track block occurrence")
         void shouldTrackBlockOccurrence() {
             // Given
-            AbstractBlock mockConfig = mock(ParagraphBlock.class);
+            Block mockConfig = mock(ParagraphBlock.class);
             StructuralNode mockBlock = mock(StructuralNode.class);
             when(mockConfig.getName()).thenReturn("intro");
             when(mockConfig.getType()).thenReturn(BlockType.PARAGRAPH);
@@ -133,7 +133,7 @@ class BlockValidationContextTest {
         @DisplayName("should track multiple occurrences of same block")
         void shouldTrackMultipleOccurrencesOfSameBlock() {
             // Given
-            AbstractBlock mockConfig = mock(ParagraphBlock.class);
+            Block mockConfig = mock(ParagraphBlock.class);
             StructuralNode mockBlock1 = mock(StructuralNode.class);
             StructuralNode mockBlock2 = mock(StructuralNode.class);
             when(mockConfig.getName()).thenReturn("intro");
@@ -151,8 +151,8 @@ class BlockValidationContextTest {
         @DisplayName("should track block order")
         void shouldTrackBlockOrder() {
             // Given
-            AbstractBlock config1 = mock(ParagraphBlock.class);
-            AbstractBlock config2 = mock(ParagraphBlock.class);
+            Block config1 = mock(ParagraphBlock.class);
+            Block config2 = mock(ParagraphBlock.class);
             StructuralNode block1 = mock(StructuralNode.class);
             StructuralNode block2 = mock(StructuralNode.class);
             when(config1.getName()).thenReturn("first");
@@ -180,7 +180,7 @@ class BlockValidationContextTest {
         @DisplayName("should return empty list when no occurrences tracked")
         void shouldReturnEmptyListWhenNoOccurrencesTracked() {
             // Given
-            AbstractBlock mockConfig = mock(ParagraphBlock.class);
+            Block mockConfig = mock(ParagraphBlock.class);
             when(mockConfig.getName()).thenReturn("intro");
             when(mockConfig.getType()).thenReturn(BlockType.PARAGRAPH);
             
@@ -196,7 +196,7 @@ class BlockValidationContextTest {
         @DisplayName("should return tracked occurrences")
         void shouldReturnTrackedOccurrences() {
             // Given
-            AbstractBlock mockConfig = mock(ParagraphBlock.class);
+            Block mockConfig = mock(ParagraphBlock.class);
             StructuralNode mockBlock = mock(StructuralNode.class);
             when(mockConfig.getName()).thenReturn("intro");
             when(mockConfig.getType()).thenReturn(BlockType.PARAGRAPH);
@@ -222,7 +222,7 @@ class BlockValidationContextTest {
         @DisplayName("should return named block identifier")
         void shouldReturnNamedBlockIdentifier() {
             // Given
-            AbstractBlock mockConfig = mock(ParagraphBlock.class);
+            Block mockConfig = mock(ParagraphBlock.class);
             when(mockConfig.getName()).thenReturn("intro");
             
             // When
@@ -236,7 +236,7 @@ class BlockValidationContextTest {
         @DisplayName("should return type-based identifier when name is null")
         void shouldReturnTypeBasedIdentifierWhenNameIsNull() {
             // Given
-            AbstractBlock mockConfig = mock(ParagraphBlock.class);
+            Block mockConfig = mock(ParagraphBlock.class);
             when(mockConfig.getName()).thenReturn(null);
             when(mockConfig.getType()).thenReturn(BlockType.PARAGRAPH);
             
