@@ -25,7 +25,8 @@ mvn clean package
 
 # Run the linter CLI
 java -jar target/power-adoc-linter.jar --help
-java -jar target/power-adoc-linter.jar -i document.adoc -c config.yaml
+java -jar target/power-adoc-linter.jar -i "**/*.adoc"
+java -jar target/power-adoc-linter.jar -i "docs/**/*.adoc,examples/**/*.asciidoc" -c config.yaml
 
 # Check for dependency updates
 mvn versions:display-dependency-updates
@@ -44,23 +45,29 @@ java -Dlog4j.configurationFile=src/main/resources/log4j2.xml -jar target/power-a
 ## CLI Usage
 
 ```bash
-# Basic usage
-java -jar target/power-adoc-linter.jar -i document.adoc
+# Basic usage - validate all AsciiDoc files recursively
+java -jar target/power-adoc-linter.jar -i "**/*.adoc"
+
+# Multiple patterns (comma-separated)
+java -jar target/power-adoc-linter.jar -i "docs/**/*.adoc,examples/**/*.asciidoc,README.adoc"
 
 # With custom configuration
-java -jar target/power-adoc-linter.jar -i document.adoc -c my-rules.yaml
-
-# Validate directory
-java -jar target/power-adoc-linter.jar -i /path/to/docs -p "*.adoc" -r
+java -jar target/power-adoc-linter.jar -i "src/*/docs/**/*.adoc" -c my-rules.yaml
 
 # JSON output to file
-java -jar target/power-adoc-linter.jar -i document.adoc -f json -o report.json
+java -jar target/power-adoc-linter.jar -i "**/*.adoc" -f json -o report.json
 
 # Compact JSON output (single line)
-java -jar target/power-adoc-linter.jar -i document.adoc -f json-compact
+java -jar target/power-adoc-linter.jar -i "**/*.adoc" -f json-compact
 
 # Set fail level (default: error)
-java -jar target/power-adoc-linter.jar -i document.adoc -l warn
+java -jar target/power-adoc-linter.jar -i "**/*.adoc" -l warn
+
+# Ant pattern examples:
+# - "**/*.adoc" - all .adoc files in any directory
+# - "docs/**/*.adoc" - all .adoc files under docs/
+# - "*/docs/*.adoc" - .adoc files in any direct subdirectory's docs folder
+# - "doc?.adoc" - matches doc1.adoc, doc2.adoc, but not docs.adoc
 ```
 
 ## Project Information

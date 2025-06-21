@@ -52,7 +52,7 @@ public class CLIRunner {
             List<Path> filesToValidate = fileDiscoveryService.discoverFiles(config);
             
             if (filesToValidate.isEmpty()) {
-                logger.error("No files found matching pattern: {}", config.getPattern());
+                logger.error("No files found matching patterns: {}", String.join(", ", config.getInputPatterns()));
                 return 2;
             }
             

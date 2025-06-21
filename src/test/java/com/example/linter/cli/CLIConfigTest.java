@@ -2,14 +2,18 @@ package com.example.linter.cli;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.example.linter.config.Severity;
@@ -17,93 +21,138 @@ import com.example.linter.config.Severity;
 @DisplayName("CLIConfig")
 class CLIConfigTest {
     
-    @Test
-    @DisplayName("should build with default values")
-    void shouldBuildWithDefaultValues() {
-        // Given/When
-        CLIConfig config = CLIConfig.builder()
-            .input(Paths.get("test.adoc"))
-            .build();
+    @Nested
+    @DisplayName("Builder")
+    class BuilderTest {
         
-        // Then
-        assertEquals(Paths.get("test.adoc"), config.getInput());
-        assertNull(config.getConfigFile());
-        assertEquals("console", config.getReportFormat());
-        assertNull(config.getReportOutput());
-        assertTrue(config.isRecursive());
-        assertEquals("*.adoc", config.getPattern());
-        assertEquals(Severity.ERROR, config.getFailLevel());
-        assertFalse(config.isOutputToFile());
-    }
-    
-    @Test
-    @DisplayName("should build with all values set")
-    void shouldBuildWithAllValuesSet() {
-        // Given
-        Path input = Paths.get("/docs");
-        Path configFile = Paths.get("config.yaml");
-        Path output = Paths.get("report.json");
+        @Test
+        @DisplayName("should create config with required fields")
+        void shouldCreateConfigWithRequiredFields() {
+            // Given
+            List<String> patterns = Arrays.asList("**/*.adoc", "docs/**/*.asciidoc");
+            
+            // When
+            CLIConfig config = CLIConfig.builder()
+                .inputPatterns(patterns)
+                .build();
+            
+            // Then
+            assertEquals(patterns, config.getInputPatterns());
+            assertNotNull(config.getBaseDirectory());
+            assertEquals(System.getProperty("user.dir"), config.getBaseDirectory().toString());
+            assertEquals("console", config.getReportFormat());
+            assertEquals(Severity.ERROR, config.getFailLevel());
+            assertNull(config.getConfigFile());
+            assertNull(config.getReportOutput());
+            assertFalse(config.isOutputToFile());
+        }
         
-        // When
-        CLIConfig config = CLIConfig.builder()
-            .input(input)
-            .configFile(configFile)
-            .reportFormat("json")
-            .reportOutput(output)
-            .recursive(false)
-            .pattern("**/*.asciidoc")
-            .failLevel(Severity.WARN)
-            .build();
+        @Test
+        @DisplayName("should create config with all fields")
+        void shouldCreateConfigWithAllFields() {
+            // Given
+            List<String> patterns = Arrays.asList("src/**/*.adoc", "test/**/*.adoc");
+            Path baseDir = Paths.get("/custom/base");
+            Path configFile = Paths.get("config.yaml");
+            Path reportOutput = Paths.get("report.json");
+            
+            // When
+            CLIConfig config = CLIConfig.builder()
+                .inputPatterns(patterns)
+                .baseDirectory(baseDir)
+                .configFile(configFile)
+                .reportFormat("json")
+                .reportOutput(reportOutput)
+                .failLevel(Severity.WARN)
+                .build();
+            
+            // Then
+            assertEquals(patterns, config.getInputPatterns());
+            assertEquals(baseDir, config.getBaseDirectory());
+            assertEquals(configFile, config.getConfigFile());
+            assertEquals("json", config.getReportFormat());
+            assertEquals(reportOutput, config.getReportOutput());
+            assertEquals(Severity.WARN, config.getFailLevel());
+            assertTrue(config.isOutputToFile());
+        }
         
-        // Then
-        assertEquals(input, config.getInput());
-        assertEquals(configFile, config.getConfigFile());
-        assertEquals("json", config.getReportFormat());
-        assertEquals(output, config.getReportOutput());
-        assertFalse(config.isRecursive());
-        assertEquals("**/*.asciidoc", config.getPattern());
-        assertEquals(Severity.WARN, config.getFailLevel());
-        assertTrue(config.isOutputToFile());
+        @Test
+        @DisplayName("should throw exception for null input patterns")
+        void shouldThrowExceptionForNullInputPatterns() {
+            assertThrows(NullPointerException.class, () -> 
+                CLIConfig.builder().build()
+            );
+        }
+        
+        @Test
+        @DisplayName("should throw exception for empty input patterns")
+        void shouldThrowExceptionForEmptyInputPatterns() {
+            assertThrows(IllegalArgumentException.class, () -> 
+                CLIConfig.builder()
+                    .inputPatterns(Arrays.asList())
+                    .build()
+            );
+        }
+        
+        @Test
+        @DisplayName("should have sensible defaults")
+        void shouldHaveSensibleDefaults() {
+            // Given
+            CLIConfig.Builder builder = CLIConfig.builder();
+            
+            // When
+            CLIConfig config = builder
+                .inputPatterns(Arrays.asList("*.adoc"))
+                .build();
+            
+            // Then
+            assertEquals("console", config.getReportFormat());
+            assertEquals(Severity.ERROR, config.getFailLevel());
+            assertNotNull(config.getBaseDirectory());
+            assertNull(config.getConfigFile());
+            assertNull(config.getReportOutput());
+        }
     }
     
-    @Test
-    @DisplayName("should require input")
-    void shouldRequireInput() {
-        // When/Then
-        assertThrows(NullPointerException.class, () ->
-            CLIConfig.builder().build());
-    }
-    
-    @Test
-    @DisplayName("should require report format")
-    void shouldRequireReportFormat() {
-        // When/Then
-        assertThrows(NullPointerException.class, () ->
-            CLIConfig.builder()
-                .input(Paths.get("test.adoc"))
-                .reportFormat(null)
-                .build());
-    }
-    
-    @Test
-    @DisplayName("should require pattern")
-    void shouldRequirePattern() {
-        // When/Then
-        assertThrows(NullPointerException.class, () ->
-            CLIConfig.builder()
-                .input(Paths.get("test.adoc"))
-                .pattern(null)
-                .build());
-    }
-    
-    @Test
-    @DisplayName("should require fail level")
-    void shouldRequireFailLevel() {
-        // When/Then
-        assertThrows(NullPointerException.class, () ->
-            CLIConfig.builder()
-                .input(Paths.get("test.adoc"))
-                .failLevel(null)
-                .build());
+    @Nested
+    @DisplayName("Getters")
+    class GettersTest {
+        
+        @Test
+        @DisplayName("should return correct values")
+        void shouldReturnCorrectValues() {
+            // Given
+            List<String> patterns = Arrays.asList("**/*.adoc");
+            Path configFile = Paths.get("config.yaml");
+            Path reportOutput = Paths.get("output.json");
+            
+            CLIConfig config = CLIConfig.builder()
+                .inputPatterns(patterns)
+                .configFile(configFile)
+                .reportFormat("json-compact")
+                .reportOutput(reportOutput)
+                .failLevel(Severity.INFO)
+                .build();
+            
+            // Then
+            assertEquals(patterns, config.getInputPatterns());
+            assertEquals(configFile, config.getConfigFile());
+            assertEquals("json-compact", config.getReportFormat());
+            assertEquals(reportOutput, config.getReportOutput());
+            assertEquals(Severity.INFO, config.getFailLevel());
+            assertTrue(config.isOutputToFile());
+        }
+        
+        @Test
+        @DisplayName("should return false for isOutputToFile when reportOutput is null")
+        void shouldReturnFalseForIsOutputToFileWhenReportOutputIsNull() {
+            // Given
+            CLIConfig config = CLIConfig.builder()
+                .inputPatterns(Arrays.asList("*.adoc"))
+                .build();
+            
+            // Then
+            assertFalse(config.isOutputToFile());
+        }
     }
 }

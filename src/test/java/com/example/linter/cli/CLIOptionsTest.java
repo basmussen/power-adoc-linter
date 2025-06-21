@@ -29,14 +29,14 @@ class CLIOptionsTest {
     @DisplayName("should parse short form arguments")
     void shouldParseShortFormArguments() throws ParseException {
         // Given
-        String[] args = {"-i", "test.adoc", "-c", "config.yaml", "-f", "json", "-o", "report.json"};
+        String[] args = {"-i", "**/*.adoc", "-c", "config.yaml", "-f", "json", "-o", "report.json"};
         
         // When
         CommandLine cmd = parser.parse(cliOptions.getOptions(), args);
         
         // Then
         assertTrue(cmd.hasOption("i"));
-        assertEquals("test.adoc", cmd.getOptionValue("i"));
+        assertEquals("**/*.adoc", cmd.getOptionValue("i"));
         assertEquals("config.yaml", cmd.getOptionValue("c"));
         assertEquals("json", cmd.getOptionValue("f"));
         assertEquals("report.json", cmd.getOptionValue("o"));
@@ -46,7 +46,7 @@ class CLIOptionsTest {
     @DisplayName("should parse long form arguments")
     void shouldParseLongFormArguments() throws ParseException {
         // Given
-        String[] args = {"--input", "test.adoc", "--config", "config.yaml", 
+        String[] args = {"--input", "docs/**/*.adoc,examples/**/*.asciidoc", "--config", "config.yaml", 
                         "--report-format", "json", "--report-output", "report.json"};
         
         // When
@@ -54,7 +54,7 @@ class CLIOptionsTest {
         
         // Then
         assertTrue(cmd.hasOption("input"));
-        assertEquals("test.adoc", cmd.getOptionValue("input"));
+        assertEquals("docs/**/*.adoc,examples/**/*.asciidoc", cmd.getOptionValue("input"));
         assertEquals("config.yaml", cmd.getOptionValue("config"));
         assertEquals("json", cmd.getOptionValue("report-format"));
         assertEquals("report.json", cmd.getOptionValue("report-output"));
@@ -72,45 +72,31 @@ class CLIOptionsTest {
     }
     
     @Test
-    @DisplayName("should parse boolean flags")
-    void shouldParseBooleanFlags() throws ParseException {
+    @DisplayName("should parse help and version flags")
+    void shouldParseHelpAndVersionFlags() throws ParseException {
         // Given
-        String[] args = {"-i", "test.adoc", "-r", "-h", "-v"};
+        String[] argsHelp = {"-i", "test.adoc", "-h"};
+        String[] argsVersion = {"-i", "test.adoc", "-v"};
         
         // When
-        CommandLine cmd = parser.parse(cliOptions.getOptions(), args);
+        CommandLine cmdHelp = parser.parse(cliOptions.getOptions(), argsHelp);
+        CommandLine cmdVersion = parser.parse(cliOptions.getOptions(), argsVersion);
         
         // Then
-        assertTrue(cmd.hasOption("recursive"));
-        assertTrue(cmd.hasOption("help"));
-        assertTrue(cmd.hasOption("version"));
+        assertTrue(cmdHelp.hasOption("help"));
+        assertTrue(cmdVersion.hasOption("version"));
     }
     
     @Test
-    @DisplayName("should parse no-recursive flag")
-    void shouldParseNoRecursiveFlag() throws ParseException {
+    @DisplayName("should parse fail level")
+    void shouldParseFailLevel() throws ParseException {
         // Given
-        String[] args = {"-i", "test.adoc", "--no-recursive"};
+        String[] args = {"-i", "**/*.adoc", "-l", "warn"};
         
         // When
         CommandLine cmd = parser.parse(cliOptions.getOptions(), args);
         
         // Then
-        assertTrue(cmd.hasOption("no-recursive"));
-        assertFalse(cmd.hasOption("recursive"));
-    }
-    
-    @Test
-    @DisplayName("should parse pattern and fail-level")
-    void shouldParsePatternAndFailLevel() throws ParseException {
-        // Given
-        String[] args = {"-i", "test.adoc", "-p", "**/*.asciidoc", "-l", "warn"};
-        
-        // When
-        CommandLine cmd = parser.parse(cliOptions.getOptions(), args);
-        
-        // Then
-        assertEquals("**/*.asciidoc", cmd.getOptionValue("pattern"));
         assertEquals("warn", cmd.getOptionValue("fail-level"));
     }
 }

@@ -1,6 +1,8 @@
 package com.example.linter.cli;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 import com.example.linter.config.Severity;
@@ -10,26 +12,31 @@ import com.example.linter.config.Severity;
  */
 public class CLIConfig {
     
-    private final Path input;
+    private final List<String> inputPatterns;
+    private final Path baseDirectory;
     private final Path configFile;
     private final String reportFormat;
     private final Path reportOutput;
-    private final boolean recursive;
-    private final String pattern;
     private final Severity failLevel;
     
     private CLIConfig(Builder builder) {
-        this.input = Objects.requireNonNull(builder.input, "input must not be null");
+        this.inputPatterns = Objects.requireNonNull(builder.inputPatterns, "inputPatterns must not be null");
+        if (this.inputPatterns.isEmpty()) {
+            throw new IllegalArgumentException("inputPatterns must not be empty");
+        }
+        this.baseDirectory = Objects.requireNonNull(builder.baseDirectory, "baseDirectory must not be null");
         this.configFile = builder.configFile;
         this.reportFormat = Objects.requireNonNull(builder.reportFormat, "reportFormat must not be null");
         this.reportOutput = builder.reportOutput;
-        this.recursive = builder.recursive;
-        this.pattern = Objects.requireNonNull(builder.pattern, "pattern must not be null");
         this.failLevel = Objects.requireNonNull(builder.failLevel, "failLevel must not be null");
     }
     
-    public Path getInput() {
-        return input;
+    public List<String> getInputPatterns() {
+        return inputPatterns;
+    }
+    
+    public Path getBaseDirectory() {
+        return baseDirectory;
     }
     
     public Path getConfigFile() {
@@ -42,14 +49,6 @@ public class CLIConfig {
     
     public Path getReportOutput() {
         return reportOutput;
-    }
-    
-    public boolean isRecursive() {
-        return recursive;
-    }
-    
-    public String getPattern() {
-        return pattern;
     }
     
     public Severity getFailLevel() {
@@ -65,16 +64,20 @@ public class CLIConfig {
     }
     
     public static class Builder {
-        private Path input;
+        private List<String> inputPatterns;
+        private Path baseDirectory = Paths.get(System.getProperty("user.dir"));
         private Path configFile;
         private String reportFormat = "console";
         private Path reportOutput;
-        private boolean recursive = true;
-        private String pattern = "*.adoc";
         private Severity failLevel = Severity.ERROR;
         
-        public Builder input(Path input) {
-            this.input = input;
+        public Builder inputPatterns(List<String> inputPatterns) {
+            this.inputPatterns = inputPatterns;
+            return this;
+        }
+        
+        public Builder baseDirectory(Path baseDirectory) {
+            this.baseDirectory = baseDirectory;
             return this;
         }
         
@@ -90,16 +93,6 @@ public class CLIConfig {
         
         public Builder reportOutput(Path reportOutput) {
             this.reportOutput = reportOutput;
-            return this;
-        }
-        
-        public Builder recursive(boolean recursive) {
-            this.recursive = recursive;
-            return this;
-        }
-        
-        public Builder pattern(String pattern) {
-            this.pattern = pattern;
             return this;
         }
         
