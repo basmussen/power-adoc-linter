@@ -4,7 +4,11 @@ import java.util.Objects;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.rule.LineConfig;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = ParagraphBlock.Builder.class)
 public final class ParagraphBlock extends AbstractBlock {
     private final LineConfig lines;
     
@@ -18,15 +22,18 @@ public final class ParagraphBlock extends AbstractBlock {
         return BlockType.PARAGRAPH;
     }
     
+    @JsonProperty("lines")
     public LineConfig getLines() { return lines; }
     
     public static Builder builder() {
         return new Builder();
     }
     
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends AbstractBuilder<Builder> {
         private LineConfig lines;
         
+        @JsonProperty("lines")
         public Builder lines(LineConfig lines) {
             this.lines = lines;
             return this;
@@ -34,7 +41,10 @@ public final class ParagraphBlock extends AbstractBlock {
         
         @Override
         public ParagraphBlock build() {
-            Objects.requireNonNull(severity, "severity is required");
+            // Default severity if not provided
+            if (severity == null) {
+                severity = com.example.linter.config.Severity.WARN;
+            }
             return new ParagraphBlock(this);
         }
     }

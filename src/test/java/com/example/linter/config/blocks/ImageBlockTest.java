@@ -83,12 +83,37 @@ class ImageBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity")
-        void shouldRequireSeverity() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                ImageBlock.builder().build();
-            });
+        @DisplayName("should default severity to WARN when not provided")
+        void shouldDefaultSeverityToWarn() {
+            // When
+            ImageBlock block = ImageBlock.builder().build();
+            
+            // Then
+            assertEquals(Severity.WARN, block.getSeverity());
+        }
+        
+        @Test
+        @DisplayName("should default severity to WARN for inner configs when not provided")
+        void shouldDefaultSeverityToWarnForInnerConfigs() {
+            // When
+            ImageBlock.UrlConfig url = ImageBlock.UrlConfig.builder()
+                    .required(true)
+                    .build();
+                    
+            ImageBlock.DimensionConfig dimension = ImageBlock.DimensionConfig.builder()
+                    .required(false)
+                    .minValue(100)
+                    .build();
+                    
+            ImageBlock.AltTextConfig alt = ImageBlock.AltTextConfig.builder()
+                    .required(true)
+                    .minLength(5)
+                    .build();
+            
+            // Then
+            assertEquals(Severity.WARN, url.getSeverity());
+            assertEquals(Severity.WARN, dimension.getSeverity());
+            assertEquals(Severity.WARN, alt.getSeverity());
         }
     }
     

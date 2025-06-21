@@ -5,6 +5,7 @@ import java.util.Objects;
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.rule.OccurrenceConfig;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class AbstractBlock implements Block {
     private final String name;
@@ -28,18 +29,21 @@ public abstract class AbstractBlock implements Block {
         protected Severity severity;
         protected OccurrenceConfig occurrence;
         
+        @JsonProperty("name")
         @SuppressWarnings("unchecked")
         public T name(String name) {
             this.name = name;
             return (T) this;
         }
         
+        @JsonProperty("severity")
         @SuppressWarnings("unchecked")
         public T severity(Severity severity) {
             this.severity = severity;
             return (T) this;
         }
         
+        @JsonProperty("occurrence")
         @SuppressWarnings("unchecked")
         public T occurrence(OccurrenceConfig occurrence) {
             this.occurrence = occurrence;

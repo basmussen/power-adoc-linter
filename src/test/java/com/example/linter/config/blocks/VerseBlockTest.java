@@ -161,10 +161,33 @@ class VerseBlockTest {
     }
     
     @Test
-    void testRequiredSeverity() {
-        assertThrows(NullPointerException.class, () -> {
-            VerseBlock.builder().build();
-        });
+    void testDefaultSeverityToWarn() {
+        // When
+        VerseBlock block = VerseBlock.builder().build();
+        
+        // Then
+        assertEquals(Severity.WARN, block.getSeverity());
+    }
+    
+    @Test
+    void testInnerConfigDefaultSeverity() {
+        // When
+        VerseBlock.AuthorConfig author = VerseBlock.AuthorConfig.builder()
+                .required(true)
+                .build();
+        
+        VerseBlock.AttributionConfig attribution = VerseBlock.AttributionConfig.builder()
+                .required(false)
+                .build();
+                
+        VerseBlock.ContentConfig content = VerseBlock.ContentConfig.builder()
+                .required(true)
+                .build();
+        
+        // Then
+        assertEquals(Severity.WARN, author.getSeverity());
+        assertEquals(Severity.WARN, attribution.getSeverity());
+        assertEquals(Severity.WARN, content.getSeverity());
     }
     
     @Test
@@ -175,6 +198,7 @@ class VerseBlockTest {
                 .minLength(5)
                 .maxLength(50)
                 .pattern("^[A-Z].*")
+                .severity(Severity.ERROR)
                 .build();
                 
         VerseBlock.AuthorConfig author2 = VerseBlock.AuthorConfig.builder()
@@ -183,26 +207,31 @@ class VerseBlockTest {
                 .minLength(5)
                 .maxLength(50)
                 .pattern("^[A-Z].*")
+                .severity(Severity.ERROR)
                 .build();
                 
         VerseBlock.AttributionConfig attr1 = VerseBlock.AttributionConfig.builder()
                 .defaultValue("Source")
                 .required(false)
+                .severity(Severity.WARN)
                 .build();
                 
         VerseBlock.AttributionConfig attr2 = VerseBlock.AttributionConfig.builder()
                 .defaultValue("Source")
                 .required(false)
+                .severity(Severity.WARN)
                 .build();
                 
         VerseBlock.ContentConfig content1 = VerseBlock.ContentConfig.builder()
                 .required(true)
                 .minLength(10)
+                .severity(Severity.INFO)
                 .build();
                 
         VerseBlock.ContentConfig content2 = VerseBlock.ContentConfig.builder()
                 .required(true)
                 .minLength(10)
+                .severity(Severity.INFO)
                 .build();
         
         assertEquals(author1, author2);

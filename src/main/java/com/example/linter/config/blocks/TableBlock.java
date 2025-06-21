@@ -5,7 +5,11 @@ import java.util.regex.Pattern;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = TableBlock.Builder.class)
 public final class TableBlock extends AbstractBlock {
     private final DimensionConfig columns;
     private final DimensionConfig rows;
@@ -27,22 +31,27 @@ public final class TableBlock extends AbstractBlock {
         return BlockType.TABLE;
     }
     
+    @JsonProperty("columns")
     public DimensionConfig getColumns() {
         return columns;
     }
     
+    @JsonProperty("rows")
     public DimensionConfig getRows() {
         return rows;
     }
     
+    @JsonProperty("header")
     public HeaderConfig getHeader() {
         return header;
     }
     
+    @JsonProperty("caption")
     public CaptionConfig getCaption() {
         return caption;
     }
     
+    @JsonProperty("format")
     public FormatConfig getFormat() {
         return format;
     }
@@ -51,6 +60,7 @@ public final class TableBlock extends AbstractBlock {
         return new Builder();
     }
     
+    @JsonDeserialize(builder = DimensionConfig.DimensionConfigBuilder.class)
     public static class DimensionConfig {
         private final Integer min;
         private final Integer max;
@@ -62,14 +72,17 @@ public final class TableBlock extends AbstractBlock {
             this.severity = builder.severity;
         }
         
+        @JsonProperty("min")
         public Integer getMin() {
             return min;
         }
         
+        @JsonProperty("max")
         public Integer getMax() {
             return max;
         }
         
+        @JsonProperty("severity")
         public Severity getSeverity() {
             return severity;
         }
@@ -78,27 +91,34 @@ public final class TableBlock extends AbstractBlock {
             return new DimensionConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class DimensionConfigBuilder {
             private Integer min;
             private Integer max;
             private Severity severity;
             
+            @JsonProperty("min")
             public DimensionConfigBuilder min(Integer min) {
                 this.min = min;
                 return this;
             }
             
+            @JsonProperty("max")
             public DimensionConfigBuilder max(Integer max) {
                 this.max = max;
                 return this;
             }
             
+            @JsonProperty("severity")
             public DimensionConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
             public DimensionConfig build() {
+                if (severity == null) {
+                    severity = Severity.WARN;
+                }
                 return new DimensionConfig(this);
             }
         }
@@ -118,6 +138,7 @@ public final class TableBlock extends AbstractBlock {
         }
     }
     
+    @JsonDeserialize(builder = HeaderConfig.HeaderConfigBuilder.class)
     public static class HeaderConfig {
         private final boolean required;
         private final Pattern pattern;
@@ -129,14 +150,17 @@ public final class TableBlock extends AbstractBlock {
             this.severity = builder.severity;
         }
         
+        @JsonProperty("required")
         public boolean isRequired() {
             return required;
         }
         
+        @JsonProperty("pattern")
         public Pattern getPattern() {
             return pattern;
         }
         
+        @JsonProperty("severity")
         public Severity getSeverity() {
             return severity;
         }
@@ -145,11 +169,13 @@ public final class TableBlock extends AbstractBlock {
             return new HeaderConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class HeaderConfigBuilder {
             private boolean required;
             private Pattern pattern;
             private Severity severity;
             
+            @JsonProperty("required")
             public HeaderConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
@@ -160,18 +186,22 @@ public final class TableBlock extends AbstractBlock {
                 return this;
             }
             
+            @JsonProperty("pattern")
             public HeaderConfigBuilder pattern(String pattern) {
                 this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
+            @JsonProperty("severity")
             public HeaderConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
             public HeaderConfig build() {
-                Objects.requireNonNull(severity, "severity is required for HeaderConfig");
+                if (severity == null) {
+                    severity = Severity.WARN;
+                }
                 return new HeaderConfig(this);
             }
         }
@@ -192,6 +222,7 @@ public final class TableBlock extends AbstractBlock {
         }
     }
     
+    @JsonDeserialize(builder = CaptionConfig.CaptionConfigBuilder.class)
     public static class CaptionConfig {
         private final boolean required;
         private final Pattern pattern;
@@ -207,22 +238,27 @@ public final class TableBlock extends AbstractBlock {
             this.severity = builder.severity;
         }
         
+        @JsonProperty("required")
         public boolean isRequired() {
             return required;
         }
         
+        @JsonProperty("pattern")
         public Pattern getPattern() {
             return pattern;
         }
         
+        @JsonProperty("minLength")
         public Integer getMinLength() {
             return minLength;
         }
         
+        @JsonProperty("maxLength")
         public Integer getMaxLength() {
             return maxLength;
         }
         
+        @JsonProperty("severity")
         public Severity getSeverity() {
             return severity;
         }
@@ -231,6 +267,7 @@ public final class TableBlock extends AbstractBlock {
             return new CaptionConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class CaptionConfigBuilder {
             private boolean required;
             private Pattern pattern;
@@ -238,6 +275,7 @@ public final class TableBlock extends AbstractBlock {
             private Integer maxLength;
             private Severity severity;
             
+            @JsonProperty("required")
             public CaptionConfigBuilder required(boolean required) {
                 this.required = required;
                 return this;
@@ -248,28 +286,34 @@ public final class TableBlock extends AbstractBlock {
                 return this;
             }
             
+            @JsonProperty("pattern")
             public CaptionConfigBuilder pattern(String pattern) {
                 this.pattern = pattern != null ? Pattern.compile(pattern) : null;
                 return this;
             }
             
+            @JsonProperty("minLength")
             public CaptionConfigBuilder minLength(Integer minLength) {
                 this.minLength = minLength;
                 return this;
             }
             
+            @JsonProperty("maxLength")
             public CaptionConfigBuilder maxLength(Integer maxLength) {
                 this.maxLength = maxLength;
                 return this;
             }
             
+            @JsonProperty("severity")
             public CaptionConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
             public CaptionConfig build() {
-                Objects.requireNonNull(severity, "severity is required for CaptionConfig");
+                if (severity == null) {
+                    severity = Severity.WARN;
+                }
                 return new CaptionConfig(this);
             }
         }
@@ -293,6 +337,7 @@ public final class TableBlock extends AbstractBlock {
         }
     }
     
+    @JsonDeserialize(builder = FormatConfig.FormatConfigBuilder.class)
     public static class FormatConfig {
         private final String style;
         private final Boolean borders;
@@ -304,14 +349,17 @@ public final class TableBlock extends AbstractBlock {
             this.severity = builder.severity;
         }
         
+        @JsonProperty("style")
         public String getStyle() {
             return style;
         }
         
+        @JsonProperty("borders")
         public Boolean getBorders() {
             return borders;
         }
         
+        @JsonProperty("severity")
         public Severity getSeverity() {
             return severity;
         }
@@ -320,28 +368,34 @@ public final class TableBlock extends AbstractBlock {
             return new FormatConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class FormatConfigBuilder {
             private String style;
             private Boolean borders;
             private Severity severity;
             
+            @JsonProperty("style")
             public FormatConfigBuilder style(String style) {
                 this.style = style;
                 return this;
             }
             
+            @JsonProperty("borders")
             public FormatConfigBuilder borders(Boolean borders) {
                 this.borders = borders;
                 return this;
             }
             
+            @JsonProperty("severity")
             public FormatConfigBuilder severity(Severity severity) {
                 this.severity = severity;
                 return this;
             }
             
             public FormatConfig build() {
-                Objects.requireNonNull(severity, "severity is required for FormatConfig");
+                if (severity == null) {
+                    severity = Severity.WARN;
+                }
                 return new FormatConfig(this);
             }
         }
@@ -361,6 +415,7 @@ public final class TableBlock extends AbstractBlock {
         }
     }
     
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends AbstractBuilder<Builder> {
         private DimensionConfig columns;
         private DimensionConfig rows;
@@ -368,26 +423,31 @@ public final class TableBlock extends AbstractBlock {
         private CaptionConfig caption;
         private FormatConfig format;
         
+        @JsonProperty("columns")
         public Builder columns(DimensionConfig columns) {
             this.columns = columns;
             return this;
         }
         
+        @JsonProperty("rows")
         public Builder rows(DimensionConfig rows) {
             this.rows = rows;
             return this;
         }
         
+        @JsonProperty("header")
         public Builder header(HeaderConfig header) {
             this.header = header;
             return this;
         }
         
+        @JsonProperty("caption")
         public Builder caption(CaptionConfig caption) {
             this.caption = caption;
             return this;
         }
         
+        @JsonProperty("format")
         public Builder format(FormatConfig format) {
             this.format = format;
             return this;
@@ -395,7 +455,9 @@ public final class TableBlock extends AbstractBlock {
         
         @Override
         public TableBlock build() {
-            Objects.requireNonNull(severity, "severity is required");
+            if (severity == null) {
+                severity = Severity.WARN;
+            }
             return new TableBlock(this);
         }
     }

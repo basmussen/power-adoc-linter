@@ -103,12 +103,13 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity")
-        void shouldRequireSeverity() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                TableBlock.builder().build();
-            });
+        @DisplayName("should default severity to WARN when not provided")
+        void shouldDefaultSeverityToWarn() {
+            // When
+            TableBlock block = TableBlock.builder().build();
+            
+            // Then
+            assertEquals(Severity.WARN, block.getSeverity());
         }
     }
     
@@ -161,6 +162,19 @@ class TableBlockTest {
             assertEquals(20, dimensionRule.getMax());
             assertEquals(Severity.INFO, dimensionRule.getSeverity());
         }
+        
+        @Test
+        @DisplayName("should default severity to WARN for DimensionConfig when not provided")
+        void shouldDefaultSeverityToWarnForDimensionConfig() {
+            // When
+            TableBlock.DimensionConfig config = TableBlock.DimensionConfig.builder()
+                    .min(5)
+                    .max(10)
+                    .build();
+            
+            // Then
+            assertEquals(Severity.WARN, config.getSeverity());
+        }
     }
     
     @Nested
@@ -204,15 +218,16 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for HeaderConfig")
-        void shouldRequireSeverityForHeaderConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                TableBlock.HeaderConfig.builder()
-                        .required(true)
-                        .pattern("test")
-                        .build();
-            });
+        @DisplayName("should default severity to WARN for HeaderConfig when not provided")
+        void shouldDefaultSeverityToWarnForHeaderConfig() {
+            // When
+            TableBlock.HeaderConfig config = TableBlock.HeaderConfig.builder()
+                    .required(true)
+                    .pattern("test")
+                    .build();
+            
+            // Then
+            assertEquals(Severity.WARN, config.getSeverity());
         }
     }
     
@@ -260,16 +275,17 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for CaptionConfig")
-        void shouldRequireSeverityForCaptionConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                TableBlock.CaptionConfig.builder()
-                        .required(true)
-                        .minLength(10)
-                        .maxLength(50)
-                        .build();
-            });
+        @DisplayName("should default severity to WARN for CaptionConfig when not provided")
+        void shouldDefaultSeverityToWarnForCaptionConfig() {
+            // When
+            TableBlock.CaptionConfig config = TableBlock.CaptionConfig.builder()
+                    .required(true)
+                    .minLength(10)
+                    .maxLength(50)
+                    .build();
+            
+            // Then
+            assertEquals(Severity.WARN, config.getSeverity());
         }
     }
     
@@ -324,15 +340,16 @@ class TableBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for FormatConfig")
-        void shouldRequireSeverityForFormatConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                TableBlock.FormatConfig.builder()
-                        .style("grid")
-                        .borders(true)
-                        .build();
-            });
+        @DisplayName("should default severity to WARN for FormatConfig when not provided")
+        void shouldDefaultSeverityToWarnForFormatConfig() {
+            // When
+            TableBlock.FormatConfig config = TableBlock.FormatConfig.builder()
+                    .style("grid")
+                    .borders(true)
+                    .build();
+            
+            // Then
+            assertEquals(Severity.WARN, config.getSeverity());
         }
     }
     

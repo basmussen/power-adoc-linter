@@ -89,12 +89,13 @@ class ListingBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity")
-        void shouldRequireSeverity() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                ListingBlock.builder().build();
-            });
+        @DisplayName("should default severity to WARN when not provided")
+        void shouldDefaultSeverityToWarn() {
+            // When
+            ListingBlock block = ListingBlock.builder().build();
+            
+            // Then
+            assertEquals(Severity.WARN, block.getSeverity());
         }
     }
     
@@ -136,14 +137,15 @@ class ListingBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for LanguageConfig")
-        void shouldRequireSeverityForLanguageConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                ListingBlock.LanguageConfig.builder()
-                        .required(true)
-                        .build();
-            });
+        @DisplayName("should default severity to WARN for LanguageConfig when not provided")
+        void shouldDefaultSeverityToWarnForLanguageConfig() {
+            // When
+            ListingBlock.LanguageConfig config = ListingBlock.LanguageConfig.builder()
+                    .required(true)
+                    .build();
+            
+            // Then
+            assertEquals(Severity.WARN, config.getSeverity());
         }
     }
     
@@ -188,15 +190,16 @@ class ListingBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for TitleConfig")
-        void shouldRequireSeverityForTitleConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                ListingBlock.TitleConfig.builder()
-                        .required(true)
-                        .pattern("test")
-                        .build();
-            });
+        @DisplayName("should default severity to WARN for TitleConfig when not provided")
+        void shouldDefaultSeverityToWarnForTitleConfig() {
+            // When
+            ListingBlock.TitleConfig config = ListingBlock.TitleConfig.builder()
+                    .required(true)
+                    .pattern("test")
+                    .build();
+            
+            // Then
+            assertEquals(Severity.WARN, config.getSeverity());
         }
     }
     
@@ -236,15 +239,16 @@ class ListingBlockTest {
         }
         
         @Test
-        @DisplayName("should require severity for CalloutsConfig")
-        void shouldRequireSeverityForCalloutsConfig() {
-            // When & Then
-            assertThrows(NullPointerException.class, () -> {
-                ListingBlock.CalloutsConfig.builder()
-                        .allowed(true)
-                        .max(5)
-                        .build();
-            });
+        @DisplayName("should default severity to WARN for CalloutsConfig when not provided")
+        void shouldDefaultSeverityToWarnForCalloutsConfig() {
+            // When
+            ListingBlock.CalloutsConfig config = ListingBlock.CalloutsConfig.builder()
+                    .allowed(true)
+                    .max(5)
+                    .build();
+            
+            // Then
+            assertEquals(Severity.WARN, config.getSeverity());
         }
     }
     
