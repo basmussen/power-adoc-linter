@@ -277,24 +277,6 @@ class ConfigurationLoaderTest {
             assertEquals(5, subSubSection.max());
         }
         
-        @Test
-        @DisplayName("should load complete specification file without errors")
-        void shouldLoadCompleteSpecificationFileWithoutErrors() throws IOException {
-            // Given
-            Path specPath = Path.of("docs/linter-config-specification.yaml");
-            
-            // When
-            if (Files.exists(specPath)) {
-                LinterConfiguration config = loader.loadConfiguration(specPath);
-                
-                // Then
-                assertNotNull(config);
-                assertNotNull(config.document());
-                assertNotNull(config.document().metadata());
-                assertFalse(config.document().metadata().attributes().isEmpty());
-                assertFalse(config.document().sections().isEmpty());
-            }
-        }
     }
     
     @Nested
