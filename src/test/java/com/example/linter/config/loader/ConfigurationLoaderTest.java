@@ -188,8 +188,10 @@ class ConfigurationLoaderTest {
             );
             
             // Then
-            // Jackson will throw a different error, so we check for ConfigurationException
-            assertNotNull(exception);
+            // Jackson throws UnrecognizedPropertyException when encountering unknown fields
+            assertTrue(exception.getMessage().contains("Unrecognized field"));
+            assertTrue(exception.getMessage().contains("someOtherKey"));
+            assertTrue(exception.getMessage().contains("one known property: \"document\""));
         }
         
         @Test
