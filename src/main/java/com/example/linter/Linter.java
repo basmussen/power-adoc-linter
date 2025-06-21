@@ -127,7 +127,7 @@ public class Linter {
         
         try {
             // Parse the document
-            Document document = asciidoctor.loadFile(file.toFile(), Map.of());
+            Document document = asciidoctor.loadFile(file.toFile(), org.asciidoctor.Options.builder().build());
             
             // Run validators
             List<ValidationMessage> messages = new ArrayList<>();

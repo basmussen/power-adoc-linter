@@ -53,7 +53,7 @@ public class RuleSchemaValidator {
                     // Map HTTPS references to actual classpath URLs
                     schemaMappers.mapPrefix("https://example.com/schemas/", baseClasspathUrl);
                 })
-                .addMetaSchema(JsonMetaSchema.getV202012())
+                .metaSchema(JsonMetaSchema.getV202012())
                 .build();
             
             // Configure validators
