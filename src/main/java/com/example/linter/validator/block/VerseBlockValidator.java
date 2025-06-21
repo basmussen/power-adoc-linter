@@ -12,7 +12,25 @@ import com.example.linter.config.blocks.VerseBlock;
 import com.example.linter.validator.ValidationMessage;
 
 /**
- * Validator for verse/quote blocks.
+ * Validator for verse/quote blocks in AsciiDoc documents.
+ * 
+ * <p>This validator validates verse blocks based on the YAML schema structure
+ * defined in {@code src/main/resources/schemas/blocks/verse-block.yaml}.
+ * The YAML configuration is parsed into {@link VerseBlock} objects which
+ * define the validation rules.</p>
+ * 
+ * <p>Supported validation rules from YAML schema:</p>
+ * <ul>
+ *   <li><b>author</b>: Validates verse author (required, pattern, length constraints)</li>
+ *   <li><b>attribution</b>: Validates source attribution (required, pattern, length constraints)</li>
+ *   <li><b>content</b>: Validates verse content (required, length constraints, pattern)</li>
+ * </ul>
+ * 
+ * <p>Note: Verse block nested configurations do not support individual severity levels.
+ * All validations use the block-level severity.</p>
+ * 
+ * @see VerseBlock
+ * @see BlockTypeValidator
  */
 public final class VerseBlockValidator implements BlockTypeValidator {
     

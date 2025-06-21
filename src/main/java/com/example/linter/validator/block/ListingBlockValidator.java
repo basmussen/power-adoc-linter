@@ -12,7 +12,26 @@ import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.validator.ValidationMessage;
 
 /**
- * Validator for listing/code blocks.
+ * Validator for listing (code) blocks in AsciiDoc documents.
+ * 
+ * <p>This validator validates listing blocks based on the YAML schema structure
+ * defined in {@code src/main/resources/schemas/blocks/listing-block.yaml}.
+ * The YAML configuration is parsed into {@link ListingBlock} objects which
+ * define the validation rules.</p>
+ * 
+ * <p>Supported validation rules from YAML schema:</p>
+ * <ul>
+ *   <li><b>language</b>: Validates programming language specification (required, allowed values)</li>
+ *   <li><b>title</b>: Validates block title (required, pattern, length constraints)</li>
+ *   <li><b>lines</b>: Validates line count (min/max)</li>
+ *   <li><b>callouts</b>: Validates callout annotations (required, min/max count)</li>
+ * </ul>
+ * 
+ * <p>Each nested configuration can optionally define its own severity level.
+ * If not specified, the block-level severity is used as fallback.</p>
+ * 
+ * @see ListingBlock
+ * @see BlockTypeValidator
  */
 public final class ListingBlockValidator implements BlockTypeValidator {
     

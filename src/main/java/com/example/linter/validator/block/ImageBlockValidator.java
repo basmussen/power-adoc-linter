@@ -12,7 +12,26 @@ import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.validator.ValidationMessage;
 
 /**
- * Validator for image blocks.
+ * Validator for image blocks in AsciiDoc documents.
+ * 
+ * <p>This validator validates image blocks based on the YAML schema structure
+ * defined in {@code src/main/resources/schemas/blocks/image-block.yaml}.
+ * The YAML configuration is parsed into {@link ImageBlock} objects which
+ * define the validation rules.</p>
+ * 
+ * <p>Supported validation rules from YAML schema:</p>
+ * <ul>
+ *   <li><b>url</b>: Validates image URL/path (required, pattern matching)</li>
+ *   <li><b>width</b>: Validates image width constraints (required, min/max values)</li>
+ *   <li><b>height</b>: Validates image height constraints (required, min/max values)</li>
+ *   <li><b>alt</b>: Validates alternative text (required, length constraints)</li>
+ * </ul>
+ * 
+ * <p>Note: Image block nested configurations do not support individual severity levels.
+ * All validations use the block-level severity.</p>
+ * 
+ * @see ImageBlock
+ * @see BlockTypeValidator
  */
 public final class ImageBlockValidator implements BlockTypeValidator {
     

@@ -12,7 +12,23 @@ import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.validator.ValidationMessage;
 
 /**
- * Validator for paragraph blocks.
+ * Validator for paragraph blocks in AsciiDoc documents.
+ * 
+ * <p>This validator validates paragraph blocks based on the YAML schema structure
+ * defined in {@code src/main/resources/schemas/blocks/paragraph-block.yaml}.
+ * The YAML configuration is parsed into {@link ParagraphBlock} objects which
+ * define the validation rules.</p>
+ * 
+ * <p>Supported validation rules from YAML schema:</p>
+ * <ul>
+ *   <li><b>lines</b>: Validates line count constraints (min/max number of lines)</li>
+ * </ul>
+ * 
+ * <p>The lines configuration can optionally define its own severity level.
+ * If not specified, the block-level severity is used as fallback.</p>
+ * 
+ * @see ParagraphBlock
+ * @see BlockTypeValidator
  */
 public final class ParagraphBlockValidator implements BlockTypeValidator {
     

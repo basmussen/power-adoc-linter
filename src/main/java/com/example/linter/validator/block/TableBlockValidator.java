@@ -16,7 +16,27 @@ import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.validator.ValidationMessage;
 
 /**
- * Validator for table blocks.
+ * Validator for table blocks in AsciiDoc documents.
+ * 
+ * <p>This validator validates table blocks based on the YAML schema structure
+ * defined in {@code src/main/resources/schemas/blocks/table-block.yaml}.
+ * The YAML configuration is parsed into {@link TableBlock} objects which
+ * define the validation rules.</p>
+ * 
+ * <p>Supported validation rules from YAML schema:</p>
+ * <ul>
+ *   <li><b>columns</b>: Validates column count (min/max)</li>
+ *   <li><b>rows</b>: Validates row count (min/max)</li>
+ *   <li><b>header</b>: Validates header row (required, pattern matching)</li>
+ *   <li><b>caption</b>: Validates table caption (required, pattern, length constraints)</li>
+ *   <li><b>format</b>: Validates table formatting (style, borders)</li>
+ * </ul>
+ * 
+ * <p>Each nested configuration can optionally define its own severity level.
+ * If not specified, the block-level severity is used as fallback.</p>
+ * 
+ * @see TableBlock
+ * @see BlockTypeValidator
  */
 public final class TableBlockValidator implements BlockTypeValidator {
     
