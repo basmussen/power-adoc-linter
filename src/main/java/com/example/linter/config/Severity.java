@@ -1,7 +1,26 @@
 package com.example.linter.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Severity {
     ERROR,
     WARN,
-    INFO
+    INFO;
+    
+    @JsonValue
+    public String toValue() {
+        return name().toLowerCase();
+    }
+    
+    @JsonCreator
+    public static Severity fromValue(String value) {
+        if (value == null) return null;
+        return switch (value.toLowerCase()) {
+            case "error" -> ERROR;
+            case "warn", "warning" -> WARN;
+            case "info" -> INFO;
+            default -> throw new IllegalArgumentException("Unknown severity: " + value);
+        };
+    }
 }

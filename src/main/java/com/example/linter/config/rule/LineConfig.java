@@ -3,7 +3,11 @@ package com.example.linter.config.rule;
 import java.util.Objects;
 
 import com.example.linter.config.Severity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = LineConfig.Builder.class)
 public final class LineConfig {
     private final Integer min;
     private final Integer max;
@@ -15,29 +19,38 @@ public final class LineConfig {
         this.severity = builder.severity;
     }
 
+    @JsonProperty("min")
     public Integer min() { return min; }
+    
+    @JsonProperty("max")
     public Integer max() { return max; }
+    
+    @JsonProperty("severity")
     public Severity severity() { return severity; }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
         private Integer min;
         private Integer max;
         private Severity severity;
 
+        @JsonProperty("min")
         public Builder min(Integer min) {
             this.min = min;
             return this;
         }
 
+        @JsonProperty("max")
         public Builder max(Integer max) {
             this.max = max;
             return this;
         }
 
+        @JsonProperty("severity")
         public Builder severity(Severity severity) {
             this.severity = severity;
             return this;

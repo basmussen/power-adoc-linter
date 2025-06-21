@@ -3,7 +3,11 @@ package com.example.linter.config.rule;
 import java.util.Objects;
 
 import com.example.linter.config.Severity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = AttributeConfig.Builder.class)
 public final class AttributeConfig {
     private final String name;
     private final Integer order;
@@ -23,18 +27,32 @@ public final class AttributeConfig {
         this.severity = builder.severity;
     }
 
+    @JsonProperty("name")
     public String name() { return name; }
+    
+    @JsonProperty("order")
     public Integer order() { return order; }
+    
+    @JsonProperty("required")
     public boolean required() { return required; }
+    
+    @JsonProperty("minLength")
     public Integer minLength() { return minLength; }
+    
+    @JsonProperty("maxLength")
     public Integer maxLength() { return maxLength; }
+    
+    @JsonProperty("pattern")
     public String pattern() { return pattern; }
+    
+    @JsonProperty("severity")
     public Severity severity() { return severity; }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
         private String name;
         private Integer order;
@@ -44,36 +62,43 @@ public final class AttributeConfig {
         private String pattern;
         private Severity severity;
 
+        @JsonProperty("name")
         public Builder name(String name) {
             this.name = name;
             return this;
         }
 
+        @JsonProperty("order")
         public Builder order(Integer order) {
             this.order = order;
             return this;
         }
 
+        @JsonProperty("required")
         public Builder required(boolean required) {
             this.required = required;
             return this;
         }
 
+        @JsonProperty("minLength")
         public Builder minLength(Integer minLength) {
             this.minLength = minLength;
             return this;
         }
 
+        @JsonProperty("maxLength")
         public Builder maxLength(Integer maxLength) {
             this.maxLength = maxLength;
             return this;
         }
 
+        @JsonProperty("pattern")
         public Builder pattern(String pattern) {
             this.pattern = pattern;
             return this;
         }
 
+        @JsonProperty("severity")
         public Builder severity(Severity severity) {
             this.severity = severity;
             return this;

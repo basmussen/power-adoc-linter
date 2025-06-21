@@ -4,10 +4,17 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import com.example.linter.config.BlockType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = VerseBlock.Builder.class)
 public final class VerseBlock extends AbstractBlock {
+    @JsonProperty("author")
     private final AuthorConfig author;
+    @JsonProperty("attribution")
     private final AttributionConfig attribution;
+    @JsonProperty("content")
     private final ContentConfig content;
     
     private VerseBlock(Builder builder) {
@@ -38,11 +45,17 @@ public final class VerseBlock extends AbstractBlock {
         return new Builder();
     }
     
+    @JsonDeserialize(builder = AuthorConfig.AuthorConfigBuilder.class)
     public static class AuthorConfig {
+        @JsonProperty("defaultValue")
         private final String defaultValue;
+        @JsonProperty("minLength")
         private final Integer minLength;
+        @JsonProperty("maxLength")
         private final Integer maxLength;
+        @JsonProperty("pattern")
         private final Pattern pattern;
+        @JsonProperty("required")
         private final boolean required;
         
         private AuthorConfig(AuthorConfigBuilder builder) {
@@ -77,6 +90,7 @@ public final class VerseBlock extends AbstractBlock {
             return new AuthorConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class AuthorConfigBuilder {
             private String defaultValue;
             private Integer minLength;
@@ -138,11 +152,17 @@ public final class VerseBlock extends AbstractBlock {
         }
     }
     
+    @JsonDeserialize(builder = AttributionConfig.AttributionConfigBuilder.class)
     public static class AttributionConfig {
+        @JsonProperty("defaultValue")
         private final String defaultValue;
+        @JsonProperty("minLength")
         private final Integer minLength;
+        @JsonProperty("maxLength")
         private final Integer maxLength;
+        @JsonProperty("pattern")
         private final Pattern pattern;
+        @JsonProperty("required")
         private final boolean required;
         
         private AttributionConfig(AttributionConfigBuilder builder) {
@@ -177,6 +197,7 @@ public final class VerseBlock extends AbstractBlock {
             return new AttributionConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class AttributionConfigBuilder {
             private String defaultValue;
             private Integer minLength;
@@ -238,10 +259,15 @@ public final class VerseBlock extends AbstractBlock {
         }
     }
     
+    @JsonDeserialize(builder = ContentConfig.ContentConfigBuilder.class)
     public static class ContentConfig {
+        @JsonProperty("minLength")
         private final Integer minLength;
+        @JsonProperty("maxLength")
         private final Integer maxLength;
+        @JsonProperty("pattern")
         private final Pattern pattern;
+        @JsonProperty("required")
         private final boolean required;
         
         private ContentConfig(ContentConfigBuilder builder) {
@@ -271,6 +297,7 @@ public final class VerseBlock extends AbstractBlock {
             return new ContentConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class ContentConfigBuilder {
             private Integer minLength;
             private Integer maxLength;
@@ -325,6 +352,7 @@ public final class VerseBlock extends AbstractBlock {
         }
     }
     
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends AbstractBuilder<Builder> {
         private AuthorConfig author;
         private AttributionConfig attribution;
