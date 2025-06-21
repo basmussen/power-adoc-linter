@@ -3,12 +3,14 @@ package com.example.linter.config.loader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +24,7 @@ import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.config.blocks.ParagraphBlock;
+import com.example.linter.config.blocks.PassBlock;
 import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.config.blocks.VerseBlock;
 
@@ -966,6 +969,132 @@ class ConfigurationLoaderTest {
             assertFalse(summaryTable.getCaption().isRequired());
             assertEquals("simple", summaryTable.getFormat().getStyle());
             assertFalse(summaryTable.getFormat().getBorders());
+        }
+    }
+    
+    @Nested
+    @DisplayName("PassBlock Loading")
+    class PassBlockTest {
+        
+        @Test
+        @DisplayName("should load PassBlock with all configurations")
+        void shouldLoadPassBlockWithAllConfigurations() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: main-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - pass:
+                            name: html-widget
+                            severity: error
+                            occurrence:
+                              min: 0
+                              max: 1
+                              severity: error
+                            type:
+                              required: true
+                              allowed: [html, xml, svg]
+                              severity: error
+                            content:
+                              required: true
+                              maxLength: 1000
+                              pattern: "^<[^>]+>.*</[^>]+>$"
+                              severity: error
+                            justification:
+                              required: true
+                              minLength: 20
+                              maxLength: 200
+                              severity: error
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var mainSection = sections.get(0);
+            assertEquals("main-section", mainSection.name());
+            assertEquals(1, mainSection.allowedBlocks().size());
+            
+            var passBlock = (PassBlock) mainSection.allowedBlocks().get(0);
+            assertEquals("html-widget", passBlock.getName());
+            assertEquals(Severity.ERROR, passBlock.getSeverity());
+            
+            // Then - Occurrence
+            var occurrence = passBlock.getOccurrence();
+            assertNotNull(occurrence);
+            assertEquals(0, occurrence.min());
+            assertEquals(1, occurrence.max());
+            assertEquals(Severity.ERROR, occurrence.severity());
+            
+            // Then - Type config
+            var typeConfig = passBlock.getTypeConfig();
+            assertNotNull(typeConfig);
+            assertTrue(typeConfig.isRequired());
+            assertEquals(3, typeConfig.getAllowed().size());
+            assertTrue(typeConfig.getAllowed().containsAll(Arrays.asList("html", "xml", "svg")));
+            assertEquals(Severity.ERROR, typeConfig.getSeverity());
+            
+            // Then - Content config
+            var contentConfig = passBlock.getContent();
+            assertNotNull(contentConfig);
+            assertTrue(contentConfig.isRequired());
+            assertEquals(1000, contentConfig.getMaxLength());
+            assertEquals("^<[^>]+>.*</[^>]+>$", contentConfig.getPattern().pattern());
+            assertEquals(Severity.ERROR, contentConfig.getSeverity());
+            
+            // Then - Justification config
+            var justificationConfig = passBlock.getJustification();
+            assertNotNull(justificationConfig);
+            assertTrue(justificationConfig.isRequired());
+            assertEquals(20, justificationConfig.getMinLength());
+            assertEquals(200, justificationConfig.getMaxLength());
+            assertEquals(Severity.ERROR, justificationConfig.getSeverity());
+        }
+        
+        @Test
+        @DisplayName("should load PassBlock with minimal configuration")
+        void shouldLoadPassBlockWithMinimalConfiguration() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - pass:
+                            severity: warn
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var section = sections.get(0);
+            assertEquals(1, section.allowedBlocks().size());
+            
+            var passBlock = (PassBlock) section.allowedBlocks().get(0);
+            assertEquals(Severity.WARN, passBlock.getSeverity());
+            assertNull(passBlock.getName());
+            assertNull(passBlock.getOccurrence());
+            assertNull(passBlock.getTypeConfig());
+            assertNull(passBlock.getContent());
+            assertNull(passBlock.getJustification());
         }
     }
     

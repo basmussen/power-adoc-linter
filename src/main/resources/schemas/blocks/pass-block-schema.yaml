@@ -1,0 +1,100 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://example.com/schemas/blocks/pass-block.schema.yaml
+title: Pass Block Configuration Schema
+description: Schema for validating passthrough block configuration in AsciiDoc linter
+type: object
+properties:
+  name:
+    type: string
+    description: Optional name for the pass block for better error messages
+    minLength: 1
+    maxLength: 50
+  severity:
+    type: string
+    description: Default severity level for all rules in this block
+    enum: [error, warn, info]
+  occurrence:
+    type: object
+    description: Occurrence rules for this block type
+    properties:
+      order:
+        type: integer
+        description: Order in which this block should appear
+        minimum: 1
+      min:
+        type: integer
+        description: Minimum number of occurrences
+        minimum: 0
+      max:
+        type: integer
+        description: Maximum number of occurrences
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
+    additionalProperties: false
+  type:
+    type: object
+    description: Content type validation rules
+    properties:
+      required:
+        type: boolean
+        description: Whether type specification is required via pass-type attribute
+      allowed:
+        type: array
+        description: List of allowed content types
+        items:
+          type: string
+          enum: [html, xml, svg]
+        uniqueItems: true
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for type violations
+    required: [severity]
+    additionalProperties: false
+  content:
+    type: object
+    description: Content validation rules
+    properties:
+      required:
+        type: boolean
+        description: Whether content is required
+      maxLength:
+        type: integer
+        description: Maximum content length in characters
+        minimum: 1
+      pattern:
+        type: string
+        description: Regular expression pattern for content validation
+        format: regex
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for content violations
+    required: [severity]
+    additionalProperties: false
+  justification:
+    type: object
+    description: Justification attribute validation rules via pass-reason attribute
+    properties:
+      required:
+        type: boolean
+        description: Whether justification is required
+      minLength:
+        type: integer
+        description: Minimum justification length
+        minimum: 1
+      maxLength:
+        type: integer
+        description: Maximum justification length
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for justification violations
+    required: [severity]
+    additionalProperties: false
+required: [severity]
+additionalProperties: false
