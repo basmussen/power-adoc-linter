@@ -3,25 +3,14 @@
     <Appenders>
         <!-- Console appender for standard output -->
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
         
         <!-- Console appender for error output -->
         <Console name="ConsoleError" target="SYSTEM_ERR">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
             <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
-        
-        <!-- File appender for all logs -->
-        <RollingFile name="File" fileName="logs/power-adoc-linter.log"
-                     filePattern="logs/power-adoc-linter-%d{yyyy-MM-dd}.log">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger - %msg%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="10MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
     </Appenders>
     
     <Loggers>
@@ -29,14 +18,12 @@
         <Logger name="com.example.linter" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="ConsoleError"/>
-            <AppenderRef ref="File"/>
         </Logger>
         
         <!-- Logger for CLI specific messages (progress, status) -->
         <Logger name="com.example.linter.cli" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="ConsoleError"/>
-            <AppenderRef ref="File"/>
         </Logger>
         
         <!-- Suppress verbose logging from dependencies -->
@@ -48,7 +35,6 @@
         <Root level="INFO">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="ConsoleError"/>
-            <AppenderRef ref="File"/>
         </Root>
     </Loggers>
 </Configuration>
