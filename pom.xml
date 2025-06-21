@@ -18,7 +18,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <asciidoctorj.version>2.5.13</asciidoctorj.version>
-        <snakeyaml.version>2.4</snakeyaml.version>
+        <jackson.version>2.18.2</jackson.version>
         <junit.version>5.13.1</junit.version>
         <jacoco.version>0.8.13</jacoco.version>
     </properties>
@@ -30,10 +30,17 @@
             <version>${asciidoctorj.version}</version>
         </dependency>
         
+        <!-- Jackson dependencies for YAML parsing -->
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.version}</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         
         <!-- Test Dependencies -->

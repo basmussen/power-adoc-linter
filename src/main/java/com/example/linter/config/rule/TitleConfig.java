@@ -3,7 +3,11 @@ package com.example.linter.config.rule;
 import java.util.Objects;
 
 import com.example.linter.config.Severity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = TitleConfig.Builder.class)
 public final class TitleConfig {
     private final String pattern;
     private final String exactMatch;
@@ -15,29 +19,38 @@ public final class TitleConfig {
         this.severity = builder.severity;
     }
 
+    @JsonProperty("pattern")
     public String pattern() { return pattern; }
+    
+    @JsonProperty("exactMatch")
     public String exactMatch() { return exactMatch; }
+    
+    @JsonProperty("severity")
     public Severity severity() { return severity; }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
         private String pattern;
         private String exactMatch;
         private Severity severity = Severity.ERROR;
 
+        @JsonProperty("pattern")
         public Builder pattern(String pattern) {
             this.pattern = pattern;
             return this;
         }
 
+        @JsonProperty("exactMatch")
         public Builder exactMatch(String exactMatch) {
             this.exactMatch = exactMatch;
             return this;
         }
 
+        @JsonProperty("severity")
         public Builder severity(Severity severity) {
             this.severity = Objects.requireNonNull(severity, "severity must not be null");
             return this;

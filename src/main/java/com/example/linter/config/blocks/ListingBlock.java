@@ -9,11 +9,19 @@ import java.util.regex.Pattern;
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.rule.LineConfig;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = ListingBlock.Builder.class)
 public final class ListingBlock extends AbstractBlock {
+    @JsonProperty("language")
     private final LanguageConfig language;
+    @JsonProperty("lines")
     private final LineConfig lines;
+    @JsonProperty("title")
     private final TitleConfig title;
+    @JsonProperty("callouts")
     private final CalloutsConfig callouts;
     
     private ListingBlock(Builder builder) {
@@ -49,9 +57,13 @@ public final class ListingBlock extends AbstractBlock {
         return new Builder();
     }
     
+    @JsonDeserialize(builder = LanguageConfig.LanguageConfigBuilder.class)
     public static class LanguageConfig {
+        @JsonProperty("required")
         private final boolean required;
+        @JsonProperty("allowed")
         private final List<String> allowed;
+        @JsonProperty("severity")
         private final Severity severity;
         
         private LanguageConfig(LanguageConfigBuilder builder) {
@@ -78,6 +90,7 @@ public final class ListingBlock extends AbstractBlock {
             return new LanguageConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class LanguageConfigBuilder {
             private boolean required;
             private List<String> allowed;
@@ -119,9 +132,13 @@ public final class ListingBlock extends AbstractBlock {
         }
     }
     
+    @JsonDeserialize(builder = TitleConfig.TitleConfigBuilder.class)
     public static class TitleConfig {
+        @JsonProperty("required")
         private final boolean required;
+        @JsonProperty("pattern")
         private final Pattern pattern;
+        @JsonProperty("severity")
         private final Severity severity;
         
         private TitleConfig(TitleConfigBuilder builder) {
@@ -146,6 +163,7 @@ public final class ListingBlock extends AbstractBlock {
             return new TitleConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class TitleConfigBuilder {
             private boolean required;
             private Pattern pattern;
@@ -193,9 +211,13 @@ public final class ListingBlock extends AbstractBlock {
         }
     }
     
+    @JsonDeserialize(builder = CalloutsConfig.CalloutsConfigBuilder.class)
     public static class CalloutsConfig {
+        @JsonProperty("allowed")
         private final boolean allowed;
+        @JsonProperty("max")
         private final Integer max;
+        @JsonProperty("severity")
         private final Severity severity;
         
         private CalloutsConfig(CalloutsConfigBuilder builder) {
@@ -220,6 +242,7 @@ public final class ListingBlock extends AbstractBlock {
             return new CalloutsConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class CalloutsConfigBuilder {
             private boolean allowed;
             private Integer max;
@@ -261,6 +284,7 @@ public final class ListingBlock extends AbstractBlock {
         }
     }
     
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends AbstractBuilder<Builder> {
         private LanguageConfig language;
         private LineConfig lines;

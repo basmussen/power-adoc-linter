@@ -2,6 +2,11 @@ package com.example.linter.config;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+@JsonDeserialize(builder = LinterConfiguration.Builder.class)
 public final class LinterConfiguration {
     private final DocumentConfiguration document;
 
@@ -9,15 +14,18 @@ public final class LinterConfiguration {
         this.document = builder.document;
     }
 
+    @JsonProperty("document")
     public DocumentConfiguration document() { return document; }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
         private DocumentConfiguration document;
 
+        @JsonProperty("document")
         public Builder document(DocumentConfiguration document) {
             this.document = document;
             return this;

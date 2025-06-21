@@ -4,11 +4,19 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import com.example.linter.config.BlockType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = ImageBlock.Builder.class)
 public final class ImageBlock extends AbstractBlock {
+    @JsonProperty("url")
     private final UrlConfig url;
+    @JsonProperty("height")
     private final DimensionConfig height;
+    @JsonProperty("width")
     private final DimensionConfig width;
+    @JsonProperty("alt")
     private final AltTextConfig alt;
     
     private ImageBlock(Builder builder) {
@@ -44,8 +52,11 @@ public final class ImageBlock extends AbstractBlock {
         return new Builder();
     }
     
+    @JsonDeserialize(builder = UrlConfig.UrlConfigBuilder.class)
     public static class UrlConfig {
+        @JsonProperty("pattern")
         private final Pattern pattern;
+        @JsonProperty("required")
         private final boolean required;
         
         private UrlConfig(UrlConfigBuilder builder) {
@@ -65,6 +76,7 @@ public final class ImageBlock extends AbstractBlock {
             return new UrlConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class UrlConfigBuilder {
             private Pattern pattern;
             private boolean required;
@@ -104,9 +116,13 @@ public final class ImageBlock extends AbstractBlock {
         }
     }
     
+    @JsonDeserialize(builder = DimensionConfig.DimensionConfigBuilder.class)
     public static class DimensionConfig {
+        @JsonProperty("minValue")
         private final Integer minValue;
+        @JsonProperty("maxValue")
         private final Integer maxValue;
+        @JsonProperty("required")
         private final boolean required;
         
         private DimensionConfig(DimensionConfigBuilder builder) {
@@ -131,6 +147,7 @@ public final class ImageBlock extends AbstractBlock {
             return new DimensionConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class DimensionConfigBuilder {
             private Integer minValue;
             private Integer maxValue;
@@ -171,9 +188,13 @@ public final class ImageBlock extends AbstractBlock {
         }
     }
     
+    @JsonDeserialize(builder = AltTextConfig.AltTextConfigBuilder.class)
     public static class AltTextConfig {
+        @JsonProperty("required")
         private final boolean required;
+        @JsonProperty("minLength")
         private final Integer minLength;
+        @JsonProperty("maxLength")
         private final Integer maxLength;
         
         private AltTextConfig(AltTextConfigBuilder builder) {
@@ -198,6 +219,7 @@ public final class ImageBlock extends AbstractBlock {
             return new AltTextConfigBuilder();
         }
         
+        @JsonPOJOBuilder(withPrefix = "")
         public static class AltTextConfigBuilder {
             private boolean required;
             private Integer minLength;
@@ -238,6 +260,7 @@ public final class ImageBlock extends AbstractBlock {
         }
     }
     
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends AbstractBuilder<Builder> {
         private UrlConfig url;
         private DimensionConfig height;

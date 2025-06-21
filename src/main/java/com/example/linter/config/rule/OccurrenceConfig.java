@@ -3,7 +3,11 @@ package com.example.linter.config.rule;
 import java.util.Objects;
 
 import com.example.linter.config.Severity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = OccurrenceConfig.Builder.class)
 public final class OccurrenceConfig {
     private final Integer order;
     private final int min;
@@ -17,36 +21,48 @@ public final class OccurrenceConfig {
         this.severity = builder.severity;
     }
 
+    @JsonProperty("order")
     public Integer order() { return order; }
+    
+    @JsonProperty("min")
     public int min() { return min; }
+    
+    @JsonProperty("max")
     public int max() { return max; }
+    
+    @JsonProperty("severity")
     public Severity severity() { return severity; }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
         private Integer order;
         private int min = 0;
         private int max = Integer.MAX_VALUE;
         private Severity severity;
 
+        @JsonProperty("order")
         public Builder order(Integer order) {
             this.order = order;
             return this;
         }
 
+        @JsonProperty("min")
         public Builder min(int min) {
             this.min = min;
             return this;
         }
 
+        @JsonProperty("max")
         public Builder max(int max) {
             this.max = max;
             return this;
         }
 
+        @JsonProperty("severity")
         public Builder severity(Severity severity) {
             this.severity = severity;
             return this;

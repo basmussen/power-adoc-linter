@@ -4,8 +4,13 @@ import java.util.Objects;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.rule.LineConfig;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = ParagraphBlock.Builder.class)
 public final class ParagraphBlock extends AbstractBlock {
+    @JsonProperty("lines")
     private final LineConfig lines;
     
     private ParagraphBlock(Builder builder) {
@@ -24,6 +29,7 @@ public final class ParagraphBlock extends AbstractBlock {
         return new Builder();
     }
     
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends AbstractBuilder<Builder> {
         private LineConfig lines;
         
