@@ -1,20 +1,22 @@
 package com.example.linter.report;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.ValidationResult;
-import com.google.gson.FormattingStyle;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
- * Formats validation results as JSON.
+ * Formats validation results as JSON using Jackson.
  * Supports both pretty-printed and compact (single-line) output formats.
  */
 public class JsonFormatter implements ReportFormatter {
@@ -23,20 +25,23 @@ public class JsonFormatter implements ReportFormatter {
         DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC);
     
     private final String name;
-    private final Gson gson;
+    private final ObjectMapper objectMapper;
     
     /**
-     * Creates a JSON formatter with the specified name and formatting style.
+     * Creates a JSON formatter with the specified name and pretty-print setting.
      * 
      * @param name the formatter name (e.g., "json" or "json-compact")
-     * @param style the formatting style (pretty or compact)
+     * @param prettyPrint whether to enable pretty printing
      */
-    public JsonFormatter(String name, FormattingStyle style) {
+    public JsonFormatter(String name, boolean prettyPrint) {
         this.name = name;
-        this.gson = new GsonBuilder()
-            .setFormattingStyle(style)
-            .disableHtmlEscaping()
-            .create();
+        this.objectMapper = new ObjectMapper();
+        
+        if (prettyPrint) {
+            this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        } else {
+            this.objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
+        }
     }
     
     /**
@@ -45,7 +50,7 @@ public class JsonFormatter implements ReportFormatter {
      * @return a formatter that produces human-readable JSON
      */
     public static JsonFormatter pretty() {
-        return new JsonFormatter("json", FormattingStyle.PRETTY);
+        return new JsonFormatter("json", true);
     }
     
     /**
@@ -54,59 +59,67 @@ public class JsonFormatter implements ReportFormatter {
      * @return a formatter that produces single-line JSON
      */
     public static JsonFormatter compact() {
-        return new JsonFormatter("json-compact", FormattingStyle.COMPACT);
+        return new JsonFormatter("json-compact", false);
     }
     
     @Override
     public void format(ValidationResult result, PrintWriter writer) {
-        JsonObject root = new JsonObject();
+        Map<String, Object> root = new LinkedHashMap<>();
         
         // Timestamp
-        root.addProperty("timestamp", ISO_FORMATTER.format(Instant.now()));
+        root.put("timestamp", ISO_FORMATTER.format(Instant.now()));
         
         // Duration
-        root.addProperty("duration", formatDuration(result.getValidationTimeMillis()));
+        root.put("duration", formatDuration(result.getValidationTimeMillis()));
         
         // Summary
-        JsonObject summary = new JsonObject();
-        summary.addProperty("totalMessages", result.getMessages().size());
-        summary.addProperty("errors", result.getErrorCount());
-        summary.addProperty("warnings", result.getWarningCount());
-        summary.addProperty("infos", result.getInfoCount());
-        root.add("summary", summary);
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("totalMessages", result.getMessages().size());
+        summary.put("errors", result.getErrorCount());
+        summary.put("warnings", result.getWarningCount());
+        summary.put("infos", result.getInfoCount());
+        root.put("summary", summary);
         
         // Messages
-        JsonArray messages = new JsonArray();
-        for (ValidationMessage msg : result.getMessages()) {
-            JsonObject msgObj = new JsonObject();
-            msgObj.addProperty("file", msg.getLocation().getFilename());
-            msgObj.addProperty("line", msg.getLocation().getStartLine());
-            
-            if (msg.getLocation().getStartColumn() > 1) {
-                msgObj.addProperty("column", msg.getLocation().getStartColumn());
-            }
-            
-            msgObj.addProperty("severity", msg.getSeverity().toString());
-            msgObj.addProperty("message", msg.getMessage());
-            
-            // Optional fields
-            if (msg.getRuleId() != null) {
-                msgObj.addProperty("ruleId", msg.getRuleId());
-            }
-            
-            msg.getActualValue().ifPresent(value -> 
-                msgObj.addProperty("actualValue", value));
-            
-            msg.getExpectedValue().ifPresent(value -> 
-                msgObj.addProperty("expectedValue", value));
-            
-            messages.add(msgObj);
-        }
-        root.add("messages", messages);
+        List<Map<String, Object>> messages = result.getMessages().stream()
+            .map(this::formatMessage)
+            .collect(Collectors.toList());
+        root.put("messages", messages);
         
         // Write JSON to PrintWriter
-        gson.toJson(root, writer);
-        writer.flush();
+        try {
+            objectMapper.writeValue(writer, root);
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write JSON output", e);
+        }
+    }
+    
+    private Map<String, Object> formatMessage(ValidationMessage msg) {
+        Map<String, Object> msgMap = new LinkedHashMap<>();
+        
+        msgMap.put("file", msg.getLocation().getFilename());
+        msgMap.put("line", msg.getLocation().getStartLine());
+        
+        if (msg.getLocation().getStartColumn() > 1) {
+            msgMap.put("column", msg.getLocation().getStartColumn());
+        }
+        
+        msgMap.put("severity", msg.getSeverity().toString());
+        msgMap.put("message", msg.getMessage());
+        
+        // Optional fields
+        if (msg.getRuleId() != null) {
+            msgMap.put("ruleId", msg.getRuleId());
+        }
+        
+        msg.getActualValue().ifPresent(value -> 
+            msgMap.put("actualValue", value));
+        
+        msg.getExpectedValue().ifPresent(value -> 
+            msgMap.put("expectedValue", value));
+        
+        return msgMap;
     }
     
     private String formatDuration(long millis) {

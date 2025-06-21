@@ -142,8 +142,8 @@ class ReportWriterTest {
             assertTrue(Files.exists(outputFile));
             String content = Files.readString(outputFile);
             assertTrue(content.contains("{"));
-            assertTrue(content.contains("\"severity\": \"ERROR\""));
-            assertTrue(content.contains("\"message\": \"Test error\""));
+            assertTrue(content.contains("\"severity\" : \"ERROR\""));
+            assertTrue(content.contains("\"message\" : \"Test error\""));
         }
         
         @Test
