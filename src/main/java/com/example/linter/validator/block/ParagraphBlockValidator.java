@@ -2,6 +2,8 @@ package com.example.linter.validator.block;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.asciidoctor.ast.StructuralNode;
 
@@ -9,6 +11,7 @@ import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ParagraphBlock;
+import com.example.linter.config.rule.OccurrenceConfig;
 import com.example.linter.validator.ValidationMessage;
 
 /**
@@ -22,9 +25,15 @@ import com.example.linter.validator.ValidationMessage;
  * <p>Supported validation rules from YAML schema:</p>
  * <ul>
  *   <li><b>lines</b>: Validates line count constraints (min/max number of lines)</li>
+ *   <li><b>sentence</b>: Validates sentence-level constraints:
+ *     <ul>
+ *       <li><b>occurrence</b>: Min/max number of sentences per paragraph</li>
+ *       <li><b>words</b>: Min/max number of words per sentence</li>
+ *     </ul>
+ *   </li>
  * </ul>
  * 
- * <p>The lines configuration can optionally define its own severity level.
+ * <p>The lines and sentence configurations can optionally define their own severity levels.
  * If not specified, the block-level severity is used as fallback.</p>
  * 
  * @see ParagraphBlock
@@ -52,6 +61,11 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
         if (paragraphConfig.getLines() != null) {
             int lineCount = countLines(content);
             validateLineCount(lineCount, paragraphConfig.getLines(), paragraphConfig, context, block, messages);
+        }
+        
+        // Validate sentence count and structure if configured
+        if (paragraphConfig.getSentence() != null) {
+            validateSentences(content, paragraphConfig.getSentence(), paragraphConfig, context, block, messages);
         }
         
         return messages;
@@ -125,5 +139,164 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
                 .expectedValue("At most " + lineConfig.max() + " lines")
                 .build());
         }
+    }
+    
+    private void validateSentences(String content,
+                                  ParagraphBlock.SentenceConfig sentenceConfig,
+                                  ParagraphBlock blockConfig,
+                                  BlockValidationContext context,
+                                  StructuralNode block,
+                                  List<ValidationMessage> messages) {
+        
+        if (content == null || content.isEmpty()) {
+            // If content is empty and sentences are required, check occurrence min
+            if (sentenceConfig.getOccurrence() != null && 
+                sentenceConfig.getOccurrence().min() > 0) {
+                Severity severity = sentenceConfig.getOccurrence().severity() != null 
+                    ? sentenceConfig.getOccurrence().severity() 
+                    : blockConfig.getSeverity();
+                    
+                messages.add(ValidationMessage.builder()
+                    .severity(severity)
+                    .ruleId("paragraph.sentence.occurrence.min")
+                    .location(context.createLocation(block))
+                    .message("Paragraph has too few sentences")
+                    .actualValue("0")
+                    .expectedValue("At least " + sentenceConfig.getOccurrence().min() + " sentences")
+                    .build());
+            }
+            return;
+        }
+        
+        // Split content into sentences
+        List<String> sentences = splitIntoSentences(content);
+        
+        // Validate sentence occurrence
+        if (sentenceConfig.getOccurrence() != null) {
+            validateSentenceOccurrence(sentences.size(), sentenceConfig.getOccurrence(), 
+                                     blockConfig, context, block, messages);
+        }
+        
+        // Validate words per sentence
+        if (sentenceConfig.getWords() != null) {
+            validateWordsPerSentence(sentences, sentenceConfig.getWords(), 
+                                   blockConfig, context, block, messages);
+        }
+    }
+    
+    private List<String> splitIntoSentences(String content) {
+        List<String> sentences = new ArrayList<>();
+        
+        // Pattern to match sentence endings: period, exclamation mark, question mark
+        // followed by whitespace or end of string
+        // Handles abbreviations like "e.g.", "i.e.", etc.
+        Pattern sentencePattern = Pattern.compile(
+            "([^.!?]+(?:[.!?](?![.!?])|\\.[a-z]\\.)+[.!?]?)(?:\\s+|$)", 
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL
+        );
+        
+        // First, replace newlines with spaces to handle multi-line sentences
+        String normalizedContent = content.replaceAll("\\n+", " ").trim();
+        
+        // Simple approach: split by sentence-ending punctuation
+        // This is a simplified version that works for most cases
+        String[] parts = normalizedContent.split("(?<=[.!?])\\s+");
+        
+        for (String part : parts) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                sentences.add(trimmed);
+            }
+        }
+        
+        // If no sentences found but content exists, treat the whole content as one sentence
+        if (sentences.isEmpty() && !normalizedContent.trim().isEmpty()) {
+            sentences.add(normalizedContent.trim());
+        }
+        
+        return sentences;
+    }
+    
+    private void validateSentenceOccurrence(int sentenceCount,
+                                          OccurrenceConfig occurrenceConfig,
+                                          ParagraphBlock blockConfig,
+                                          BlockValidationContext context,
+                                          StructuralNode block,
+                                          List<ValidationMessage> messages) {
+        
+        Severity severity = occurrenceConfig.severity() != null 
+            ? occurrenceConfig.severity() 
+            : blockConfig.getSeverity();
+        
+        if (sentenceCount < occurrenceConfig.min()) {
+            messages.add(ValidationMessage.builder()
+                .severity(severity)
+                .ruleId("paragraph.sentence.occurrence.min")
+                .location(context.createLocation(block))
+                .message("Paragraph has too few sentences")
+                .actualValue(String.valueOf(sentenceCount))
+                .expectedValue("At least " + occurrenceConfig.min() + " sentences")
+                .build());
+        }
+        
+        if (sentenceCount > occurrenceConfig.max()) {
+            messages.add(ValidationMessage.builder()
+                .severity(severity)
+                .ruleId("paragraph.sentence.occurrence.max")
+                .location(context.createLocation(block))
+                .message("Paragraph has too many sentences")
+                .actualValue(String.valueOf(sentenceCount))
+                .expectedValue("At most " + occurrenceConfig.max() + " sentences")
+                .build());
+        }
+    }
+    
+    private void validateWordsPerSentence(List<String> sentences,
+                                        ParagraphBlock.WordsConfig wordsConfig,
+                                        ParagraphBlock blockConfig,
+                                        BlockValidationContext context,
+                                        StructuralNode block,
+                                        List<ValidationMessage> messages) {
+        
+        Severity severity = wordsConfig.getSeverity() != null 
+            ? wordsConfig.getSeverity() 
+            : blockConfig.getSeverity();
+        
+        for (int i = 0; i < sentences.size(); i++) {
+            String sentence = sentences.get(i);
+            int wordCount = countWords(sentence);
+            
+            if (wordsConfig.getMin() != null && wordCount < wordsConfig.getMin()) {
+                messages.add(ValidationMessage.builder()
+                    .severity(severity)
+                    .ruleId("paragraph.sentence.words.min")
+                    .location(context.createLocation(block))
+                    .message("Sentence " + (i + 1) + " has too few words")
+                    .actualValue(wordCount + " words")
+                    .expectedValue("At least " + wordsConfig.getMin() + " words")
+                    .build());
+            }
+            
+            if (wordsConfig.getMax() != null && wordCount > wordsConfig.getMax()) {
+                messages.add(ValidationMessage.builder()
+                    .severity(severity)
+                    .ruleId("paragraph.sentence.words.max")
+                    .location(context.createLocation(block))
+                    .message("Sentence " + (i + 1) + " has too many words")
+                    .actualValue(wordCount + " words")
+                    .expectedValue("At most " + wordsConfig.getMax() + " words")
+                    .build());
+            }
+        }
+    }
+    
+    private int countWords(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return 0;
+        }
+        
+        // Split by whitespace and count non-empty parts
+        String[] words = text.trim().split("\\s+");
+        return words.length;
     }
 }

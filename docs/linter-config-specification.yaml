@@ -472,8 +472,22 @@ document:
         
       allowedBlocks:
         - paragraph:
+            name: "conclusion-summary"  # Optional: Benannte Blöcke für bessere Fehlermeldungen
             severity: error          # PFLICHT: Default-Severity für den gesamten Block
             occurrence:
               min: 1                 # Wenn vorhanden, min. 1 Paragraph
               max: 3
               # Kein severity = verwendet Block-Severity (error)
+            lines:
+              min: 3                 # Mindestens 3 Zeilen pro Paragraph
+              max: 20                # Maximal 20 Zeilen pro Paragraph
+              # Kein severity = verwendet Block-Severity (error)
+            sentence:                # Optional: Satz-Validierung
+              occurrence:
+                min: 3               # Mindestens 3 Sätze pro Paragraph
+                max: 10              # Maximal 10 Sätze pro Paragraph
+                severity: warn       # Optional: Überschreibt Block-Severity
+              words:                 # NUR words verfügbar für Sätze
+                min: 8               # Mindestens 8 Wörter pro Satz
+                max: 25              # Maximal 25 Wörter pro Satz
+                severity: info       # Optional: Überschreibt Block-Severity
