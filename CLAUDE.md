@@ -70,10 +70,12 @@ java -jar target/power-adoc-linter.jar -i document.adoc -l warn
 - Java 17
 - Maven
 - AsciidoctorJ 2.5.13
-- SnakeYAML 2.3
+- Jackson 2.18.2 (YAML parsing, replaced SnakeYAML)
 - Apache Commons CLI 1.9.0
-- Gson 2.11.0
+- Gson 2.13.1
 - JaCoCo 0.8.13
+- networknt json-schema-validator 1.5.7
+- Log4j2 2.24.3
 
 ## Architecture Overview
 
@@ -90,6 +92,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
    - Each block type has specific validation rules
 
 3. **Configuration Loading**: YAML-based configuration through `ConfigurationLoader`
+   - Uses Jackson with custom `BlockListDeserializer` for special YAML structure
    - Supports file and stream-based loading
    - Hierarchical structure: LinterConfiguration → DocumentConfiguration → Sections/Metadata
    - Integrated schema validation with networknt json-schema-validator
@@ -121,8 +124,11 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 1. **Linter**: Central validation orchestrator
    - Provides `validateFile()`, `validateFiles()`, `validateDirectory()`
    - Manages AsciidoctorJ instance lifecycle
+   - Source location tracking enabled via AsciidoctorJ's sourcemap feature
 
 2. **LinterConfiguration**: Root configuration object containing document rules
+   - Loaded via Jackson with full YAML support
+   - All fields immutable with builder pattern
 
 3. **DocumentConfiguration**: Defines metadata requirements and section structure
 
@@ -134,13 +140,20 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
    - `TableBlock`: Tables with column/row counts, headers, captions
    - `ImageBlock`: Images with URL pattern, dimensions, alt text validation
    - `VerseBlock`: Quote/verse blocks with author and attribution
+   - All extend `AbstractBlock` with Jackson annotations
 
 6. **Severity Levels**: ERROR, WARN, INFO for all validation rules
+   - Block-level severity can be overridden by nested rules
 
 7. **CLI Components**:
    - `LinterCLI`: Main entry point with Apache Commons CLI
    - `CLIRunner`: Orchestrates validation based on CLI arguments
    - `FileDiscoveryService`: Finds files matching patterns
+
+8. **Configuration Loader**: 
+   - Uses Jackson ObjectMapper with YAMLFactory
+   - Custom `BlockListDeserializer` handles special YAML structure where block types are keys
+   - Schema validation integrated but can be skipped for testing
 
 ### Testing Strategy
 
@@ -182,9 +195,11 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
    - Create inner classes within the block type
    - Use builder pattern with required severity field
    - Implement equals/hashCode properly (handle Pattern objects specially)
+   - Add Jackson annotations (@JsonProperty, @JsonDeserialize, @JsonPOJOBuilder)
 
 3. **Configuration Extensions**: 
-   - Update `ConfigurationLoader` to parse new attributes
+   - Add Jackson annotations to new configuration classes
+   - Update `BlockListDeserializer` if adding new block types
    - Add test cases in `ConfigurationLoaderTest`
    - Update `linter-config-specification.yaml` with examples
 
@@ -197,7 +212,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 
 ## Current Implementation Status
 
-- ✅ YAML configuration parser with SnakeYAML 2.3
+- ✅ YAML configuration parser with Jackson 2.18.2 (replaced SnakeYAML)
 - ✅ Hierarchical configuration structure (Document → Sections → Blocks)
 - ✅ Type-specific block classes with inner rule classes
 - ✅ Validation rules framework with severity levels
@@ -208,6 +223,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - ✅ CLI interface with Apache Commons CLI
 - ✅ Executable JAR with Maven Shade Plugin
 - ✅ Schema validation for configuration files (#12)
+- ✅ Jackson migration with custom deserializers (#23)
 - ⏳ Additional report formats
 - ⏳ Watch mode for continuous validation
 
@@ -215,6 +231,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 
 - **Configuration Specification**: `docs/linter-config-specification.yaml` - Full example configuration
 - **Schema Definitions**: `src/main/resources/schemas/` - JSON Schema 2020-12 definitions
+- **Custom Deserializer**: `src/main/java/com/example/linter/config/loader/BlockListDeserializer.java` - Handles special YAML structure
 - **Test Examples**: `src/test/java/com/example/linter/config/loader/ConfigurationLoaderTest.java` - Shows YAML configuration patterns
 - **Main Entry Point**: `src/main/java/com/example/linter/cli/LinterCLI.java`
 
