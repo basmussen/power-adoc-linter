@@ -1217,15 +1217,6 @@ class ConfigurationLoaderTest {
                               required: true
                               pattern: "^(info|warning|caution|tip|note)$"
                               severity: info
-                            NOTE:
-                              max: 5
-                              severity: warn
-                            TIP:
-                              max: 3
-                              severity: warn
-                            IMPORTANT:
-                              max: 2
-                              severity: error
                 """;
             
             // When
@@ -1277,19 +1268,6 @@ class ConfigurationLoaderTest {
             assertTrue(admonitionBlock.getIcon().isRequired());
             assertEquals("^(info|warning|caution|tip|note)$", admonitionBlock.getIcon().getPattern().pattern());
             assertEquals(Severity.INFO, admonitionBlock.getIcon().getSeverity());
-            
-            // Type-specific occurrences
-            assertNotNull(admonitionBlock.getNoteOccurrence());
-            assertEquals(5, admonitionBlock.getNoteOccurrence().getMax());
-            assertEquals(Severity.WARN, admonitionBlock.getNoteOccurrence().getSeverity());
-            
-            assertNotNull(admonitionBlock.getTipOccurrence());
-            assertEquals(3, admonitionBlock.getTipOccurrence().getMax());
-            assertEquals(Severity.WARN, admonitionBlock.getTipOccurrence().getSeverity());
-            
-            assertNotNull(admonitionBlock.getImportantOccurrence());
-            assertEquals(2, admonitionBlock.getImportantOccurrence().getMax());
-            assertEquals(Severity.ERROR, admonitionBlock.getImportantOccurrence().getSeverity());
         }
     }
 }

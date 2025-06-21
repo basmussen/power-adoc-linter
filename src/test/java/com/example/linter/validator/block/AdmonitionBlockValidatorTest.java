@@ -380,70 +380,6 @@ class AdmonitionBlockValidatorTest {
     }
     
     @Nested
-    @DisplayName("Type Occurrences Validation")
-    class TypeOccurrencesValidation {
-        
-        @Test
-        @DisplayName("should validate type occurrences")
-        void shouldValidateTypeOccurrences() {
-            // Given
-            when(mockBlock.getStyle()).thenReturn("NOTE");
-            
-            AdmonitionBlock config = AdmonitionBlock.builder()
-                .severity(Severity.ERROR)
-                .noteOccurrence(AdmonitionBlock.TypeOccurrenceConfig.builder()
-                    .max(2)
-                    .severity(Severity.WARN)
-                    .build())
-                .build();
-            
-            // When - validate three NOTE blocks
-            validator.validate(mockBlock, config, context);
-            validator.validate(mockBlock, config, context);
-            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
-            
-            // Then
-            assertEquals(1, messages.size());
-            assertEquals("admonition.NOTE.max", messages.get(0).getRuleId());
-            assertEquals(Severity.WARN, messages.get(0).getSeverity());
-        }
-        
-        @Test
-        @DisplayName("should track different admonition types separately")
-        void shouldTrackDifferentTypesSeparately() {
-            // Given
-            StructuralNode noteBlock = mock(StructuralNode.class);
-            when(noteBlock.getStyle()).thenReturn("NOTE");
-            when(noteBlock.getDocument()).thenReturn(mockDocument);
-            
-            StructuralNode tipBlock = mock(StructuralNode.class);
-            when(tipBlock.getStyle()).thenReturn("TIP");
-            when(tipBlock.getDocument()).thenReturn(mockDocument);
-            
-            AdmonitionBlock config = AdmonitionBlock.builder()
-                .severity(Severity.ERROR)
-                .noteOccurrence(AdmonitionBlock.TypeOccurrenceConfig.builder()
-                    .max(1)
-                    .build())
-                .tipOccurrence(AdmonitionBlock.TypeOccurrenceConfig.builder()
-                    .max(1)
-                    .build())
-                .build();
-            
-            // When
-            List<ValidationMessage> noteMessages1 = validator.validate(noteBlock, config, context);
-            List<ValidationMessage> tipMessages1 = validator.validate(tipBlock, config, context);
-            List<ValidationMessage> noteMessages2 = validator.validate(noteBlock, config, context);
-            
-            // Then
-            assertTrue(noteMessages1.isEmpty());
-            assertTrue(tipMessages1.isEmpty());
-            assertEquals(1, noteMessages2.size());
-            assertEquals("admonition.NOTE.max", noteMessages2.get(0).getRuleId());
-        }
-    }
-    
-    @Nested
     @DisplayName("Admonition Type Detection")
     class AdmonitionTypeDetection {
         
@@ -490,18 +426,129 @@ class AdmonitionBlockValidatorTest {
             
             AdmonitionBlock config = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
-                .noteOccurrence(AdmonitionBlock.TypeOccurrenceConfig.builder()
-                    .max(1)
+                .type(AdmonitionBlock.TypeConfig.builder()
+                    .required(true)
+                    .allowed(List.of("NOTE"))
                     .build())
                 .build();
             
             // When
-            validator.validate(mockBlock, config, context);
-            validator.validate(mockBlock, config, context);
-            
-            // Then - should track as NOTE (uppercase)
             List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then - should accept lowercase "note" as valid "NOTE"
+            assertTrue(messages.isEmpty());
+        }
+    }
+    
+    @Nested
+    @DisplayName("Severity Override and Fallback")
+    class SeverityOverrideTests {
+        
+        @Test
+        @DisplayName("should use nested severity when specified")
+        void shouldUseNestedSeverity() {
+            // Given
+            when(mockBlock.getStyle()).thenReturn("INVALID");
+            
+            AdmonitionBlock config = AdmonitionBlock.builder()
+                .severity(Severity.ERROR) // Block-level severity
+                .type(AdmonitionBlock.TypeConfig.builder()
+                    .required(true)
+                    .allowed(List.of("NOTE", "TIP"))
+                    .severity(Severity.WARN) // Nested severity overrides
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
             assertEquals(1, messages.size());
+            assertEquals(Severity.WARN, messages.get(0).getSeverity()); // Should use nested severity
+        }
+        
+        @Test
+        @DisplayName("should fallback to block severity when nested severity is null")
+        void shouldFallbackToBlockSeverity() {
+            // Given
+            when(mockBlock.getTitle()).thenReturn(null);
+            
+            AdmonitionBlock config = AdmonitionBlock.builder()
+                .severity(Severity.INFO) // Block-level severity
+                .title(AdmonitionBlock.TitleConfig.builder()
+                    .required(true)
+                    // No severity specified, should fallback
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            assertEquals(Severity.INFO, messages.get(0).getSeverity()); // Should use block severity
+        }
+        
+        @Test
+        @DisplayName("should handle line severity override with double fallback")
+        void shouldHandleLineSeverityWithDoubleFallback() {
+            // Given
+            when(mockBlock.getContent()).thenReturn("Line 1\nLine 2\nLine 3\nLine 4");
+            
+            AdmonitionBlock config = AdmonitionBlock.builder()
+                .severity(Severity.ERROR) // Block-level severity
+                .content(AdmonitionBlock.ContentConfig.builder()
+                    .severity(Severity.WARN) // Content-level severity
+                    .lines(LineConfig.builder()
+                        .max(3)
+                        .severity(Severity.INFO) // Line-level severity overrides all
+                        .build())
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            assertEquals("admonition.content.lines.max", messages.get(0).getRuleId());
+            assertEquals(Severity.INFO, messages.get(0).getSeverity()); // Should use line severity
+        }
+        
+        @Test
+        @DisplayName("should fallback through hierarchy when line severity is null")
+        void shouldFallbackThroughHierarchy() {
+            // Given
+            when(mockBlock.getContent()).thenReturn("Short");
+            
+            AdmonitionBlock config = AdmonitionBlock.builder()
+                .severity(Severity.ERROR) // Block-level severity
+                .content(AdmonitionBlock.ContentConfig.builder()
+                    .minLength(10)
+                    // No content severity, should fallback to block
+                    .lines(LineConfig.builder()
+                        .min(2)
+                        // No line severity, should fallback to content, then block
+                        .build())
+                    .build())
+                .build();
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(2, messages.size());
+            // Content validation should use block severity
+            ValidationMessage contentMsg = messages.stream()
+                .filter(m -> m.getRuleId().equals("admonition.content.minLength"))
+                .findFirst().orElseThrow();
+            assertEquals(Severity.ERROR, contentMsg.getSeverity());
+            
+            // Line validation should also fallback to block severity
+            ValidationMessage lineMsg = messages.stream()
+                .filter(m -> m.getRuleId().equals("admonition.content.lines.min"))
+                .findFirst().orElseThrow();
+            assertEquals(Severity.ERROR, lineMsg.getSeverity());
         }
     }
     

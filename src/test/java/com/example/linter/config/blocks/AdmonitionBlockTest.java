@@ -49,11 +49,6 @@ class AdmonitionBlockTest {
                 .pattern("^(fa-|icon-|octicon-).*$")
                 .severity(Severity.INFO)
                 .build();
-                
-            AdmonitionBlock.TypeOccurrenceConfig noteOccurrence = AdmonitionBlock.TypeOccurrenceConfig.builder()
-                .max(5)
-                .severity(Severity.WARN)
-                .build();
             
             // When
             AdmonitionBlock block = AdmonitionBlock.builder()
@@ -62,7 +57,6 @@ class AdmonitionBlockTest {
                 .title(titleConfig)
                 .content(contentConfig)
                 .icon(iconConfig)
-                .noteOccurrence(noteOccurrence)
                 .build();
             
             // Then
@@ -72,8 +66,6 @@ class AdmonitionBlockTest {
             assertEquals(titleConfig, block.getTitle());
             assertEquals(contentConfig, block.getContent());
             assertEquals(iconConfig, block.getIcon());
-            assertNotNull(block.getNoteOccurrence());
-            assertEquals(5, block.getNoteOccurrence().getMax());
         }
         
         @Test
@@ -249,37 +241,6 @@ class AdmonitionBlockTest {
             
             // Then
             assertEquals(pattern, config.getPattern());
-        }
-    }
-    
-    @Nested
-    @DisplayName("TypeOccurrenceConfig Tests")
-    class TypeOccurrenceConfigTests {
-        
-        @Test
-        @DisplayName("should build type occurrence config with all properties")
-        void shouldBuildCompleteTypeOccurrenceConfig() {
-            // When
-            AdmonitionBlock.TypeOccurrenceConfig config = AdmonitionBlock.TypeOccurrenceConfig.builder()
-                .max(5)
-                .severity(Severity.ERROR)
-                .build();
-            
-            // Then
-            assertEquals(5, config.getMax());
-            assertEquals(Severity.ERROR, config.getSeverity());
-        }
-        
-        @Test
-        @DisplayName("should build minimal type occurrence config")
-        void shouldBuildMinimalTypeOccurrenceConfig() {
-            // When
-            AdmonitionBlock.TypeOccurrenceConfig config = AdmonitionBlock.TypeOccurrenceConfig.builder()
-                .build();
-            
-            // Then
-            assertNull(config.getMax());
-            assertNull(config.getSeverity());
         }
     }
     

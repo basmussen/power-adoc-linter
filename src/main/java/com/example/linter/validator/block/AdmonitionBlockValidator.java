@@ -24,11 +24,10 @@ import com.example.linter.validator.ValidationMessage;
  * 
  * <p>Supported validation rules from YAML schema:</p>
  * <ul>
+ *   <li><b>type</b>: Validates admonition type (required, allowed types)</li>
  *   <li><b>title</b>: Validates block title (required, pattern, min/max length)</li>
- *   <li><b>content</b>: Validates content length (min/max characters)</li>
  *   <li><b>content</b>: Validates content (required, min/max length, lines)</li>
  *   <li><b>icon</b>: Validates icon settings (required, pattern)</li>
- *   <li><b>NOTE/TIP/IMPORTANT/WARNING/CAUTION</b>: Validates type-specific occurrences</li>
  * </ul>
  * 
  * <p>Each nested configuration can optionally define its own severity level.
@@ -38,8 +37,6 @@ import com.example.linter.validator.ValidationMessage;
  * @see BlockTypeValidator
  */
 public final class AdmonitionBlockValidator implements BlockTypeValidator {
-    
-    private final Map<String, Integer> typeOccurrences = new HashMap<>();
     
     @Override
     public BlockType getSupportedType() {
@@ -60,12 +57,6 @@ public final class AdmonitionBlockValidator implements BlockTypeValidator {
         String content = getBlockContent(block);
         boolean hasIcon = hasIcon(block);
         
-        // Track occurrences
-        if (admonitionType != null) {
-            int count = typeOccurrences.getOrDefault(admonitionType, 0) + 1;
-            typeOccurrences.put(admonitionType, count);
-        }
-        
         // Validate type
         if (admonitionConfig.getTypeConfig() != null) {
             validateType(admonitionType, admonitionConfig.getTypeConfig(), admonitionConfig, context, block, messages);
@@ -84,11 +75,6 @@ public final class AdmonitionBlockValidator implements BlockTypeValidator {
         // Validate icon
         if (admonitionConfig.getIcon() != null) {
             validateIcon(hasIcon, admonitionConfig.getIcon(), admonitionConfig, context, block, messages);
-        }
-        
-        // Validate type-specific occurrences
-        if (admonitionType != null) {
-            validateTypeSpecificOccurrences(admonitionType, admonitionConfig, context, block, messages);
         }
         
         return messages;
@@ -373,54 +359,6 @@ public final class AdmonitionBlockValidator implements BlockTypeValidator {
     private String getIconValue(StructuralNode block) {
         Object icon = block.getAttribute("icon");
         return icon != null ? icon.toString() : null;
-    }
-    
-    private void validateTypeSpecificOccurrences(String admonitionType, 
-                                                AdmonitionBlock blockConfig,
-                                                BlockValidationContext context,
-                                                StructuralNode block,
-                                                List<ValidationMessage> messages) {
-        
-        AdmonitionBlock.TypeOccurrenceConfig typeConfig = null;
-        
-        // Get the appropriate type-specific configuration
-        switch (admonitionType) {
-            case "NOTE":
-                typeConfig = blockConfig.getNoteOccurrence();
-                break;
-            case "TIP":
-                typeConfig = blockConfig.getTipOccurrence();
-                break;
-            case "IMPORTANT":
-                typeConfig = blockConfig.getImportantOccurrence();
-                break;
-            case "WARNING":
-                typeConfig = blockConfig.getWarningOccurrence();
-                break;
-            case "CAUTION":
-                typeConfig = blockConfig.getCautionOccurrence();
-                break;
-        }
-        
-        if (typeConfig == null || typeConfig.getMax() == null) {
-            return;
-        }
-        
-        // Get severity with fallback to block severity
-        Severity severity = typeConfig.getSeverity() != null ? typeConfig.getSeverity() : blockConfig.getSeverity();
-        
-        int currentCount = typeOccurrences.getOrDefault(admonitionType, 0);
-        
-        if (currentCount > typeConfig.getMax()) {
-            messages.add(ValidationMessage.builder()
-                .severity(severity)
-                .ruleId("admonition." + admonitionType + ".max")
-                .location(context.createLocation(block))
-                .message("Too many " + admonitionType + " admonition blocks")
-                .actualValue(String.valueOf(currentCount))
-                .expectedValue("At most " + typeConfig.getMax())
-                .build());
-        }
     }
     
     private int countLines(String content) {

@@ -25,16 +25,6 @@ public final class AdmonitionBlock extends AbstractBlock {
     private final ContentConfig content;
     @JsonProperty("icon")
     private final IconConfig icon;
-    @JsonProperty("NOTE")
-    private final TypeOccurrenceConfig noteOccurrence;
-    @JsonProperty("TIP")
-    private final TypeOccurrenceConfig tipOccurrence;
-    @JsonProperty("IMPORTANT")
-    private final TypeOccurrenceConfig importantOccurrence;
-    @JsonProperty("WARNING")
-    private final TypeOccurrenceConfig warningOccurrence;
-    @JsonProperty("CAUTION")
-    private final TypeOccurrenceConfig cautionOccurrence;
     
     private AdmonitionBlock(Builder builder) {
         super(builder);
@@ -42,11 +32,6 @@ public final class AdmonitionBlock extends AbstractBlock {
         this.title = builder.title;
         this.content = builder.content;
         this.icon = builder.icon;
-        this.noteOccurrence = builder.noteOccurrence;
-        this.tipOccurrence = builder.tipOccurrence;
-        this.importantOccurrence = builder.importantOccurrence;
-        this.warningOccurrence = builder.warningOccurrence;
-        this.cautionOccurrence = builder.cautionOccurrence;
     }
     
     @Override
@@ -68,26 +53,6 @@ public final class AdmonitionBlock extends AbstractBlock {
     
     public IconConfig getIcon() {
         return icon;
-    }
-    
-    public TypeOccurrenceConfig getNoteOccurrence() {
-        return noteOccurrence;
-    }
-    
-    public TypeOccurrenceConfig getTipOccurrence() {
-        return tipOccurrence;
-    }
-    
-    public TypeOccurrenceConfig getImportantOccurrence() {
-        return importantOccurrence;
-    }
-    
-    public TypeOccurrenceConfig getWarningOccurrence() {
-        return warningOccurrence;
-    }
-    
-    public TypeOccurrenceConfig getCautionOccurrence() {
-        return cautionOccurrence;
     }
     
     public static Builder builder() {
@@ -453,75 +418,12 @@ public final class AdmonitionBlock extends AbstractBlock {
         }
     }
     
-    @JsonDeserialize(builder = TypeOccurrenceConfig.TypeOccurrenceConfigBuilder.class)
-    public static class TypeOccurrenceConfig {
-        @JsonProperty("max")
-        private final Integer max;
-        @JsonProperty("severity")
-        private final Severity severity;
-        
-        private TypeOccurrenceConfig(TypeOccurrenceConfigBuilder builder) {
-            this.max = builder.max;
-            this.severity = builder.severity;
-        }
-        
-        public Integer getMax() {
-            return max;
-        }
-        
-        public Severity getSeverity() {
-            return severity;
-        }
-        
-        public static TypeOccurrenceConfigBuilder builder() {
-            return new TypeOccurrenceConfigBuilder();
-        }
-        
-        @JsonPOJOBuilder(withPrefix = "")
-        public static class TypeOccurrenceConfigBuilder {
-            private Integer max;
-            private Severity severity;
-            
-            public TypeOccurrenceConfigBuilder max(Integer max) {
-                this.max = max;
-                return this;
-            }
-            
-            public TypeOccurrenceConfigBuilder severity(Severity severity) {
-                this.severity = severity;
-                return this;
-            }
-            
-            public TypeOccurrenceConfig build() {
-                return new TypeOccurrenceConfig(this);
-            }
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof TypeOccurrenceConfig that)) return false;
-            return Objects.equals(max, that.max) &&
-                   severity == that.severity;
-        }
-        
-        @Override
-        public int hashCode() {
-            return Objects.hash(max, severity);
-        }
-    }
-    
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends AbstractBuilder<Builder> {
         private TypeConfig type;
         private TitleConfig title;
         private ContentConfig content;
         private IconConfig icon;
-        private TypeOccurrenceConfig noteOccurrence;
-        private TypeOccurrenceConfig tipOccurrence;
-        private TypeOccurrenceConfig importantOccurrence;
-        private TypeOccurrenceConfig warningOccurrence;
-        private TypeOccurrenceConfig cautionOccurrence;
         
         public Builder type(TypeConfig type) {
             this.type = type;
@@ -543,36 +445,6 @@ public final class AdmonitionBlock extends AbstractBlock {
             return this;
         }
         
-        @JsonProperty("NOTE")
-        public Builder noteOccurrence(TypeOccurrenceConfig noteOccurrence) {
-            this.noteOccurrence = noteOccurrence;
-            return this;
-        }
-        
-        @JsonProperty("TIP")
-        public Builder tipOccurrence(TypeOccurrenceConfig tipOccurrence) {
-            this.tipOccurrence = tipOccurrence;
-            return this;
-        }
-        
-        @JsonProperty("IMPORTANT")
-        public Builder importantOccurrence(TypeOccurrenceConfig importantOccurrence) {
-            this.importantOccurrence = importantOccurrence;
-            return this;
-        }
-        
-        @JsonProperty("WARNING")
-        public Builder warningOccurrence(TypeOccurrenceConfig warningOccurrence) {
-            this.warningOccurrence = warningOccurrence;
-            return this;
-        }
-        
-        @JsonProperty("CAUTION")
-        public Builder cautionOccurrence(TypeOccurrenceConfig cautionOccurrence) {
-            this.cautionOccurrence = cautionOccurrence;
-            return this;
-        }
-        
         @Override
         public AdmonitionBlock build() {
             Objects.requireNonNull(severity, "severity is required");
@@ -588,18 +460,11 @@ public final class AdmonitionBlock extends AbstractBlock {
         return Objects.equals(type, that.type) &&
                Objects.equals(title, that.title) &&
                Objects.equals(content, that.content) &&
-               Objects.equals(icon, that.icon) &&
-               Objects.equals(noteOccurrence, that.noteOccurrence) &&
-               Objects.equals(tipOccurrence, that.tipOccurrence) &&
-               Objects.equals(importantOccurrence, that.importantOccurrence) &&
-               Objects.equals(warningOccurrence, that.warningOccurrence) &&
-               Objects.equals(cautionOccurrence, that.cautionOccurrence);
+               Objects.equals(icon, that.icon);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), type, title, content, icon, 
-                           noteOccurrence, tipOccurrence, importantOccurrence, 
-                           warningOccurrence, cautionOccurrence);
+        return Objects.hash(super.hashCode(), type, title, content, icon);
     }
 }
