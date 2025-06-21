@@ -8,7 +8,8 @@ public enum BlockType {
     LISTING,
     TABLE,
     IMAGE,
-    VERSE;
+    VERSE,
+    PASS;
     
     @JsonValue
     public String toValue() {
@@ -24,6 +25,7 @@ public enum BlockType {
             case "table" -> TABLE;
             case "image" -> IMAGE;
             case "verse" -> VERSE;
+            case "pass" -> PASS;
             default -> throw new IllegalArgumentException("Unknown block type: " + value);
         };
     }

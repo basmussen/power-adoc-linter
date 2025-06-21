@@ -437,6 +437,28 @@ document:
                   min: 0
                   max: 3
                   # Kein severity = verwendet Block-Severity (warn)
+            - pass:
+                name: "html-widget"  # Optional: Benannter Pass-Block
+                severity: error      # PFLICHT: Default-Severity - streng, da Sicherheitsrisiko
+                occurrence:
+                  min: 0
+                  max: 1             # Sehr restriktiv
+                  severity: error
+                # Pass-spezifische Attribute (custom attributes)
+                type:
+                  required: true
+                  allowed: [html, xml, svg]  # Nur bestimmte Typen erlaubt
+                  severity: error
+                content:
+                  required: true
+                  maxLength: 1000            # Begrenzte Länge
+                  pattern: "^<[^>]+>.*</[^>]+>$"  # Muss wie HTML aussehen
+                  severity: error
+                reason:
+                  required: true             # Grund warum Pass-Block nötig ist
+                  minLength: 20
+                  maxLength: 200
+                  severity: error
               
           # Generische Unter-Unterabschnitte
           subsections:

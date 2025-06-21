@@ -46,6 +46,9 @@ public final class BlockTypeDetector {
             case "quote":
                 return detectVerseOrQuote(node);
                 
+            case "pass":
+                return BlockType.PASS;
+                
             case "example":
             case "sidebar":
             case "open":
