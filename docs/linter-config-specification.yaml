@@ -296,22 +296,6 @@ document:
               required: true            # Icons sind erforderlich
               pattern: "^(info|warning|caution|tip|note)$"  # Erlaubte Icon-Namen
               severity: info            # Nur Hinweis wenn fehlt
-            # Type-spezifische Occurrence-Limits
-            NOTE:
-              max: 5                    # Maximal 5 NOTE-Blöcke
-              severity: warn            # Warnung bei zu vielen
-            TIP:
-              max: 5                    # Maximal 5 TIP-Blöcke
-              severity: warn            # Warnung bei zu vielen
-            IMPORTANT:
-              max: 5                    # Maximal 5 IMPORTANT-Blöcke
-              severity: warn            # Warnung bei zu vielen
-            WARNING:
-              max: 3                    # Maximal 3 WARNING-Blöcke
-              severity: error           # Fehler bei zu vielen Warnungen
-            CAUTION:
-              max: 2                    # Maximal 2 CAUTION-Blöcke
-              severity: error           # Fehler bei zu vielen Vorsichts-Hinweisen
           
       # Verschachtelte Struktur bis Level 3
       subsections:
