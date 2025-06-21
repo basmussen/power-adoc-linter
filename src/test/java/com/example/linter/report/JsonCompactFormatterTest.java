@@ -34,13 +34,13 @@ import com.google.gson.JsonParser;
 @DisplayName("JsonCompactFormatter")
 class JsonCompactFormatterTest {
     
-    private JsonCompactFormatter formatter;
+    private JsonFormatter formatter;
     private StringWriter stringWriter;
     private PrintWriter printWriter;
     
     @BeforeEach
     void setUp() {
-        formatter = new JsonCompactFormatter();
+        formatter = JsonFormatter.compact();
         stringWriter = new StringWriter();
         printWriter = new PrintWriter(stringWriter);
     }

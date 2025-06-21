@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.ValidationResult;
+import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -14,19 +15,46 @@ import com.google.gson.JsonObject;
 
 /**
  * Formats validation results as JSON.
- * Produces a structured JSON output suitable for programmatic consumption.
+ * Supports both pretty-printed and compact (single-line) output formats.
  */
 public class JsonFormatter implements ReportFormatter {
     
     private static final DateTimeFormatter ISO_FORMATTER = 
         DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC);
     
+    private final String name;
     private final Gson gson;
     
-    public JsonFormatter() {
+    /**
+     * Creates a JSON formatter with the specified name and formatting style.
+     * 
+     * @param name the formatter name (e.g., "json" or "json-compact")
+     * @param style the formatting style (pretty or compact)
+     */
+    public JsonFormatter(String name, FormattingStyle style) {
+        this.name = name;
         this.gson = new GsonBuilder()
-            .setPrettyPrinting()
+            .setFormattingStyle(style)
+            .disableHtmlEscaping()
             .create();
+    }
+    
+    /**
+     * Creates a pretty-printing JSON formatter.
+     * 
+     * @return a formatter that produces human-readable JSON
+     */
+    public static JsonFormatter pretty() {
+        return new JsonFormatter("json", FormattingStyle.PRETTY);
+    }
+    
+    /**
+     * Creates a compact JSON formatter.
+     * 
+     * @return a formatter that produces single-line JSON
+     */
+    public static JsonFormatter compact() {
+        return new JsonFormatter("json-compact", FormattingStyle.COMPACT);
     }
     
     @Override
@@ -54,7 +82,7 @@ public class JsonFormatter implements ReportFormatter {
             msgObj.addProperty("file", msg.getLocation().getFilename());
             msgObj.addProperty("line", msg.getLocation().getStartLine());
             
-            if (msg.getLocation().getStartColumn() > 0) {
+            if (msg.getLocation().getStartColumn() > 1) {
                 msgObj.addProperty("column", msg.getLocation().getStartColumn());
             }
             
@@ -91,6 +119,6 @@ public class JsonFormatter implements ReportFormatter {
     
     @Override
     public String getName() {
-        return "json";
+        return name;
     }
 }
