@@ -142,6 +142,7 @@ class ImageBlockValidatorTest {
             assertEquals("assets/logo.jpg", msg.getActualValue().orElse(null));
             assertEquals("Pattern: ^images/.*\\.png$", msg.getExpectedValue().orElse(null));
         }
+        
     }
     
     @Nested
@@ -224,6 +225,7 @@ class ImageBlockValidatorTest {
             assertEquals("image.width.required", msg.getRuleId());
             assertEquals("Image must have width specified", msg.getMessage());
         }
+        
         
         @Test
         @DisplayName("should validate height")
@@ -334,6 +336,7 @@ class ImageBlockValidatorTest {
             assertEquals("image.alt.maxLength", msg.getRuleId());
             assertEquals("Image alt text is too long", msg.getMessage());
         }
+        
     }
     
     @Nested

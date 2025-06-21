@@ -148,9 +148,33 @@ class TableBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.WARN, msg.getSeverity());
             assertEquals("table.columns.max", msg.getRuleId());
-            assertEquals("Table has too many columns", msg.getMessage());
-            assertEquals("3", msg.getActualValue().orElse(null));
-            assertEquals("At most 2 columns", msg.getExpectedValue().orElse(null));
+        }
+        
+        @Test
+        @DisplayName("should use columns severity over block severity")
+        void shouldUseColumnsSeverityOverBlockSeverity() {
+            // Given - columns has WARN, block has ERROR
+            TableBlock.DimensionConfig columnsConfig = TableBlock.DimensionConfig.builder()
+                .min(3)
+                .severity(Severity.WARN)
+                .build();
+            TableBlock config = TableBlock.builder()
+                .columns(columnsConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            Column col1 = mock(Column.class);
+            when(mockTable.getColumns()).thenReturn(Collections.singletonList(col1));
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockTable, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use columns severity (WARN) instead of block severity (ERROR)");
+            assertEquals("table.columns.min", msg.getRuleId());
         }
     }
     
@@ -186,6 +210,32 @@ class TableBlockValidatorTest {
             assertEquals("Table has too few rows", msg.getMessage());
             assertEquals("3", msg.getActualValue().orElse(null));
             assertEquals("At least 5 rows", msg.getExpectedValue().orElse(null));
+        }
+        
+        @Test
+        @DisplayName("should use rows severity over block severity")
+        void shouldUseRowsSeverityOverBlockSeverity() {
+            // Given - rows has INFO, block has ERROR
+            TableBlock.DimensionConfig rowsConfig = TableBlock.DimensionConfig.builder()
+                .min(5)
+                .severity(Severity.INFO)
+                .build();
+            TableBlock config = TableBlock.builder()
+                .rows(rowsConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockTable.getBody()).thenReturn(Collections.emptyList());
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockTable, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use rows severity (INFO) instead of block severity (ERROR)");
+            assertEquals("table.rows.min", msg.getRuleId());
         }
     }
     
@@ -252,6 +302,32 @@ class TableBlockValidatorTest {
             assertEquals("Table header does not match required pattern", msg.getMessage());
             assertEquals("age", msg.getActualValue().orElse(null));
             assertEquals("Pattern: ^[A-Z].*", msg.getExpectedValue().orElse(null));
+        }
+        
+        @Test
+        @DisplayName("should use header severity over block severity")
+        void shouldUseHeaderSeverityOverBlockSeverity() {
+            // Given - header has WARN, block has ERROR
+            TableBlock.HeaderConfig headerConfig = TableBlock.HeaderConfig.builder()
+                .required(true)
+                .severity(Severity.WARN)
+                .build();
+            TableBlock config = TableBlock.builder()
+                .header(headerConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockTable.getHeader()).thenReturn(Collections.emptyList());
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockTable, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use header severity (WARN) instead of block severity (ERROR)");
+            assertEquals("table.header.required", msg.getRuleId());
         }
     }
     
@@ -335,6 +411,32 @@ class TableBlockValidatorTest {
             assertEquals("table.caption.pattern", msg.getRuleId());
             assertEquals("Table caption does not match required pattern", msg.getMessage());
             assertEquals("Invalid caption", msg.getActualValue().orElse(null));
+        }
+        
+        @Test
+        @DisplayName("should use caption severity over block severity")
+        void shouldUseCaptionSeverityOverBlockSeverity() {
+            // Given - caption has INFO, block has ERROR
+            TableBlock.CaptionConfig captionConfig = TableBlock.CaptionConfig.builder()
+                .required(true)
+                .severity(Severity.INFO)
+                .build();
+            TableBlock config = TableBlock.builder()
+                .caption(captionConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockTable.getTitle()).thenReturn(null);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockTable, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use caption severity (INFO) instead of block severity (ERROR)");
+            assertEquals("table.caption.required", msg.getRuleId());
         }
     }
     

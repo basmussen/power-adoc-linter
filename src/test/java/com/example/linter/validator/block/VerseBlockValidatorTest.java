@@ -142,6 +142,7 @@ class VerseBlockValidatorTest {
             assertEquals("Pattern: ^[A-Z][a-z]+ [A-Z][a-z]+$", msg.getExpectedValue().orElse(null));
         }
         
+        
         @Test
         @DisplayName("should pass when author matches pattern")
         void shouldPassWhenAuthorMatchesPattern() {
@@ -221,6 +222,7 @@ class VerseBlockValidatorTest {
             assertEquals("Verse attribution does not match required pattern", msg.getMessage());
             assertEquals("Book Title", msg.getActualValue().orElse(null));
         }
+        
     }
     
     @Nested

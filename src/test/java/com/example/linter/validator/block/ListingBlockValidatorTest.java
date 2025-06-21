@@ -147,6 +147,31 @@ class ListingBlockValidatorTest {
         }
         
         @Test
+        @DisplayName("should use language severity over block severity")
+        void shouldUseLanguageSeverityOverBlockSeverity() {
+            // Given - language has WARN, block has ERROR
+            ListingBlock.LanguageConfig languageConfig = ListingBlock.LanguageConfig.builder()
+                .required(true)
+                .severity(Severity.WARN)
+                .build();
+            ListingBlock config = ListingBlock.builder()
+                .language(languageConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockBlock.hasAttribute("language")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use language severity (WARN) instead of block severity (ERROR)");
+        }
+        
+        @Test
         @DisplayName("should pass when language is allowed")
         void shouldPassWhenLanguageIsAllowed() {
             // Given
@@ -226,6 +251,31 @@ class ListingBlockValidatorTest {
             assertEquals("Code Example", msg.getActualValue().orElse(null));
             assertEquals("Pattern: ^Listing \\d+:.*", msg.getExpectedValue().orElse(null));
         }
+        
+        @Test
+        @DisplayName("should use title severity over block severity")
+        void shouldUseTitleSeverityOverBlockSeverity() {
+            // Given - title has INFO, block has ERROR
+            ListingBlock.TitleConfig titleConfig = ListingBlock.TitleConfig.builder()
+                .required(true)
+                .severity(Severity.INFO)
+                .build();
+            ListingBlock config = ListingBlock.builder()
+                .title(titleConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockBlock.getTitle()).thenReturn(null);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use title severity (INFO) instead of block severity (ERROR)");
+        }
     }
     
     @Nested
@@ -258,6 +308,31 @@ class ListingBlockValidatorTest {
             assertEquals("Listing block must not contain callouts", msg.getMessage());
             assertEquals("1 callouts", msg.getActualValue().orElse(null));
             assertEquals("No callouts allowed", msg.getExpectedValue().orElse(null));
+        }
+        
+        @Test
+        @DisplayName("should use callouts severity over block severity")
+        void shouldUseCalloutsSeverityOverBlockSeverity() {
+            // Given - callouts has WARN, block has ERROR
+            ListingBlock.CalloutsConfig calloutsConfig = ListingBlock.CalloutsConfig.builder()
+                .allowed(false)
+                .severity(Severity.WARN)
+                .build();
+            ListingBlock config = ListingBlock.builder()
+                .callouts(calloutsConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockBlock.getContent()).thenReturn("public class Test { // <1>\n    // code\n}");
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use callouts severity (WARN) instead of block severity (ERROR)");
         }
         
         @Test
