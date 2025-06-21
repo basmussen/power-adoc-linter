@@ -644,3 +644,29 @@ document:
             lines:
               min: 1
               max: 5                    # Kurze Beschreibungen
+        - sidebar:
+            name: "additional-info"          # Für ergänzende Informationen am Rand
+            severity: info                   # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 2                         # Nicht zu viele Sidebars
+              severity: warn
+            # Sidebar-spezifische Attribute
+            title:
+              required: false                # Titel optional
+              minLength: 5
+              maxLength: 50
+              pattern: "^[A-Z].*$"
+              severity: info
+            content:
+              required: true
+              minLength: 50                  # Sidebars sollten substantiell sein
+              maxLength: 800
+              lines:
+                min: 3
+                max: 30
+                severity: info
+            position:
+              required: false                # Position optional (left, right)
+              allowed: ["left", "right", "float"]
+              severity: info
