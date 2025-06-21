@@ -54,8 +54,10 @@ public final class BlockTypeDetector {
             case "pass":
                 return BlockType.PASS;
                 
-            case "example":
             case "sidebar":
+                return BlockType.SIDEBAR;
+                
+            case "example":
             case "open":
                 // These could contain other blocks, check content
                 return detectFromContent(node);
