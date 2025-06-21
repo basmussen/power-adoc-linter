@@ -10,10 +10,15 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Service for discovering AsciiDoc files based on patterns and recursive settings.
  */
 public class FileDiscoveryService {
+    
+    private static final Logger logger = LogManager.getLogger(FileDiscoveryService.class);
     
     /**
      * Discovers files based on the CLI configuration.
@@ -53,7 +58,7 @@ public class FileDiscoveryService {
             @Override
             public FileVisitResult visitFileFailed(Path file, IOException exc) {
                 // Log warning but continue
-                System.err.println("Warning: Could not access file: " + file + " (" + exc.getMessage() + ")");
+                logger.warn("Could not access file: {} ({})", file, exc.getMessage());
                 return FileVisitResult.CONTINUE;
             }
         });

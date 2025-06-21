@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -34,6 +36,8 @@ import com.example.linter.config.validation.RuleValidationException;
 
 public class ConfigurationLoader {
     
+    private static final Logger logger = LogManager.getLogger(ConfigurationLoader.class);
+    
     private final Yaml yaml;
     private final RuleSchemaValidator schemaValidator;
     private final boolean skipRuleSchemaValidation;
@@ -55,7 +59,7 @@ public class ConfigurationLoader {
             this.schemaValidator = new RuleSchemaValidator();
         } else {
             this.schemaValidator = null;
-            System.err.println("WARNING: Rule configuration schema validation is DISABLED");
+            logger.warn("Rule configuration schema validation is DISABLED");
         }
     }
     

@@ -8,6 +8,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.example.linter.config.Severity;
 
@@ -16,6 +18,7 @@ import com.example.linter.config.Severity;
  */
 public class LinterCLI {
     
+    private static final Logger logger = LogManager.getLogger(LinterCLI.class);
     private static final String VERSION = "1.0.0";
     private static final String PROGRAM_NAME = "power-adoc-linter";
     
@@ -53,11 +56,13 @@ public class LinterCLI {
             return runner.run(config);
             
         } catch (ParseException e) {
+            logger.error("Error: {}", e.getMessage());
             System.err.println("Error: " + e.getMessage());
             System.err.println();
             printHelp(options);
             return 2;
         } catch (IllegalArgumentException e) {
+            logger.error("Error: {}", e.getMessage());
             System.err.println("Error: " + e.getMessage());
             return 2;
         }
