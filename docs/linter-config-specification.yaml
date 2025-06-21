@@ -644,3 +644,31 @@ document:
             lines:
               min: 1
               max: 5                    # Kurze Beschreibungen
+        - quote:
+            name: "important-quote"          # Für Zitate mit Autor und Quelle
+            severity: info                   # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 3
+              # Kein severity = verwendet Block-Severity (info)
+            # Quote-spezifische Attribute
+            author:
+              required: true                 # Autor ist Pflicht für Zitate
+              minLength: 3
+              maxLength: 100
+              pattern: "^[A-Z][a-zA-Z\\s\\.\\-,]+$"
+              severity: error
+            source:
+              required: false                # Quelle optional
+              minLength: 5
+              maxLength: 200
+              pattern: "^[A-Za-z0-9\\s,\\.\\-\\(\\)]+$"
+              severity: warn
+            content:
+              required: true                 # Zitat-Text ist Pflicht
+              minLength: 20                  # Mindestens 20 Zeichen
+              maxLength: 1000                # Maximal 1000 Zeichen
+              lines:
+                min: 1
+                max: 20
+                severity: info
