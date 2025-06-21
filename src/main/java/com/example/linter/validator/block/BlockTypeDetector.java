@@ -49,6 +49,9 @@ public final class BlockTypeDetector {
             case "admonition":
                 return BlockType.ADMONITION;
                 
+            case "pass":
+                return BlockType.PASS;
+                
             case "example":
             case "sidebar":
             case "open":

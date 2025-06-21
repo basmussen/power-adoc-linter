@@ -50,6 +50,7 @@ public final class BlockValidatorFactory {
         registerValidator(map, new ListingBlockValidator());
         registerValidator(map, new VerseBlockValidator());
         registerValidator(map, new AdmonitionBlockValidator());
+        registerValidator(map, new PassBlockValidator());
         
         return map;
     }
