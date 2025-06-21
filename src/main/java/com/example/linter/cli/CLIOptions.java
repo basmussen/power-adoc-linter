@@ -16,12 +16,12 @@ public class CLIOptions {
     }
     
     private void defineOptions() {
-        // Input file/directory (required)
+        // Input patterns (required)
         options.addOption(Option.builder("i")
             .longOpt("input")
             .hasArg()
-            .argName("file/directory")
-            .desc("AsciiDoc file or directory to validate")
+            .argName("patterns")
+            .desc("Comma-separated Ant file patterns (e.g., '**/*.adoc,docs/**/*.asciidoc')")
             .required()
             .build());
         
@@ -47,26 +47,6 @@ public class CLIOptions {
             .hasArg()
             .argName("file/directory")
             .desc("Report output file or directory (default: stdout)")
-            .build());
-        
-        // Recursive
-        options.addOption(Option.builder("r")
-            .longOpt("recursive")
-            .desc("Recursively scan directories (default: true)")
-            .build());
-        
-        // No recursive
-        options.addOption(Option.builder()
-            .longOpt("no-recursive")
-            .desc("Do not scan directories recursively")
-            .build());
-        
-        // Pattern
-        options.addOption(Option.builder("p")
-            .longOpt("pattern")
-            .hasArg()
-            .argName("glob")
-            .desc("File pattern glob (default: *.adoc)")
             .build());
         
         // Fail level

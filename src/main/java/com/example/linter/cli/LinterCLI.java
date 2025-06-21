@@ -1,6 +1,9 @@
 package com.example.linter.cli;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -71,9 +74,18 @@ public class LinterCLI {
     private CLIConfig parseConfiguration(CommandLine cmd) {
         CLIConfig.Builder builder = CLIConfig.builder();
         
-        // Input (required)
-        String inputPath = cmd.getOptionValue("input");
-        builder.input(Paths.get(inputPath));
+        // Input patterns (required)
+        String inputValue = cmd.getOptionValue("input");
+        List<String> patterns = Arrays.stream(inputValue.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
+        
+        if (patterns.isEmpty()) {
+            throw new IllegalArgumentException("No input patterns provided");
+        }
+        
+        builder.inputPatterns(patterns);
         
         // Config file
         if (cmd.hasOption("config")) {
@@ -93,18 +105,6 @@ public class LinterCLI {
         // Report output
         if (cmd.hasOption("report-output")) {
             builder.reportOutput(Paths.get(cmd.getOptionValue("report-output")));
-        }
-        
-        // Recursive
-        if (cmd.hasOption("no-recursive")) {
-            builder.recursive(false);
-        } else if (cmd.hasOption("recursive")) {
-            builder.recursive(true);
-        }
-        
-        // Pattern
-        if (cmd.hasOption("pattern")) {
-            builder.pattern(cmd.getOptionValue("pattern"));
         }
         
         // Fail level
@@ -127,15 +127,19 @@ public class LinterCLI {
         
         String header = "\nValidates AsciiDoc files against configurable rules.\n\n";
         String footer = "\nExamples:\n" +
-            "  " + PROGRAM_NAME + " -i README.adoc\n" +
-            "  " + PROGRAM_NAME + " -i docs/ -f json -o report.json\n" +
-            "  " + PROGRAM_NAME + " --input docs/ --config strict.yaml --fail-level warn\n" +
+            "  " + PROGRAM_NAME + " -i \"**/*.adoc\"\n" +
+            "  " + PROGRAM_NAME + " -i \"docs/**/*.adoc,examples/**/*.asciidoc\" -f json -o report.json\n" +
+            "  " + PROGRAM_NAME + " --input \"src/*/docs/**/*.adoc,README.adoc\" --config strict.yaml --fail-level warn\n" +
+            "\nAnt Pattern Syntax:\n" +
+            "  **  - matches any number of directories\n" +
+            "  *   - matches any number of characters (except /)\n" +
+            "  ?   - matches exactly one character\n" +
             "\nExit codes:\n" +
             "  0 - Success, no violations or only below fail level\n" +
             "  1 - Violations at or above fail level found\n" +
             "  2 - Invalid arguments or runtime error\n";
         
-        formatter.printHelp(PROGRAM_NAME + " -i <file/directory> [options]", 
+        formatter.printHelp(PROGRAM_NAME + " -i <patterns> [options]", 
             header, options, footer, false);
     }
     

@@ -1,20 +1,23 @@
 package com.example.linter.cli;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Service for discovering AsciiDoc files based on patterns and recursive settings.
+ * Service for discovering AsciiDoc files based on Ant patterns.
  */
 public class FileDiscoveryService {
     
@@ -28,41 +31,272 @@ public class FileDiscoveryService {
      * @throws IOException if an I/O error occurs
      */
     public List<Path> discoverFiles(CLIConfig config) throws IOException {
-        Path input = config.getInput();
+        return discoverFiles(config.getInputPatterns(), config.getBaseDirectory());
+    }
+    
+    /**
+     * Discovers files matching the given Ant patterns.
+     * 
+     * @param patterns List of Ant patterns
+     * @param baseDir Base directory for relative patterns
+     * @return List of matching file paths (duplicates removed)
+     * @throws IOException if an I/O error occurs
+     */
+    public List<Path> discoverFiles(List<String> patterns, Path baseDir) throws IOException {
+        Set<Path> matchedFiles = new LinkedHashSet<>(); // Use LinkedHashSet to maintain order and remove duplicates
         
-        if (Files.isRegularFile(input)) {
-            // Single file
-            return List.of(input);
-        } else if (Files.isDirectory(input)) {
-            // Directory - find matching files
-            return findMatchingFiles(input, config.getPattern(), config.isRecursive());
-        } else {
-            throw new IOException("Input path does not exist or is not accessible: " + input);
+        for (String pattern : patterns) {
+            logger.debug("Processing pattern: {}", pattern);
+            
+            // Handle absolute paths and simple file names
+            Path patternPath = Paths.get(pattern);
+            if (patternPath.isAbsolute() && patternPath.toFile().exists()) {
+                if (patternPath.toFile().isFile()) {
+                    matchedFiles.add(patternPath.normalize());
+                    continue;
+                }
+            }
+            
+            // Check if it's a simple filename in the base directory
+            Path simpleFile = baseDir.resolve(pattern);
+            if (simpleFile.toFile().isFile()) {
+                matchedFiles.add(simpleFile.normalize());
+                continue;
+            }
+            
+            // Process as Ant pattern
+            matchedFiles.addAll(findFilesMatchingAntPattern(pattern, baseDir));
+        }
+        
+        return new ArrayList<>(matchedFiles);
+    }
+    
+    private List<Path> findFilesMatchingAntPattern(String pattern, Path baseDir) throws IOException {
+        List<Path> matchingFiles = new ArrayList<>();
+        
+        // Convert Ant pattern to file filter
+        AntPatternFileFilter antFilter = new AntPatternFileFilter(pattern, baseDir);
+        
+        // Determine search depth based on pattern
+        IOFileFilter dirFilter = TrueFileFilter.INSTANCE;
+        if (!pattern.contains("**")) {
+            // If pattern doesn't contain **, limit directory traversal
+            int depth = calculateMaxDepth(pattern);
+            dirFilter = new DepthFileFilter(depth);
+        }
+        
+        // Find matching files
+        File baseDirFile = baseDir.toFile();
+        if (baseDirFile.exists() && baseDirFile.isDirectory()) {
+            for (File file : FileUtils.listFiles(baseDirFile, antFilter, dirFilter)) {
+                matchingFiles.add(file.toPath().normalize());
+            }
+        }
+        
+        return matchingFiles;
+    }
+    
+    private int calculateMaxDepth(String pattern) {
+        // Count directory separators to determine max depth
+        String[] parts = pattern.split("/");
+        int depth = 0;
+        for (String part : parts) {
+            if (!part.isEmpty() && !part.equals(".") && !part.equals("..")) {
+                depth++;
+            }
+        }
+        return Math.max(1, depth);
+    }
+    
+    /**
+     * Custom file filter for Ant patterns.
+     */
+    private static class AntPatternFileFilter implements IOFileFilter {
+        private final String pattern;
+        private final Path baseDir;
+        
+        public AntPatternFileFilter(String pattern, Path baseDir) {
+            this.pattern = pattern;
+            this.baseDir = baseDir;
+        }
+        
+        @Override
+        public boolean accept(File file) {
+            if (!file.isFile()) {
+                return false;
+            }
+            
+            Path filePath = file.toPath().normalize();
+            Path relativePath = baseDir.relativize(filePath);
+            String pathStr = relativePath.toString().replace(File.separatorChar, '/');
+            
+            return matchesAntPattern(pathStr, pattern);
+        }
+        
+        @Override
+        public boolean accept(File dir, String name) {
+            return accept(new File(dir, name));
+        }
+        
+        private boolean matchesAntPattern(String path, String pattern) {
+            boolean result = AntPatternMatcher.match(pattern, path);
+            logger.debug("Matching '{}' against pattern '{}': {}", path, pattern, result);
+            return result;
         }
     }
     
-    private List<Path> findMatchingFiles(Path directory, String pattern, boolean recursive) throws IOException {
-        List<Path> matchingFiles = new ArrayList<>();
-        PathMatcher pathMatcher = directory.getFileSystem().getPathMatcher("glob:" + pattern);
-        int maxDepth = recursive ? Integer.MAX_VALUE : 1;
+    /**
+     * Custom directory filter based on depth.
+     */
+    private static class DepthFileFilter implements IOFileFilter {
+        private final int maxDepth;
         
-        Files.walkFileTree(directory, new java.util.HashSet<>(), maxDepth, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                if (pathMatcher.matches(file.getFileName())) {
-                    matchingFiles.add(file);
-                }
-                return FileVisitResult.CONTINUE;
+        public DepthFileFilter(int maxDepth) {
+            this.maxDepth = maxDepth;
+        }
+        
+        @Override
+        public boolean accept(File file) {
+            // Always accept directories for traversal up to max depth
+            return true;
+        }
+        
+        @Override
+        public boolean accept(File dir, String name) {
+            return accept(new File(dir, name));
+        }
+    }
+    
+    /**
+     * Simple Ant pattern matcher implementation.
+     */
+    private static class AntPatternMatcher {
+        
+        public static boolean match(String pattern, String path) {
+            // Normalize paths
+            pattern = pattern.replace(File.separatorChar, '/');
+            path = path.replace(File.separatorChar, '/');
+            
+            // Handle ** (matches any number of directories)
+            if (pattern.contains("**")) {
+                return matchWithDoubleWildcard(pattern, path);
             }
             
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                // Log warning but continue
-                logger.warn("Could not access file: {} ({})", file, exc.getMessage());
-                return FileVisitResult.CONTINUE;
-            }
-        });
+            // Simple pattern matching
+            return matchSimplePattern(pattern, path);
+        }
         
-        return matchingFiles;
+        private static boolean matchWithDoubleWildcard(String pattern, String path) {
+            String[] patternParts = pattern.split("/");
+            String[] pathParts = path.split("/");
+            
+            int patternIndex = 0;
+            int pathIndex = 0;
+            
+            while (patternIndex < patternParts.length) {
+                if (pathIndex >= pathParts.length) {
+                    // Check if remaining pattern parts are all **
+                    while (patternIndex < patternParts.length) {
+                        if (!patternParts[patternIndex].equals("**")) {
+                            return false;
+                        }
+                        patternIndex++;
+                    }
+                    return true;
+                }
+                
+                String patternPart = patternParts[patternIndex];
+                
+                if (patternPart.equals("**")) {
+                    // Handle **
+                    if (patternIndex == patternParts.length - 1) {
+                        // ** at end matches everything
+                        return true;
+                    }
+                    
+                    // Find next pattern part after **
+                    patternIndex++;
+                    String nextPattern = patternParts[patternIndex];
+                    
+                    // Try to match nextPattern with any remaining path part
+                    boolean found = false;
+                    while (pathIndex < pathParts.length) {
+                        if (matchPart(nextPattern, pathParts[pathIndex])) {
+                            found = true;
+                            pathIndex++;
+                            patternIndex++;
+                            break;
+                        }
+                        pathIndex++;
+                    }
+                    
+                    if (!found) {
+                        return false;
+                    }
+                } else {
+                    // Normal part matching
+                    if (pathIndex >= pathParts.length || !matchPart(patternPart, pathParts[pathIndex])) {
+                        return false;
+                    }
+                    patternIndex++;
+                    pathIndex++;
+                }
+            }
+            
+            // All pattern parts consumed, check if all path parts consumed
+            return pathIndex == pathParts.length;
+        }
+        
+        private static boolean matchSimplePattern(String pattern, String path) {
+            String[] patternParts = pattern.split("/");
+            String[] pathParts = path.split("/");
+            
+            if (patternParts.length != pathParts.length) {
+                return false;
+            }
+            
+            for (int i = 0; i < patternParts.length; i++) {
+                if (!matchPart(patternParts[i], pathParts[i])) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        private static boolean matchPart(String pattern, String text) {
+            // Convert pattern to regex
+            StringBuilder regex = new StringBuilder("^");
+            for (int i = 0; i < pattern.length(); i++) {
+                char c = pattern.charAt(i);
+                switch (c) {
+                    case '*':
+                        regex.append(".*");
+                        break;
+                    case '?':
+                        regex.append(".");
+                        break;
+                    case '.':
+                    case '\\':
+                    case '[':
+                    case ']':
+                    case '(':
+                    case ')':
+                    case '^':
+                    case '$':
+                    case '{':
+                    case '}':
+                    case '+':
+                    case '|':
+                        regex.append("\\").append(c);
+                        break;
+                    default:
+                        regex.append(c);
+                }
+            }
+            regex.append("$");
+            
+            return text.matches(regex.toString());
+        }
     }
 }
