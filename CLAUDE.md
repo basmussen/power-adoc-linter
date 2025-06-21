@@ -273,6 +273,10 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - **Main Entry Point**: `src/main/java/com/example/linter/cli/LinterCLI.java`
 - **Log Configuration**: `src/main/resources/log4j2.xml` - Logging setup
 
+## Git Workflow Notes
+
+- `gh pr soll auch immer den issue closen`
+
 ## Debug Notes
 
 - Debug tests werden nicht mit git commit hinzugefügt. Diese werden nach dem Beheben des Fehlers wieder gelöscht
@@ -283,3 +287,16 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
   - Actual values found during validation
   - Expected values or criteria for validation
   - Consistent format across all validators
+
+## Role Definition Memory
+
+- Rolle: Du bist eine Java Architekt und Lead Developer mit excellenter Expertise und wendest Best Practices in den Bereichen an
+
+## GitHub Pull Request Workflow
+
+- Nach dem Erstellen eines GitHub Pull Requests (gh pr):
+  - Prüfe die GitHub Actions des Pull Requests auf Fehler
+  - Falls Fehler auftreten, behebe diese umgehend
+```
+
+</invoke>
