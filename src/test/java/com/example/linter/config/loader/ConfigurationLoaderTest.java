@@ -1097,5 +1097,75 @@ class ConfigurationLoaderTest {
             assertEquals(10, poetryVerse.getContent().getMinLength());
             assertEquals(300, poetryVerse.getContent().getMaxLength());
         }
+        
+        @Test
+        @DisplayName("should load paragraph block with sentence validation")
+        void shouldLoadParagraphBlockWithSentenceValidation() throws IOException {
+            // Given
+            String yaml = """
+                document:
+                  sections:
+                    - name: conclusion
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - paragraph:
+                            name: conclusion-paragraph
+                            severity: error
+                            occurrence:
+                              min: 1
+                              max: 3
+                            lines:
+                              min: 3
+                              max: 20
+                              severity: warn
+                            sentence:
+                              occurrence:
+                                min: 3
+                                max: 10
+                                severity: warn
+                              words:
+                                min: 8
+                                max: 25
+                                severity: info
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var conclusionSection = sections.get(0);
+            assertEquals("conclusion", conclusionSection.name());
+            assertEquals(1, conclusionSection.allowedBlocks().size());
+            
+            var paragraphBlock = (ParagraphBlock) conclusionSection.allowedBlocks().get(0);
+            assertEquals("conclusion-paragraph", paragraphBlock.getName());
+            assertEquals(Severity.ERROR, paragraphBlock.getSeverity());
+            
+            // Lines validation
+            assertNotNull(paragraphBlock.getLines());
+            assertEquals(3, paragraphBlock.getLines().min());
+            assertEquals(20, paragraphBlock.getLines().max());
+            assertEquals(Severity.WARN, paragraphBlock.getLines().severity());
+            
+            // Sentence validation
+            assertNotNull(paragraphBlock.getSentence());
+            
+            // Sentence occurrence
+            assertNotNull(paragraphBlock.getSentence().getOccurrence());
+            assertEquals(3, paragraphBlock.getSentence().getOccurrence().min());
+            assertEquals(10, paragraphBlock.getSentence().getOccurrence().max());
+            assertEquals(Severity.WARN, paragraphBlock.getSentence().getOccurrence().severity());
+            
+            // Words per sentence
+            assertNotNull(paragraphBlock.getSentence().getWords());
+            assertEquals(8, paragraphBlock.getSentence().getWords().getMin());
+            assertEquals(25, paragraphBlock.getSentence().getWords().getMax());
+            assertEquals(Severity.INFO, paragraphBlock.getSentence().getWords().getSeverity());
+        }
     }
 }

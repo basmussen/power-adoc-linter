@@ -46,6 +46,49 @@ properties:
         type: integer
         description: Maximum number of lines in the paragraph
         minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for line count violations (overrides block severity)
+    additionalProperties: false
+  sentence:
+    type: object
+    description: Sentence-level validation rules
+    properties:
+      occurrence:
+        type: object
+        description: Sentence count validation rules
+        properties:
+          min:
+            type: integer
+            description: Minimum number of sentences per paragraph
+            minimum: 1
+          max:
+            type: integer
+            description: Maximum number of sentences per paragraph
+            minimum: 1
+          severity:
+            type: string
+            enum: [error, warn, info]
+            description: Severity for sentence count violations (overrides block severity)
+        additionalProperties: false
+      words:
+        type: object
+        description: Word count validation rules for sentences
+        properties:
+          min:
+            type: integer
+            description: Minimum number of words per sentence
+            minimum: 1
+          max:
+            type: integer
+            description: Maximum number of words per sentence
+            minimum: 1
+          severity:
+            type: string
+            enum: [error, warn, info]
+            description: Severity for word count violations (overrides block severity)
+        additionalProperties: false
     additionalProperties: false
 required: [severity]
 additionalProperties: false
