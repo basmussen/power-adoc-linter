@@ -33,8 +33,10 @@ public final class BlockTypeDetector {
                 return BlockType.PARAGRAPH;
                 
             case "listing":
-            case "literal":
                 return BlockType.LISTING;
+                
+            case "literal":
+                return BlockType.LITERAL;
                 
             case "table":
                 return BlockType.TABLE;

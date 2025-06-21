@@ -84,8 +84,8 @@ class BlockTypeDetectorTest {
         }
         
         @Test
-        @DisplayName("should detect listing block from literal context")
-        void shouldDetectListingBlockFromLiteralContext() {
+        @DisplayName("should detect literal block from literal context")
+        void shouldDetectLiteralBlockFromLiteralContext() {
             // Given
             when(mockNode.getContext()).thenReturn("literal");
             
@@ -93,7 +93,7 @@ class BlockTypeDetectorTest {
             BlockType result = detector.detectType(mockNode);
             
             // Then
-            assertEquals(BlockType.LISTING, result);
+            assertEquals(BlockType.LITERAL, result);
         }
         
         @Test

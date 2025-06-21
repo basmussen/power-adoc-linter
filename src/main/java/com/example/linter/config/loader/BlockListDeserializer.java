@@ -8,6 +8,7 @@ import com.example.linter.config.BlockType;
 import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.config.blocks.ListingBlock;
+import com.example.linter.config.blocks.LiteralBlock;
 import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.config.blocks.PassBlock;
 import com.example.linter.config.blocks.TableBlock;
@@ -70,6 +71,7 @@ public class BlockListDeserializer extends JsonDeserializer<List<Block>> {
                 case IMAGE -> mapper.treeToValue(blockData, ImageBlock.class);
                 case VERSE -> mapper.treeToValue(blockData, VerseBlock.class);
                 case PASS -> mapper.treeToValue(blockData, PassBlock.class);
+                case LITERAL -> mapper.treeToValue(blockData, LiteralBlock.class);
             };
             
             blocks.add(block);

@@ -23,6 +23,7 @@ import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.config.blocks.ListingBlock;
+import com.example.linter.config.blocks.LiteralBlock;
 import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.config.blocks.PassBlock;
 import com.example.linter.config.blocks.TableBlock;
@@ -1295,6 +1296,255 @@ class ConfigurationLoaderTest {
             assertEquals(8, paragraphBlock.getSentence().getWords().getMin());
             assertEquals(25, paragraphBlock.getSentence().getWords().getMax());
             assertEquals(Severity.INFO, paragraphBlock.getSentence().getWords().getSeverity());
+        }
+    }
+    
+    @Nested
+    @DisplayName("LiteralBlock Loading")
+    class LiteralBlockTest {
+        
+        @Test
+        @DisplayName("should load LiteralBlock with all configurations")
+        void shouldLoadLiteralBlockWithAllConfigurations() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: configuration-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - literal:
+                            name: config-literal
+                            severity: warn
+                            occurrence:
+                              min: 0
+                              max: 3
+                              severity: error
+                            title:
+                              required: false
+                              minLength: 5
+                              maxLength: 50
+                              severity: info
+                            lines:
+                              min: 3
+                              max: 100
+                              severity: warn
+                            indentation:
+                              required: false
+                              consistent: true
+                              minSpaces: 2
+                              maxSpaces: 8
+                              severity: warn
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var configSection = sections.get(0);
+            assertEquals("configuration-section", configSection.name());
+            assertEquals(1, configSection.allowedBlocks().size());
+            
+            var literalBlock = (LiteralBlock) configSection.allowedBlocks().get(0);
+            assertEquals("config-literal", literalBlock.getName());
+            assertEquals(Severity.WARN, literalBlock.getSeverity());
+            assertEquals(BlockType.LITERAL, literalBlock.getType());
+            
+            // Then - Occurrence
+            var occurrence = literalBlock.getOccurrence();
+            assertNotNull(occurrence);
+            assertEquals(0, occurrence.min());
+            assertEquals(3, occurrence.max());
+            assertEquals(Severity.ERROR, occurrence.severity());
+            
+            // Then - Title config
+            var titleConfig = literalBlock.getTitle();
+            assertNotNull(titleConfig);
+            assertFalse(titleConfig.isRequired());
+            assertEquals(5, titleConfig.getMinLength());
+            assertEquals(50, titleConfig.getMaxLength());
+            assertEquals(Severity.INFO, titleConfig.getSeverity());
+            
+            // Then - Lines config
+            var linesConfig = literalBlock.getLines();
+            assertNotNull(linesConfig);
+            assertEquals(3, linesConfig.getMin());
+            assertEquals(100, linesConfig.getMax());
+            assertEquals(Severity.WARN, linesConfig.getSeverity());
+            
+            // Then - Indentation config
+            var indentationConfig = literalBlock.getIndentation();
+            assertNotNull(indentationConfig);
+            assertFalse(indentationConfig.isRequired());
+            assertTrue(indentationConfig.isConsistent());
+            assertEquals(2, indentationConfig.getMinSpaces());
+            assertEquals(8, indentationConfig.getMaxSpaces());
+            assertEquals(Severity.WARN, indentationConfig.getSeverity());
+        }
+        
+        @Test
+        @DisplayName("should load LiteralBlock with minimal configuration")
+        void shouldLoadLiteralBlockWithMinimalConfiguration() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - literal:
+                            severity: info
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var section = sections.get(0);
+            assertEquals(1, section.allowedBlocks().size());
+            
+            var literalBlock = (LiteralBlock) section.allowedBlocks().get(0);
+            assertEquals(Severity.INFO, literalBlock.getSeverity());
+            assertEquals(BlockType.LITERAL, literalBlock.getType());
+            assertNull(literalBlock.getName());
+            assertNull(literalBlock.getOccurrence());
+            assertNull(literalBlock.getTitle());
+            assertNull(literalBlock.getLines());
+            assertNull(literalBlock.getIndentation());
+        }
+        
+        @Test
+        @DisplayName("should load LiteralBlock in section and subsection")
+        void shouldLoadLiteralBlockInSectionAndSubsection() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: examples-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - literal:
+                            name: main-literal
+                            severity: error
+                            occurrence:
+                              min: 1
+                              max: 5
+                            title:
+                              required: true
+                              minLength: 10
+                              maxLength: 100
+                              severity: error
+                            lines:
+                              min: 5
+                              max: 200
+                            indentation:
+                              required: true
+                              consistent: true
+                              minSpaces: 4
+                              maxSpaces: 4
+                              severity: error
+                      subsections:
+                        - name: code-examples
+                          level: 2
+                          min: 0
+                          max: 3
+                          allowedBlocks:
+                            - literal:
+                                name: code-literal
+                                severity: warn
+                                occurrence:
+                                  min: 0
+                                  max: 10
+                                title:
+                                  required: false
+                                  minLength: 5
+                                  maxLength: 50
+                                lines:
+                                  min: 1
+                                  max: 50
+                                  severity: info
+                                indentation:
+                                  required: false
+                                  consistent: false
+                                  minSpaces: 0
+                                  maxSpaces: 12
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then - Section level literal block
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var examplesSection = sections.get(0);
+            assertEquals("examples-section", examplesSection.name());
+            assertEquals(1, examplesSection.allowedBlocks().size());
+            
+            var mainLiteral = (LiteralBlock) examplesSection.allowedBlocks().get(0);
+            assertEquals("main-literal", mainLiteral.getName());
+            assertEquals(Severity.ERROR, mainLiteral.getSeverity());
+            assertEquals(1, mainLiteral.getOccurrence().min());
+            assertEquals(5, mainLiteral.getOccurrence().max());
+            
+            // Title validation
+            assertNotNull(mainLiteral.getTitle());
+            assertTrue(mainLiteral.getTitle().isRequired());
+            assertEquals(10, mainLiteral.getTitle().getMinLength());
+            assertEquals(100, mainLiteral.getTitle().getMaxLength());
+            assertEquals(Severity.ERROR, mainLiteral.getTitle().getSeverity());
+            
+            // Lines validation
+            assertNotNull(mainLiteral.getLines());
+            assertEquals(5, mainLiteral.getLines().getMin());
+            assertEquals(200, mainLiteral.getLines().getMax());
+            
+            // Indentation validation
+            assertNotNull(mainLiteral.getIndentation());
+            assertTrue(mainLiteral.getIndentation().isRequired());
+            assertTrue(mainLiteral.getIndentation().isConsistent());
+            assertEquals(4, mainLiteral.getIndentation().getMinSpaces());
+            assertEquals(4, mainLiteral.getIndentation().getMaxSpaces());
+            assertEquals(Severity.ERROR, mainLiteral.getIndentation().getSeverity());
+            
+            // Then - Subsection level literal block
+            var subsections = examplesSection.subsections();
+            assertEquals(1, subsections.size());
+            
+            var codeExamplesSection = subsections.get(0);
+            assertEquals("code-examples", codeExamplesSection.name());
+            assertEquals(1, codeExamplesSection.allowedBlocks().size());
+            
+            var codeLiteral = (LiteralBlock) codeExamplesSection.allowedBlocks().get(0);
+            assertEquals("code-literal", codeLiteral.getName());
+            assertEquals(Severity.WARN, codeLiteral.getSeverity());
+            
+            // Subsection literal validation rules
+            assertFalse(codeLiteral.getTitle().isRequired());
+            assertEquals(5, codeLiteral.getTitle().getMinLength());
+            assertEquals(1, codeLiteral.getLines().getMin());
+            assertEquals(50, codeLiteral.getLines().getMax());
+            assertFalse(codeLiteral.getIndentation().isRequired());
+            assertFalse(codeLiteral.getIndentation().isConsistent());
+            assertEquals(12, codeLiteral.getIndentation().getMaxSpaces());
         }
     }
 }
