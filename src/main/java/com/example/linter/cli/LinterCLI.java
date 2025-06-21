@@ -51,6 +51,25 @@ public class LinterCLI {
                 return 0;
             }
             
+            // Handle documentation generation
+            if (cmd.hasOption("generate-docs")) {
+                // Input is not required for doc generation
+                if (!cmd.hasOption("config")) {
+                    System.err.println("Error: --config is required when using --generate-docs");
+                    return 2;
+                }
+                
+                DocumentationGeneratorRunner docRunner = new DocumentationGeneratorRunner();
+                return docRunner.run(cmd);
+            }
+            
+            // For normal validation, input is required
+            if (!cmd.hasOption("input")) {
+                System.err.println("Error: --input is required for validation");
+                printHelp(options);
+                return 2;
+            }
+            
             // Parse configuration
             CLIConfig config = parseConfiguration(cmd);
             
