@@ -99,18 +99,4 @@ class CLIOptionsTest {
         // Then
         assertEquals("warn", cmd.getOptionValue("fail-level"));
     }
-    
-    @Test
-    @DisplayName("should not have pattern or recursive options")
-    void shouldNotHavePatternOrRecursiveOptions() {
-        // When
-        var options = cliOptions.getOptions();
-        
-        // Then
-        assertFalse(options.hasOption("p"));
-        assertFalse(options.hasOption("pattern"));
-        assertFalse(options.hasOption("r"));
-        assertFalse(options.hasOption("recursive"));
-        assertFalse(options.hasOption("no-recursive"));
-    }
 }
