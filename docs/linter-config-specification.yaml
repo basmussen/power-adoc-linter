@@ -444,11 +444,6 @@ document:
                       required: false        # Titel optional für einfache Hinweise
                     content:
                       minLength: 20          # Mindestens 20 Zeichen für sinnvollen Hinweis
-                    # Type-spezifische Limits
-                    WARNING:
-                      max: 2                 # Maximal 2 Warnungen bei Code
-                    CAUTION:
-                      max: 1                 # Maximal 1 Vorsichts-Hinweis
                     
         # Generische weitere Unterabschnitte (ohne feste Vorgaben)
         - level: 2           # === Überschrift
