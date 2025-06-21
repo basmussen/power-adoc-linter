@@ -1,6 +1,7 @@
 package com.example.linter.config.blocks;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -23,6 +24,12 @@ class AdmonitionBlockTest {
         @DisplayName("should build block with all properties")
         void shouldBuildCompleteBlock() {
             // Given
+            AdmonitionBlock.TypeConfig typeConfig = AdmonitionBlock.TypeConfig.builder()
+                .required(true)
+                .allowed(List.of("NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"))
+                .severity(Severity.ERROR)
+                .build();
+                
             AdmonitionBlock.TitleConfig titleConfig = AdmonitionBlock.TitleConfig.builder()
                 .required(true)
                 .pattern("^[A-Z].*")
@@ -51,6 +58,7 @@ class AdmonitionBlockTest {
             // When
             AdmonitionBlock block = AdmonitionBlock.builder()
                 .severity(Severity.ERROR)
+                .type(typeConfig)
                 .title(titleConfig)
                 .content(contentConfig)
                 .icon(iconConfig)
@@ -60,6 +68,7 @@ class AdmonitionBlockTest {
             // Then
             assertNotNull(block);
             assertEquals(Severity.ERROR, block.getSeverity());
+            assertEquals(typeConfig, block.getTypeConfig());
             assertEquals(titleConfig, block.getTitle());
             assertEquals(contentConfig, block.getContent());
             assertEquals(iconConfig, block.getIcon());
@@ -74,6 +83,44 @@ class AdmonitionBlockTest {
             assertThrows(NullPointerException.class, () -> 
                 AdmonitionBlock.builder().build()
             );
+        }
+    }
+    
+    @Nested
+    @DisplayName("TypeConfig Tests")
+    class TypeConfigTests {
+        
+        @Test
+        @DisplayName("should build type config with all properties")
+        void shouldBuildCompleteTypeConfig() {
+            // Given
+            List<String> allowedTypes = List.of("NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION");
+            
+            // When
+            AdmonitionBlock.TypeConfig config = AdmonitionBlock.TypeConfig.builder()
+                .required(true)
+                .allowed(allowedTypes)
+                .severity(Severity.ERROR)
+                .build();
+            
+            // Then
+            assertTrue(config.isRequired());
+            assertEquals(allowedTypes, config.getAllowed());
+            assertEquals(Severity.ERROR, config.getSeverity());
+        }
+        
+        @Test
+        @DisplayName("should handle empty allowed list")
+        void shouldHandleEmptyAllowedList() {
+            // When
+            AdmonitionBlock.TypeConfig config = AdmonitionBlock.TypeConfig.builder()
+                .required(false)
+                .build();
+            
+            // Then
+            assertFalse(config.isRequired());
+            assertNotNull(config.getAllowed());
+            assertTrue(config.getAllowed().isEmpty());
         }
     }
     

@@ -273,6 +273,10 @@ document:
               max: 10                   # Maximal 10 Admonitions insgesamt
               severity: info            # Optional: Überschreibt Block-Severity
             # Admonition-spezifische Attribute
+            type:
+              required: true            # Typ ist Pflicht
+              allowed: ["NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"]
+              severity: error           # Nur erlaubte Typen
             title:
               required: true            # Titel ist Pflicht
               pattern: "^[A-Z][A-Za-z\\s]{2,49}$"  # Beginnt mit Großbuchstabe, 3-50 Zeichen
@@ -290,22 +294,22 @@ document:
             icon:
               enabled: true             # Icons sollen angezeigt werden
               severity: info            # Nur Hinweis wenn fehlt
-            typeOccurrences:
-              NOTE:
-                max: 5                  # Maximal 5 NOTE-Blöcke
-                severity: warn          # Warnung bei zu vielen
-              TIP:
-                max: 5                  # Maximal 5 TIP-Blöcke
-                severity: warn          # Warnung bei zu vielen
-              IMPORTANT:
-                max: 5                  # Maximal 5 IMPORTANT-Blöcke
-                severity: warn          # Warnung bei zu vielen
-              WARNING:
-                max: 3                  # Maximal 3 WARNING-Blöcke
-                severity: error         # Fehler bei zu vielen Warnungen
-              CAUTION:
-                max: 2                  # Maximal 2 CAUTION-Blöcke
-                severity: error         # Fehler bei zu vielen Vorsichts-Hinweisen
+            # Type-spezifische Occurrence-Limits
+            NOTE:
+              max: 5                    # Maximal 5 NOTE-Blöcke
+              severity: warn            # Warnung bei zu vielen
+            TIP:
+              max: 5                    # Maximal 5 TIP-Blöcke
+              severity: warn            # Warnung bei zu vielen
+            IMPORTANT:
+              max: 5                    # Maximal 5 IMPORTANT-Blöcke
+              severity: warn            # Warnung bei zu vielen
+            WARNING:
+              max: 3                    # Maximal 3 WARNING-Blöcke
+              severity: error           # Fehler bei zu vielen Warnungen
+            CAUTION:
+              max: 2                    # Maximal 2 CAUTION-Blöcke
+              severity: error           # Fehler bei zu vielen Vorsichts-Hinweisen
           
       # Verschachtelte Struktur bis Level 3
       subsections:
@@ -447,15 +451,18 @@ document:
                       min: 0
                       max: 3                 # Maximal 3 Hinweise bei Code-Beispielen
                     # Einfacheres Beispiel ohne alle Optionen
+                    type:
+                      required: true
+                      allowed: ["WARNING", "CAUTION"]  # Nur Warnungen bei Code erlaubt
                     title:
                       required: false        # Titel optional für einfache Hinweise
                     content:
                       minLength: 20          # Mindestens 20 Zeichen für sinnvollen Hinweis
-                    typeOccurrences:
-                      WARNING:
-                        max: 2               # Maximal 2 Warnungen bei Code
-                      CAUTION:
-                        max: 1               # Maximal 1 Vorsichts-Hinweis
+                    # Type-spezifische Limits
+                    WARNING:
+                      max: 2                 # Maximal 2 Warnungen bei Code
+                    CAUTION:
+                      max: 1                 # Maximal 1 Vorsichts-Hinweis
                     
         # Generische weitere Unterabschnitte (ohne feste Vorgaben)
         - level: 2           # === Überschrift

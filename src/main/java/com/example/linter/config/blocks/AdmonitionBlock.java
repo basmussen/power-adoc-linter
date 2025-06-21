@@ -1,6 +1,9 @@
 package com.example.linter.config.blocks;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -14,31 +17,30 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 @JsonDeserialize(builder = AdmonitionBlock.Builder.class)
 public final class AdmonitionBlock extends AbstractBlock {
+    @JsonProperty("type")
+    private final TypeConfig type;
     @JsonProperty("title")
     private final TitleConfig title;
     @JsonProperty("content")
     private final ContentConfig content;
-    @JsonProperty("lines")
-    private final LineConfig lines;
     @JsonProperty("icon")
     private final IconConfig icon;
-    @JsonProperty("typeOccurrences")
-    private final Map<String, TypeOccurrenceConfig> typeOccurrences;
     
     private AdmonitionBlock(Builder builder) {
         super(builder);
+        this.type = builder.type;
         this.title = builder.title;
         this.content = builder.content;
-        this.lines = builder.lines;
         this.icon = builder.icon;
-        this.typeOccurrences = builder.typeOccurrences != null ? 
-            new HashMap<>(builder.typeOccurrences) : 
-            new HashMap<>();
     }
     
     @Override
     public BlockType getType() {
         return BlockType.ADMONITION;
+    }
+    
+    public TypeConfig getTypeConfig() {
+        return type;
     }
     
     public TitleConfig getTitle() {
@@ -63,6 +65,80 @@ public final class AdmonitionBlock extends AbstractBlock {
     
     public static Builder builder() {
         return new Builder();
+    }
+    
+    @JsonDeserialize(builder = TypeConfig.TypeConfigBuilder.class)
+    public static class TypeConfig {
+        @JsonProperty("required")
+        private final boolean required;
+        @JsonProperty("allowed")
+        private final List<String> allowed;
+        @JsonProperty("severity")
+        private final Severity severity;
+        
+        private TypeConfig(TypeConfigBuilder builder) {
+            this.required = builder.required;
+            this.allowed = builder.allowed != null ? 
+                Collections.unmodifiableList(new ArrayList<>(builder.allowed)) : 
+                Collections.emptyList();
+            this.severity = builder.severity;
+        }
+        
+        public boolean isRequired() {
+            return required;
+        }
+        
+        public List<String> getAllowed() {
+            return allowed;
+        }
+        
+        public Severity getSeverity() {
+            return severity;
+        }
+        
+        public static TypeConfigBuilder builder() {
+            return new TypeConfigBuilder();
+        }
+        
+        @JsonPOJOBuilder(withPrefix = "")
+        public static class TypeConfigBuilder {
+            private boolean required;
+            private List<String> allowed;
+            private Severity severity;
+            
+            public TypeConfigBuilder required(boolean required) {
+                this.required = required;
+                return this;
+            }
+            
+            public TypeConfigBuilder allowed(List<String> allowed) {
+                this.allowed = allowed;
+                return this;
+            }
+            
+            public TypeConfigBuilder severity(Severity severity) {
+                this.severity = severity;
+                return this;
+            }
+            
+            public TypeConfig build() {
+                return new TypeConfig(this);
+            }
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof TypeConfig that)) return false;
+            return required == that.required &&
+                   Objects.equals(allowed, that.allowed) &&
+                   severity == that.severity;
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(required, allowed, severity);
+        }
     }
     
     @JsonDeserialize(builder = TitleConfig.TitleConfigBuilder.class)
@@ -362,11 +438,17 @@ public final class AdmonitionBlock extends AbstractBlock {
     
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends AbstractBuilder<Builder> {
+        private TypeConfig type;
         private TitleConfig title;
         private ContentConfig content;
         private LineConfig lines;
         private IconConfig icon;
         private Map<String, TypeOccurrenceConfig> typeOccurrences;
+        
+        public Builder type(TypeConfig type) {
+            this.type = type;
+            return this;
+        }
         
         public Builder title(TitleConfig title) {
             this.title = title;
@@ -405,7 +487,8 @@ public final class AdmonitionBlock extends AbstractBlock {
         if (this == o) return true;
         if (!(o instanceof AdmonitionBlock that)) return false;
         if (!super.equals(o)) return false;
-        return Objects.equals(title, that.title) &&
+        return Objects.equals(type, that.type) &&
+               Objects.equals(title, that.title) &&
                Objects.equals(content, that.content) &&
                Objects.equals(lines, that.lines) &&
                Objects.equals(icon, that.icon) &&
@@ -414,6 +497,6 @@ public final class AdmonitionBlock extends AbstractBlock {
     
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), title, content, lines, icon, typeOccurrences);
+        return Objects.hash(super.hashCode(), type, title, content, lines, icon, typeOccurrences);
     }
 }

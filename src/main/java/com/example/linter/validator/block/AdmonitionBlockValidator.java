@@ -66,6 +66,11 @@ public final class AdmonitionBlockValidator implements BlockTypeValidator {
             typeOccurrences.put(admonitionType, count);
         }
         
+        // Validate type
+        if (admonitionConfig.getTypeConfig() != null) {
+            validateType(admonitionType, admonitionConfig.getTypeConfig(), admonitionConfig, context, block, messages);
+        }
+        
         // Validate title
         if (admonitionConfig.getTitle() != null) {
             validateTitle(title, admonitionConfig.getTitle(), admonitionConfig, context, block, messages);
@@ -142,6 +147,43 @@ public final class AdmonitionBlockValidator implements BlockTypeValidator {
         // Check block-level icon attribute
         Object blockIcon = block.getAttribute("icon");
         return blockIcon != null && !"none".equals(blockIcon.toString());
+    }
+    
+    private void validateType(String admonitionType, AdmonitionBlock.TypeConfig config,
+                            AdmonitionBlock blockConfig,
+                            BlockValidationContext context,
+                            StructuralNode block,
+                            List<ValidationMessage> messages) {
+        
+        // Get severity with fallback to block severity
+        Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
+        
+        // Check if type is required
+        if (config.isRequired() && (admonitionType == null || admonitionType.trim().isEmpty())) {
+            messages.add(ValidationMessage.builder()
+                .severity(severity)
+                .ruleId("admonition.type.required")
+                .location(context.createLocation(block))
+                .message("Admonition block must have a type")
+                .actualValue("No type")
+                .expectedValue("Type required")
+                .build());
+            return;
+        }
+        
+        // Validate allowed types if specified
+        if (admonitionType != null && config.getAllowed() != null && !config.getAllowed().isEmpty()) {
+            if (!config.getAllowed().contains(admonitionType)) {
+                messages.add(ValidationMessage.builder()
+                    .severity(severity)
+                    .ruleId("admonition.type.allowed")
+                    .location(context.createLocation(block))
+                    .message("Admonition block has unsupported type")
+                    .actualValue(admonitionType)
+                    .expectedValue("One of: " + String.join(", ", config.getAllowed()))
+                    .build());
+            }
+        }
     }
     
     private void validateTitle(String title, AdmonitionBlock.TitleConfig config,

@@ -34,6 +34,25 @@ properties:
         enum: [error, warn, info]
         description: Severity for occurrence violations
     additionalProperties: false
+  type:
+    type: object
+    description: Type validation rules for admonition blocks
+    properties:
+      required:
+        type: boolean
+        description: Whether type specification is required
+      allowed:
+        type: array
+        description: List of allowed admonition types
+        items:
+          type: string
+          enum: [NOTE, TIP, IMPORTANT, WARNING, CAUTION]
+        uniqueItems: true
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for type violations
+    additionalProperties: false
   title:
     type: object
     description: Title validation rules for admonition blocks
@@ -104,70 +123,70 @@ properties:
         enum: [error, warn, info]
         description: Severity for icon violations
     additionalProperties: false
-  typeOccurrences:
+  NOTE:
     type: object
-    description: Maximum occurrences per admonition type
+    description: Occurrence rules for NOTE admonitions
     properties:
-      NOTE:
-        type: object
-        properties:
-          max:
-            type: integer
-            description: Maximum number of NOTE admonitions
-            minimum: 1
-          severity:
-            type: string
-            enum: [error, warn, info]
-            description: Severity for occurrence violations
-        additionalProperties: false
-      TIP:
-        type: object
-        properties:
-          max:
-            type: integer
-            description: Maximum number of TIP admonitions
-            minimum: 1
-          severity:
-            type: string
-            enum: [error, warn, info]
-            description: Severity for occurrence violations
-        additionalProperties: false
-      IMPORTANT:
-        type: object
-        properties:
-          max:
-            type: integer
-            description: Maximum number of IMPORTANT admonitions
-            minimum: 1
-          severity:
-            type: string
-            enum: [error, warn, info]
-            description: Severity for occurrence violations
-        additionalProperties: false
-      WARNING:
-        type: object
-        properties:
-          max:
-            type: integer
-            description: Maximum number of WARNING admonitions
-            minimum: 1
-          severity:
-            type: string
-            enum: [error, warn, info]
-            description: Severity for occurrence violations
-        additionalProperties: false
-      CAUTION:
-        type: object
-        properties:
-          max:
-            type: integer
-            description: Maximum number of CAUTION admonitions
-            minimum: 1
-          severity:
-            type: string
-            enum: [error, warn, info]
-            description: Severity for occurrence violations
-        additionalProperties: false
+      max:
+        type: integer
+        description: Maximum number of NOTE admonitions
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
+    additionalProperties: false
+  TIP:
+    type: object
+    description: Occurrence rules for TIP admonitions
+    properties:
+      max:
+        type: integer
+        description: Maximum number of TIP admonitions
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
+    additionalProperties: false
+  IMPORTANT:
+    type: object
+    description: Occurrence rules for IMPORTANT admonitions
+    properties:
+      max:
+        type: integer
+        description: Maximum number of IMPORTANT admonitions
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
+    additionalProperties: false
+  WARNING:
+    type: object
+    description: Occurrence rules for WARNING admonitions
+    properties:
+      max:
+        type: integer
+        description: Maximum number of WARNING admonitions
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
+    additionalProperties: false
+  CAUTION:
+    type: object
+    description: Occurrence rules for CAUTION admonitions
+    properties:
+      max:
+        type: integer
+        description: Maximum number of CAUTION admonitions
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
     additionalProperties: false
 required: [severity]
 additionalProperties: false
