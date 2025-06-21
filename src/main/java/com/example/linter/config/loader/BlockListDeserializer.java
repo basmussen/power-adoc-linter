@@ -3,7 +3,6 @@ package com.example.linter.config.loader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.blocks.Block;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Custom deserializer for Block lists in YAML.
@@ -27,10 +25,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *   - paragraph:
  *       name: intro-paragraph
  *       severity: warn
+ *       occurrence:
+ *         min: 1
+ *         max: 5
  *   - listing:
  *       name: code-example
  *       severity: error
  * </pre>
+ * 
+ * This deserializer expects valid YAML that conforms to the schema.
+ * No transformations or default values are applied.
  */
 public class BlockListDeserializer extends JsonDeserializer<List<Block>> {
     
@@ -57,31 +61,7 @@ public class BlockListDeserializer extends JsonDeserializer<List<Block>> {
             // Convert blockType string to BlockType enum
             BlockType type = BlockType.fromValue(blockType);
             
-            // Check if min/max are at block level and move them to occurrence
-            if ((blockData.has("min") || blockData.has("max")) && !blockData.has("occurrence")) {
-                JsonNode minNode = blockData.get("min");
-                JsonNode maxNode = blockData.get("max");
-                
-                // Create occurrence node
-                ObjectNode occurrenceNode = mapper.createObjectNode();
-                if (minNode != null) {
-                    occurrenceNode.set("min", minNode);
-                    ((ObjectNode) blockData).remove("min");
-                }
-                if (maxNode != null) {
-                    occurrenceNode.set("max", maxNode);
-                    ((ObjectNode) blockData).remove("max");
-                }
-                
-                ((ObjectNode) blockData).set("occurrence", occurrenceNode);
-            }
-            
-            // Ensure severity exists - use WARN as default if missing
-            if (!blockData.has("severity")) {
-                ((ObjectNode) blockData).put("severity", "warn");
-            }
-            
-            // Deserialize based on block type
+            // Deserialize based on block type - Jackson will handle all validation
             Block block = switch (type) {
                 case PARAGRAPH -> mapper.treeToValue(blockData, ParagraphBlock.class);
                 case LISTING -> mapper.treeToValue(blockData, ListingBlock.class);
