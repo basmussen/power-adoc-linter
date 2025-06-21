@@ -13,6 +13,7 @@ import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.config.blocks.PassBlock;
 import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.config.blocks.VerseBlock;
+import com.example.linter.config.blocks.VideoBlock;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -72,6 +73,7 @@ public class BlockListDeserializer extends JsonDeserializer<List<Block>> {
                 case VERSE -> mapper.treeToValue(blockData, VerseBlock.class);
                 case ADMONITION -> mapper.treeToValue(blockData, AdmonitionBlock.class);
                 case PASS -> mapper.treeToValue(blockData, PassBlock.class);
+                case VIDEO -> mapper.treeToValue(blockData, VideoBlock.class);
             };
             
             blocks.add(block);

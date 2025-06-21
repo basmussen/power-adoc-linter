@@ -52,6 +52,9 @@ public final class BlockTypeDetector {
             case "pass":
                 return BlockType.PASS;
                 
+            case "video":
+                return BlockType.VIDEO;
+                
             case "example":
             case "sidebar":
             case "open":

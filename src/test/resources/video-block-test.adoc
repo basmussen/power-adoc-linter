@@ -1,0 +1,56 @@
+= Video Block Test Document
+:author: Test Author
+:version: 1.0.0
+
+== Introduction
+
+This document contains various video blocks for testing the video block validator.
+
+== Valid Video Blocks
+
+.Introduction Video
+video::https://example.com/intro.mp4[width=640,height=480,poster=https://example.com/intro-poster.jpg,options="controls"]
+
+.Tutorial Video with All Options
+video::https://example.com/tutorial.webm[width=1280,height=720,poster=https://example.com/tutorial-poster.png,options="controls,muted"]
+
+== Video with Different Sources
+
+.External Video URL
+video::https://cdn.example.com/demo.mp4[]
+
+.Local Video File
+video::videos/local-demo.mp4[poster=images/demo-poster.jpg]
+
+== Video with Various Options
+
+.Video with Autoplay (when not allowed)
+video::https://example.com/promo.mp4[options="autoplay,controls"]
+
+.Video without Controls (when required)
+video::https://example.com/background.mp4[options="autoplay,muted"]
+
+== Edge Cases
+
+.Video with No Caption
+video::https://example.com/no-title.mp4[]
+
+.Video with Very Long Caption That Exceeds The Maximum Allowed Length For Testing Validation Rules
+video::https://example.com/long-title.mp4[]
+
+.Video with Invalid Dimensions
+video::https://example.com/invalid-size.mp4[width=100,height=50]
+
+.Video with Non-HTTPS URL
+video::http://insecure.example.com/video.mp4[]
+
+.Video with Invalid File Format
+video::https://example.com/document.pdf[]
+
+== Missing Required Attributes
+
+.Video without Poster (when required)
+video::https://example.com/no-poster.mp4[width=640,height=480]
+
+.Video Block with No URL
+video::[width=640,height=480]

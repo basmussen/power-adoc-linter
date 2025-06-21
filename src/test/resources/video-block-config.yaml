@@ -1,0 +1,121 @@
+document:
+  metadata:
+    attributes:
+      - name: author
+        required: true
+        severity: error
+      - name: version
+        required: true
+        severity: error
+  sections:
+    - name: "introduction"
+      level: 1
+      min: 1
+      max: 1
+      title:
+        pattern: "^Introduction$"
+      allowedBlocks:
+        - paragraph:
+            severity: warn
+            occurrence:
+              min: 1
+              max: 3
+    - name: "valid-video-blocks"
+      level: 1
+      min: 1
+      max: 1
+      title:
+        pattern: "^Valid Video Blocks$"
+      allowedBlocks:
+        - video:
+            name: "Valid Video Configuration"
+            severity: error
+            occurrence:
+              min: 2
+              max: 2
+            url:
+              required: true
+              pattern: "^https://.*\\.(mp4|webm|ogv)$"
+              severity: error
+            width:
+              minValue: 640
+              maxValue: 1920
+              severity: warn
+            height:
+              minValue: 480
+              maxValue: 1080
+              severity: warn
+            poster:
+              required: true
+              pattern: "^https://.*\\.(jpg|jpeg|png|webp)$"
+              severity: error
+            options:
+              autoplay:
+                allowed: false
+                severity: error
+              controls:
+                required: true
+                severity: error
+            caption:
+              required: true
+              minLength: 10
+              maxLength: 50
+              severity: warn
+    - name: "video-different-sources"
+      level: 1
+      min: 0
+      max: 1
+      title:
+        pattern: "^Video with Different Sources$"
+      allowedBlocks:
+        - video:
+            severity: warn
+            url:
+              required: true
+            poster:
+              required: true
+    - name: "video-various-options"
+      level: 1
+      min: 0
+      max: 1
+      title:
+        pattern: "^Video with Various Options$"
+      allowedBlocks:
+        - video:
+            severity: warn
+            options:
+              autoplay:
+                allowed: false
+              controls:
+                required: true
+    - name: "edge-cases"
+      level: 1
+      min: 0
+      max: 1
+      title:
+        pattern: "^Edge Cases$"
+      allowedBlocks:
+        - video:
+            severity: warn
+            url:
+              pattern: "^https://.*"
+            width:
+              minValue: 320
+            height:
+              minValue: 240
+            caption:
+              required: true
+              maxLength: 50
+    - name: "missing-required-attributes"
+      level: 1
+      min: 0
+      max: 1
+      title:
+        pattern: "^Missing Required Attributes$"
+      allowedBlocks:
+        - video:
+            severity: error
+            url:
+              required: true
+            poster:
+              required: true

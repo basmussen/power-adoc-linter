@@ -1,0 +1,138 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://example.com/schemas/video-block.json"
+title: "Video Block Configuration"
+description: "Schema for video block validation rules"
+type: object
+properties:
+  name:
+    type: string
+    description: "Optional name for this block configuration"
+  severity:
+    $ref: "../common/severity.json"
+    description: "Default severity for all video block rules"
+  occurrence:
+    $ref: "../common/occurrence.json"
+  url:
+    type: object
+    description: "URL validation configuration"
+    properties:
+      required:
+        type: boolean
+        default: false
+      pattern:
+        type: string
+        description: "Regular expression pattern for URL validation"
+      severity:
+        $ref: "../common/severity.json"
+    additionalProperties: false
+  width:
+    type: object
+    description: "Width dimension validation"
+    properties:
+      required:
+        type: boolean
+        default: false
+      minValue:
+        type: integer
+        minimum: 0
+      maxValue:
+        type: integer
+        minimum: 0
+      severity:
+        $ref: "../common/severity.json"
+    additionalProperties: false
+  height:
+    type: object
+    description: "Height dimension validation"
+    properties:
+      required:
+        type: boolean
+        default: false
+      minValue:
+        type: integer
+        minimum: 0
+      maxValue:
+        type: integer
+        minimum: 0
+      severity:
+        $ref: "../common/severity.json"
+    additionalProperties: false
+  poster:
+    type: object
+    description: "Poster image validation"
+    properties:
+      required:
+        type: boolean
+        default: false
+      pattern:
+        type: string
+        description: "Regular expression pattern for poster image URL"
+      severity:
+        $ref: "../common/severity.json"
+    additionalProperties: false
+  options:
+    type: object
+    description: "Video playback options"
+    properties:
+      autoplay:
+        type: object
+        properties:
+          allowed:
+            type: boolean
+            description: "Whether autoplay is allowed"
+          severity:
+            $ref: "../common/severity.json"
+        additionalProperties: false
+      controls:
+        type: object
+        properties:
+          required:
+            type: boolean
+            description: "Whether controls are required"
+          severity:
+            $ref: "../common/severity.json"
+        additionalProperties: false
+    additionalProperties: false
+  caption:
+    type: object
+    description: "Caption validation configuration"
+    properties:
+      required:
+        type: boolean
+        default: false
+      minLength:
+        type: integer
+        minimum: 0
+      maxLength:
+        type: integer
+        minimum: 0
+      severity:
+        $ref: "../common/severity.json"
+    additionalProperties: false
+required:
+  - severity
+additionalProperties: false
+examples:
+  - name: "strict-videos"
+    severity: "error"
+    occurrence:
+      min: 0
+      max: 2
+    url:
+      required: true
+      pattern: "^(https?://|\\./|/).*\\.(mp4|webm|ogg|avi|mov)$|^https://(www\\.)?(youtube\\.com|vimeo\\.com)/.*"
+      severity: "error"
+    caption:
+      required: true
+      minLength: 15
+      maxLength: 200
+  - severity: "warn"
+    url:
+      required: true
+    options:
+      autoplay:
+        allowed: false
+        severity: "error"
+      controls:
+        required: true
+        severity: "error"

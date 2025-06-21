@@ -265,6 +265,41 @@ document:
               minLength: 15          # Mindestens 15 Zeichen für Diagrammbeschreibung
               maxLength: 300         # Maximal 300 Zeichen
               
+        - video:
+            name: "content-videos"      # Optional: Benannter Block für Videos
+            severity: error             # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 3                    # Maximal 3 Videos pro Section
+              severity: warn            # Optional: Überschreibt Block-Severity
+              
+            # Video-spezifische Attribute
+            url:
+              required: true            # Video-URL ist Pflicht
+              pattern: "^https://.*\\.(mp4|webm|ogv)$"  # Nur HTTPS und spezifische Formate
+              severity: error           # Strenge Vorgabe für Video-URLs
+            width:
+              min: 640                  # Mindestbreite für gute Qualität
+              max: 1920                 # Maximal Full HD Breite
+              severity: warn            # Warnung bei nicht optimalen Dimensionen
+            height:
+              min: 360                  # Mindesthöhe für gute Qualität
+              max: 1080                 # Maximal Full HD Höhe
+              severity: warn            # Warnung bei nicht optimalen Dimensionen
+            poster:
+              required: true            # Poster-Bild ist Pflicht für Barrierefreiheit
+              pattern: "^https://.*\\.(jpg|jpeg|png|webp)$"  # Nur HTTPS und Bildformate
+              severity: error           # Strenge Vorgabe
+            options:
+              autoplayAllowed: false    # Autoplay nicht erlaubt (Barrierefreiheit)
+              controlsRequired: true    # Controls müssen vorhanden sein
+              severity: error           # Strenge Vorgabe für Optionen
+            caption:
+              required: true            # Caption/Titel ist Pflicht
+              minLength: 10             # Mindestens 10 Zeichen
+              maxLength: 100            # Maximal 100 Zeichen
+              severity: warn            # Warnung bei fehlender/falscher Caption
+              
         - admonition:
             name: "content-notes"       # Optional: Benannter Block für Hinweise
             severity: warn              # PFLICHT: Default-Severity für den gesamten Block
@@ -557,6 +592,21 @@ document:
                 min: 3               # Mindestens 3 Sätze pro Paragraph
                 max: 10              # Maximal 10 Sätze pro Paragraph
                 severity: warn       # Optional: Überschreibt Block-Severity
+                
+        - video:
+            name: "summary-video"    # Optional: Zusammenfassendes Video
+            severity: info           # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 1                 # Maximal 1 Zusammenfassungs-Video
+            # Lockere Vorgaben für Zusammenfassungs-Videos
+            url:
+              required: true         # URL ist immer Pflicht
+              pattern: "^https://.*\\.(mp4|webm|ogv)$"
+            caption:
+              required: true         # Titel ist Pflicht
+              minLength: 20          # Längere Beschreibung für Zusammenfassung
+              maxLength: 150
               words:                 # NUR words verfügbar für Sätze
                 min: 8               # Mindestens 8 Wörter pro Satz
                 max: 25              # Maximal 25 Wörter pro Satz
