@@ -22,6 +22,7 @@ import com.example.linter.config.BlockType;
 import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.AdmonitionBlock;
+import com.example.linter.config.blocks.AudioBlock;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.config.blocks.LiteralBlock;
@@ -1647,6 +1648,151 @@ class ConfigurationLoaderTest {
             assertFalse(codeLiteral.getIndentation().isRequired());
             assertFalse(codeLiteral.getIndentation().isConsistent());
             assertEquals(12, codeLiteral.getIndentation().getMaxSpaces());
+        }
+    }
+    
+    @Nested
+    @DisplayName("AudioBlock Loading")
+    class AudioBlockTest {
+        
+        @Test
+        @DisplayName("should load AudioBlock with all configurations")
+        void shouldLoadAudioBlockWithAllConfigurations() {
+            // Given
+            String yaml = """
+                document:
+                  metadata:
+                    attributes: []
+                  sections:
+                    - name: media-section
+                      level: 1
+                      min: 1
+                      max: 1
+                      allowedBlocks:
+                        - audio:
+                            name: main-audio
+                            severity: info
+                            occurrence:
+                              min: 0
+                              max: 3
+                            url:
+                              required: true
+                              pattern: "^(https?://|\\\\./|/).*\\\\.(mp3|ogg|wav|m4a)$"
+                              severity: error
+                            options:
+                              autoplay:
+                                allowed: false
+                                severity: error
+                              controls:
+                                required: true
+                                severity: error
+                              loop:
+                                allowed: true
+                                severity: info
+                            title:
+                              required: true
+                              minLength: 10
+                              maxLength: 100
+                              severity: warn
+                      subsections:
+                        - name: examples
+                          level: 2
+                          min: 0
+                          max: 2
+                          allowedBlocks:
+                            - audio:
+                                name: example-audio
+                                severity: warn
+                                url:
+                                  required: false
+                                  pattern: "^https?://.*$"
+                                options:
+                                  autoplay:
+                                    allowed: true
+                                  controls:
+                                    required: false
+                                  loop:
+                                    allowed: false
+                                title:
+                                  required: false
+                                  minLength: 5
+                                  maxLength: 50
+                """;
+            
+            // When
+            LinterConfiguration config = loader.loadConfiguration(yaml);
+            
+            // Then - Section level audio block
+            var sections = config.document().sections();
+            assertEquals(1, sections.size());
+            
+            var mediaSection = sections.get(0);
+            assertEquals("media-section", mediaSection.name());
+            assertEquals(1, mediaSection.allowedBlocks().size());
+            
+            var mainAudio = (AudioBlock) mediaSection.allowedBlocks().get(0);
+            assertEquals("main-audio", mainAudio.getName());
+            assertEquals(Severity.INFO, mainAudio.getSeverity());
+            assertEquals(0, mainAudio.getOccurrence().min());
+            assertEquals(3, mainAudio.getOccurrence().max());
+            
+            // URL validation
+            assertNotNull(mainAudio.getUrl());
+            assertTrue(mainAudio.getUrl().isRequired());
+            assertEquals("^(https?://|\\./|/).*\\.(mp3|ogg|wav|m4a)$", mainAudio.getUrl().getPattern().pattern());
+            assertEquals(Severity.ERROR, mainAudio.getUrl().getSeverity());
+            
+            // Options validation
+            assertNotNull(mainAudio.getOptions());
+            assertNotNull(mainAudio.getOptions().getAutoplay());
+            assertFalse(mainAudio.getOptions().getAutoplay().isAllowed());
+            assertEquals(Severity.ERROR, mainAudio.getOptions().getAutoplay().getSeverity());
+            
+            assertNotNull(mainAudio.getOptions().getControls());
+            assertTrue(mainAudio.getOptions().getControls().isRequired());
+            assertEquals(Severity.ERROR, mainAudio.getOptions().getControls().getSeverity());
+            
+            assertNotNull(mainAudio.getOptions().getLoop());
+            assertTrue(mainAudio.getOptions().getLoop().isAllowed());
+            assertEquals(Severity.INFO, mainAudio.getOptions().getLoop().getSeverity());
+            
+            // Title validation
+            assertNotNull(mainAudio.getTitle());
+            assertTrue(mainAudio.getTitle().isRequired());
+            assertEquals(10, mainAudio.getTitle().getMinLength());
+            assertEquals(100, mainAudio.getTitle().getMaxLength());
+            assertEquals(Severity.WARN, mainAudio.getTitle().getSeverity());
+            
+            // Then - Subsection level audio block
+            var subsections = mediaSection.subsections();
+            assertEquals(1, subsections.size());
+            
+            var examplesSection = subsections.get(0);
+            assertEquals("examples", examplesSection.name());
+            assertEquals(1, examplesSection.allowedBlocks().size());
+            
+            var exampleAudio = (AudioBlock) examplesSection.allowedBlocks().get(0);
+            assertEquals("example-audio", exampleAudio.getName());
+            assertEquals(Severity.WARN, exampleAudio.getSeverity());
+            
+            // Subsection audio validation rules
+            assertFalse(exampleAudio.getUrl().isRequired());
+            assertEquals("^https?://.*$", exampleAudio.getUrl().getPattern().pattern());
+            assertNull(exampleAudio.getUrl().getSeverity());
+            
+            assertTrue(exampleAudio.getOptions().getAutoplay().isAllowed());
+            assertNull(exampleAudio.getOptions().getAutoplay().getSeverity());
+            
+            assertFalse(exampleAudio.getOptions().getControls().isRequired());
+            assertNull(exampleAudio.getOptions().getControls().getSeverity());
+            
+            assertFalse(exampleAudio.getOptions().getLoop().isAllowed());
+            assertNull(exampleAudio.getOptions().getLoop().getSeverity());
+            
+            assertFalse(exampleAudio.getTitle().isRequired());
+            assertEquals(5, exampleAudio.getTitle().getMinLength());
+            assertEquals(50, exampleAudio.getTitle().getMaxLength());
+            assertNull(exampleAudio.getTitle().getSeverity());
         }
     }
 }
