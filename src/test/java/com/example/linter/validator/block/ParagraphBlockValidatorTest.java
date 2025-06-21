@@ -122,6 +122,32 @@ class ParagraphBlockValidatorTest {
         }
         
         @Test
+        @DisplayName("should use block severity when lines severity is not defined")
+        void shouldUseBlockSeverityWhenLinesSeverityNotDefined() {
+            // Given - lines has no severity, block has INFO
+            LineConfig lineConfig = LineConfig.builder()
+                .max(2)
+                // No severity set
+                .build();
+            ParagraphBlock config = ParagraphBlock.builder()
+                .lines(lineConfig)
+                .severity(Severity.INFO)
+                .build();
+            
+            when(mockBlock.getContent()).thenReturn("Line 1\nLine 2\nLine 3");
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use block severity (INFO) when lines severity is not defined");
+            assertEquals("paragraph.lines.max", msg.getRuleId());
+        }
+        
+        @Test
         @DisplayName("should pass when lines within range")
         void shouldPassWhenLinesWithinRange() {
             // Given

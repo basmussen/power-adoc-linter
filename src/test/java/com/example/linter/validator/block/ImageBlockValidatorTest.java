@@ -340,6 +340,86 @@ class ImageBlockValidatorTest {
     }
     
     @Nested
+    @DisplayName("severity hierarchy")
+    class SeverityHierarchy {
+        
+        @Test
+        @DisplayName("should always use block severity for URL validation")
+        void shouldAlwaysUseBlockSeverityForUrl() {
+            // Given - ImageBlock.UrlConfig has no severity field
+            ImageBlock.UrlConfig urlConfig = ImageBlock.UrlConfig.builder()
+                .required(true)
+                .build();
+            ImageBlock config = ImageBlock.builder()
+                .url(urlConfig)
+                .severity(Severity.INFO) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("target")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use block severity (INFO) since UrlConfig has no severity field");
+            assertEquals("image.url.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should always use block severity for dimension validation")
+        void shouldAlwaysUseBlockSeverityForDimension() {
+            // Given - ImageBlock.DimensionConfig has no severity field
+            ImageBlock.DimensionConfig widthConfig = ImageBlock.DimensionConfig.builder()
+                .required(true)
+                .build();
+            ImageBlock config = ImageBlock.builder()
+                .width(widthConfig)
+                .severity(Severity.WARN) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("width")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use block severity (WARN) since DimensionConfig has no severity field");
+            assertEquals("image.width.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should always use block severity for alt text validation")
+        void shouldAlwaysUseBlockSeverityForAltText() {
+            // Given - ImageBlock.AltTextConfig has no severity field
+            ImageBlock.AltTextConfig altConfig = ImageBlock.AltTextConfig.builder()
+                .required(true)
+                .build();
+            ImageBlock config = ImageBlock.builder()
+                .alt(altConfig)
+                .severity(Severity.ERROR) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("alt")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.ERROR, msg.getSeverity(), 
+                "Should use block severity (ERROR) since AltTextConfig has no severity field");
+            assertEquals("image.alt.required", msg.getRuleId());
+        }
+    }
+    
+    @Nested
     @DisplayName("complex validation scenarios")
     class ComplexScenarios {
         

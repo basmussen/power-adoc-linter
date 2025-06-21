@@ -35,22 +35,22 @@ public final class ImageBlockValidator implements BlockTypeValidator {
         
         // Validate URL
         if (imageConfig.getUrl() != null) {
-            validateUrl(imageUrl, imageConfig.getUrl(), context, block, messages);
+            validateUrl(imageUrl, imageConfig.getUrl(), context, block, messages, imageConfig);
         }
         
         // Validate width
         if (imageConfig.getWidth() != null) {
-            validateDimension(block, "width", imageConfig.getWidth(), context, messages);
+            validateDimension(block, "width", imageConfig.getWidth(), context, messages, imageConfig);
         }
         
         // Validate height
         if (imageConfig.getHeight() != null) {
-            validateDimension(block, "height", imageConfig.getHeight(), context, messages);
+            validateDimension(block, "height", imageConfig.getHeight(), context, messages, imageConfig);
         }
         
         // Validate alt text
         if (imageConfig.getAlt() != null) {
-            validateAltText(altText, imageConfig.getAlt(), context, block, messages);
+            validateAltText(altText, imageConfig.getAlt(), context, block, messages, imageConfig);
         }
         
         return messages;
@@ -79,12 +79,13 @@ public final class ImageBlockValidator implements BlockTypeValidator {
     private void validateUrl(String url, ImageBlock.UrlConfig urlConfig,
                            BlockValidationContext context,
                            StructuralNode block,
-                           List<ValidationMessage> messages) {
+                           List<ValidationMessage> messages,
+                           ImageBlock imageConfig) {
         
         // Check if URL is required
         if (urlConfig.isRequired() && (url == null || url.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(Severity.ERROR)
+                .severity(imageConfig.getSeverity())
                 .ruleId("image.url.required")
                 .location(context.createLocation(block))
                 .message("Image must have a URL")
@@ -98,7 +99,7 @@ public final class ImageBlockValidator implements BlockTypeValidator {
             // Validate URL pattern
             if (!urlConfig.getPattern().matcher(url).matches()) {
                 messages.add(ValidationMessage.builder()
-                    .severity(Severity.ERROR)
+                    .severity(imageConfig.getSeverity())
                     .ruleId("image.url.pattern")
                     .location(context.createLocation(block))
                     .message("Image URL does not match required pattern")
@@ -112,14 +113,15 @@ public final class ImageBlockValidator implements BlockTypeValidator {
     private void validateDimension(StructuralNode block, String dimensionName,
                                  ImageBlock.DimensionConfig dimConfig,
                                  BlockValidationContext context,
-                                 List<ValidationMessage> messages) {
+                                 List<ValidationMessage> messages,
+                                 ImageBlock imageConfig) {
         
         Object value = block.getAttribute(dimensionName);
         String valueStr = value != null ? value.toString() : null;
         
         if (dimConfig.isRequired() && (valueStr == null || valueStr.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(Severity.ERROR)
+                .severity(imageConfig.getSeverity())
                 .ruleId("image." + dimensionName + ".required")
                 .location(context.createLocation(block))
                 .message("Image must have " + dimensionName + " specified")
@@ -135,7 +137,7 @@ public final class ImageBlockValidator implements BlockTypeValidator {
                 // Validate min/max
                 if (dimConfig.getMinValue() != null && numericValue < dimConfig.getMinValue()) {
                     messages.add(ValidationMessage.builder()
-                        .severity(Severity.ERROR)
+                        .severity(imageConfig.getSeverity())
                         .ruleId("image." + dimensionName + ".min")
                         .location(context.createLocation(block))
                         .message("Image " + dimensionName + " is too small")
@@ -146,7 +148,7 @@ public final class ImageBlockValidator implements BlockTypeValidator {
                 
                 if (dimConfig.getMaxValue() != null && numericValue > dimConfig.getMaxValue()) {
                     messages.add(ValidationMessage.builder()
-                        .severity(Severity.ERROR)
+                        .severity(imageConfig.getSeverity())
                         .ruleId("image." + dimensionName + ".max")
                         .location(context.createLocation(block))
                         .message("Image " + dimensionName + " is too large")
@@ -176,11 +178,12 @@ public final class ImageBlockValidator implements BlockTypeValidator {
     private void validateAltText(String altText, ImageBlock.AltTextConfig altConfig,
                                BlockValidationContext context,
                                StructuralNode block,
-                               List<ValidationMessage> messages) {
+                               List<ValidationMessage> messages,
+                               ImageBlock imageConfig) {
         
         if (altConfig.isRequired() && (altText == null || altText.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(Severity.ERROR)
+                .severity(imageConfig.getSeverity())
                 .ruleId("image.alt.required")
                 .location(context.createLocation(block))
                 .message("Image must have alt text")
@@ -194,7 +197,7 @@ public final class ImageBlockValidator implements BlockTypeValidator {
             // Validate min length
             if (altConfig.getMinLength() != null && altText.length() < altConfig.getMinLength()) {
                 messages.add(ValidationMessage.builder()
-                    .severity(Severity.ERROR)
+                    .severity(imageConfig.getSeverity())
                     .ruleId("image.alt.minLength")
                     .location(context.createLocation(block))
                     .message("Image alt text is too short")
@@ -206,7 +209,7 @@ public final class ImageBlockValidator implements BlockTypeValidator {
             // Validate max length
             if (altConfig.getMaxLength() != null && altText.length() > altConfig.getMaxLength()) {
                 messages.add(ValidationMessage.builder()
-                    .severity(Severity.ERROR)
+                    .severity(imageConfig.getSeverity())
                     .ruleId("image.alt.maxLength")
                     .location(context.createLocation(block))
                     .message("Image alt text is too long")

@@ -6,6 +6,7 @@ import java.util.List;
 import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
+import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.validator.ValidationMessage;
@@ -35,22 +36,22 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         
         // Validate language
         if (listingConfig.getLanguage() != null) {
-            validateLanguage(language, listingConfig.getLanguage(), context, block, messages);
+            validateLanguage(language, listingConfig.getLanguage(), listingConfig, context, block, messages);
         }
         
         // Validate title
         if (listingConfig.getTitle() != null) {
-            validateTitle(title, listingConfig.getTitle(), context, block, messages);
+            validateTitle(title, listingConfig.getTitle(), listingConfig, context, block, messages);
         }
         
         // Validate lines
         if (listingConfig.getLines() != null) {
-            validateLines(content, listingConfig.getLines(), context, block, messages);
+            validateLines(content, listingConfig.getLines(), listingConfig, context, block, messages);
         }
         
         // Validate callouts
         if (listingConfig.getCallouts() != null) {
-            validateCallouts(content, listingConfig.getCallouts(), context, block, messages);
+            validateCallouts(content, listingConfig.getCallouts(), listingConfig, context, block, messages);
         }
         
         return messages;
@@ -99,14 +100,18 @@ public final class ListingBlockValidator implements BlockTypeValidator {
     }
     
     private void validateLanguage(String language, ListingBlock.LanguageConfig config,
+                                ListingBlock blockConfig,
                                 BlockValidationContext context,
                                 StructuralNode block,
                                 List<ValidationMessage> messages) {
         
+        // Get severity with fallback to block severity
+        Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
+        
         // Check if language is required
         if (config.isRequired() && (language == null || language.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(config.getSeverity())
+                .severity(severity)
                 .ruleId("listing.language.required")
                 .location(context.createLocation(block))
                 .message("Listing block must specify a language")
@@ -119,7 +124,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         if (language != null && config.getAllowed() != null && !config.getAllowed().isEmpty()) {
             if (!config.getAllowed().contains(language)) {
                 messages.add(ValidationMessage.builder()
-                    .severity(config.getSeverity())
+                    .severity(severity)
                     .ruleId("listing.language.allowed")
                     .location(context.createLocation(block))
                     .message("Listing block has unsupported language")
@@ -131,13 +136,17 @@ public final class ListingBlockValidator implements BlockTypeValidator {
     }
     
     private void validateTitle(String title, ListingBlock.TitleConfig config,
+                             ListingBlock blockConfig,
                              BlockValidationContext context,
                              StructuralNode block,
                              List<ValidationMessage> messages) {
         
+        // Get severity with fallback to block severity
+        Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
+        
         if (config.isRequired() && (title == null || title.trim().isEmpty())) {
             messages.add(ValidationMessage.builder()
-                .severity(config.getSeverity())
+                .severity(severity)
                 .ruleId("listing.title.required")
                 .location(context.createLocation(block))
                 .message("Listing block must have a title")
@@ -150,7 +159,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         if (title != null && config.getPattern() != null) {
             if (!config.getPattern().matcher(title).matches()) {
                 messages.add(ValidationMessage.builder()
-                    .severity(config.getSeverity())
+                    .severity(severity)
                     .ruleId("listing.title.pattern")
                     .location(context.createLocation(block))
                     .message("Code listing title does not match required pattern")
@@ -162,9 +171,13 @@ public final class ListingBlockValidator implements BlockTypeValidator {
     }
     
     private void validateLines(String content, com.example.linter.config.rule.LineConfig config,
+                             ListingBlock blockConfig,
                              BlockValidationContext context,
                              StructuralNode block,
                              List<ValidationMessage> messages) {
+        
+        // Get severity with fallback to block severity
+        Severity severity = config.severity() != null ? config.severity() : blockConfig.getSeverity();
         
         // Count lines
         int lineCount = countLines(content);
@@ -172,7 +185,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         // Validate min lines
         if (config.min() != null && lineCount < config.min()) {
             messages.add(ValidationMessage.builder()
-                .severity(config.severity())
+                .severity(severity)
                 .ruleId("listing.lines.min")
                 .location(context.createLocation(block))
                 .message("Listing block has too few lines")
@@ -184,7 +197,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         // Validate max lines
         if (config.max() != null && lineCount > config.max()) {
             messages.add(ValidationMessage.builder()
-                .severity(config.severity())
+                .severity(severity)
                 .ruleId("listing.lines.max")
                 .location(context.createLocation(block))
                 .message("Listing block has too many lines")
@@ -195,9 +208,13 @@ public final class ListingBlockValidator implements BlockTypeValidator {
     }
     
     private void validateCallouts(String content, ListingBlock.CalloutsConfig config,
+                                ListingBlock blockConfig,
                                 BlockValidationContext context,
                                 StructuralNode block,
                                 List<ValidationMessage> messages) {
+        
+        // Get severity with fallback to block severity
+        Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
         
         // Count callouts in content
         int calloutCount = countCallouts(content);
@@ -205,7 +222,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         // Check if callouts are allowed
         if (!config.isAllowed() && calloutCount > 0) {
             messages.add(ValidationMessage.builder()
-                .severity(config.getSeverity())
+                .severity(severity)
                 .ruleId("listing.callouts.notAllowed")
                 .location(context.createLocation(block))
                 .message("Listing block must not contain callouts")
@@ -217,7 +234,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         // Validate max callouts
         if (config.getMax() != null && calloutCount > config.getMax()) {
             messages.add(ValidationMessage.builder()
-                .severity(config.getSeverity())
+                .severity(severity)
                 .ruleId("listing.callouts.max")
                 .location(context.createLocation(block))
                 .message("Listing block has too many callouts")

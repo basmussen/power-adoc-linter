@@ -6,6 +6,7 @@ import java.util.List;
 import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
+import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.validator.ValidationMessage;
@@ -34,7 +35,7 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
         // Validate line count if configured
         if (paragraphConfig.getLines() != null) {
             int lineCount = countLines(content);
-            validateLineCount(lineCount, paragraphConfig.getLines(), context, block, messages);
+            validateLineCount(lineCount, paragraphConfig.getLines(), paragraphConfig, context, block, messages);
         }
         
         return messages;
@@ -79,13 +80,17 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
     
     private void validateLineCount(int actualLines, 
                                  com.example.linter.config.rule.LineConfig lineConfig,
+                                 ParagraphBlock blockConfig,
                                  BlockValidationContext context,
                                  StructuralNode block,
                                  List<ValidationMessage> messages) {
         
+        // Get severity with fallback to block severity
+        Severity severity = lineConfig.severity() != null ? lineConfig.severity() : blockConfig.getSeverity();
+        
         if (lineConfig.min() != null && actualLines < lineConfig.min()) {
             messages.add(ValidationMessage.builder()
-                .severity(lineConfig.severity())
+                .severity(severity)
                 .ruleId("paragraph.lines.min")
                 .location(context.createLocation(block))
                 .message("Paragraph has too few lines")
@@ -96,7 +101,7 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
         
         if (lineConfig.max() != null && actualLines > lineConfig.max()) {
             messages.add(ValidationMessage.builder()
-                .severity(lineConfig.severity())
+                .severity(severity)
                 .ruleId("paragraph.lines.max")
                 .location(context.createLocation(block))
                 .message("Paragraph has too many lines")

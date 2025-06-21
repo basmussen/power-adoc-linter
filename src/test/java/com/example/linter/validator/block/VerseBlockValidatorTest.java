@@ -308,6 +308,86 @@ class VerseBlockValidatorTest {
     }
     
     @Nested
+    @DisplayName("severity hierarchy")
+    class SeverityHierarchy {
+        
+        @Test
+        @DisplayName("should always use block severity for author validation")
+        void shouldAlwaysUseBlockSeverityForAuthor() {
+            // Given - VerseBlock.AuthorConfig has no severity field
+            VerseBlock.AuthorConfig authorConfig = VerseBlock.AuthorConfig.builder()
+                .required(true)
+                .build();
+            VerseBlock config = VerseBlock.builder()
+                .author(authorConfig)
+                .severity(Severity.WARN) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("attribution")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use block severity (WARN) since AuthorConfig has no severity field");
+            assertEquals("verse.author.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should always use block severity for attribution validation")
+        void shouldAlwaysUseBlockSeverityForAttribution() {
+            // Given - VerseBlock.AttributionConfig has no severity field
+            VerseBlock.AttributionConfig attributionConfig = VerseBlock.AttributionConfig.builder()
+                .required(true)
+                .build();
+            VerseBlock config = VerseBlock.builder()
+                .attribution(attributionConfig)
+                .severity(Severity.INFO) // Block severity
+                .build();
+            
+            when(mockBlock.hasAttribute("citetitle")).thenReturn(false);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use block severity (INFO) since AttributionConfig has no severity field");
+            assertEquals("verse.attribution.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should always use block severity for content validation")
+        void shouldAlwaysUseBlockSeverityForContent() {
+            // Given - VerseBlock.ContentConfig has no severity field
+            VerseBlock.ContentConfig contentConfig = VerseBlock.ContentConfig.builder()
+                .minLength(10)
+                .build();
+            VerseBlock config = VerseBlock.builder()
+                .content(contentConfig)
+                .severity(Severity.ERROR) // Block severity
+                .build();
+            
+            when(mockBlock.getContent()).thenReturn("Short");
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.ERROR, msg.getSeverity(), 
+                "Should use block severity (ERROR) since ContentConfig has no severity field");
+            assertEquals("verse.content.minLength", msg.getRuleId());
+        }
+    }
+    
+    @Nested
     @DisplayName("complex validation scenarios")
     class ComplexScenarios {
         

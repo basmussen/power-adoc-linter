@@ -176,6 +176,33 @@ class TableBlockValidatorTest {
                 "Should use columns severity (WARN) instead of block severity (ERROR)");
             assertEquals("table.columns.min", msg.getRuleId());
         }
+        
+        @Test
+        @DisplayName("should use block severity when columns severity is not defined")
+        void shouldUseBlockSeverityWhenColumnsSeverityNotDefined() {
+            // Given - columns has no severity, block has INFO
+            TableBlock.DimensionConfig columnsConfig = TableBlock.DimensionConfig.builder()
+                .min(3)
+                // No severity set
+                .build();
+            TableBlock config = TableBlock.builder()
+                .columns(columnsConfig)
+                .severity(Severity.INFO)
+                .build();
+            
+            Column col1 = mock(Column.class);
+            when(mockTable.getColumns()).thenReturn(Collections.singletonList(col1));
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockTable, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity(), 
+                "Should use block severity (INFO) when columns severity is not defined");
+            assertEquals("table.columns.min", msg.getRuleId());
+        }
     }
     
     @Nested
@@ -235,6 +262,32 @@ class TableBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.INFO, msg.getSeverity(), 
                 "Should use rows severity (INFO) instead of block severity (ERROR)");
+            assertEquals("table.rows.min", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should use block severity when rows severity is not defined")
+        void shouldUseBlockSeverityWhenRowsSeverityNotDefined() {
+            // Given - rows has no severity, block has WARN
+            TableBlock.DimensionConfig rowsConfig = TableBlock.DimensionConfig.builder()
+                .min(5)
+                // No severity set
+                .build();
+            TableBlock config = TableBlock.builder()
+                .rows(rowsConfig)
+                .severity(Severity.WARN)
+                .build();
+            
+            when(mockTable.getBody()).thenReturn(Collections.emptyList());
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockTable, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use block severity (WARN) when rows severity is not defined");
             assertEquals("table.rows.min", msg.getRuleId());
         }
     }
@@ -327,6 +380,32 @@ class TableBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.WARN, msg.getSeverity(), 
                 "Should use header severity (WARN) instead of block severity (ERROR)");
+            assertEquals("table.header.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should use block severity when header severity is not defined")
+        void shouldUseBlockSeverityWhenHeaderSeverityNotDefined() {
+            // Given - header has no severity, block has ERROR
+            TableBlock.HeaderConfig headerConfig = TableBlock.HeaderConfig.builder()
+                .required(true)
+                // No severity set
+                .build();
+            TableBlock config = TableBlock.builder()
+                .header(headerConfig)
+                .severity(Severity.ERROR)
+                .build();
+            
+            when(mockTable.getHeader()).thenReturn(Collections.emptyList());
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockTable, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.ERROR, msg.getSeverity(), 
+                "Should use block severity (ERROR) when header severity is not defined");
             assertEquals("table.header.required", msg.getRuleId());
         }
     }
@@ -436,6 +515,32 @@ class TableBlockValidatorTest {
             ValidationMessage msg = messages.get(0);
             assertEquals(Severity.INFO, msg.getSeverity(), 
                 "Should use caption severity (INFO) instead of block severity (ERROR)");
+            assertEquals("table.caption.required", msg.getRuleId());
+        }
+        
+        @Test
+        @DisplayName("should use block severity when caption severity is not defined")
+        void shouldUseBlockSeverityWhenCaptionSeverityNotDefined() {
+            // Given - caption has no severity, block has WARN
+            TableBlock.CaptionConfig captionConfig = TableBlock.CaptionConfig.builder()
+                .required(true)
+                // No severity set
+                .build();
+            TableBlock config = TableBlock.builder()
+                .caption(captionConfig)
+                .severity(Severity.WARN)
+                .build();
+            
+            when(mockTable.getTitle()).thenReturn(null);
+            
+            // When
+            List<ValidationMessage> messages = validator.validate(mockTable, config, context);
+            
+            // Then
+            assertEquals(1, messages.size());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity(), 
+                "Should use block severity (WARN) when caption severity is not defined");
             assertEquals("table.caption.required", msg.getRuleId());
         }
     }

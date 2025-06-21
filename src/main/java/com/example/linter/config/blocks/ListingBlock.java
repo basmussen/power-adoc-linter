@@ -112,7 +112,6 @@ public final class ListingBlock extends AbstractBlock {
             }
             
             public LanguageConfig build() {
-                Objects.requireNonNull(severity, "severity is required for LanguageConfig");
                 return new LanguageConfig(this);
             }
         }
@@ -190,7 +189,6 @@ public final class ListingBlock extends AbstractBlock {
             }
             
             public TitleConfig build() {
-                Objects.requireNonNull(severity, "severity is required for TitleConfig");
                 return new TitleConfig(this);
             }
         }
@@ -264,7 +262,6 @@ public final class ListingBlock extends AbstractBlock {
             }
             
             public CalloutsConfig build() {
-                Objects.requireNonNull(severity, "severity is required for CalloutsConfig");
                 return new CalloutsConfig(this);
             }
         }
