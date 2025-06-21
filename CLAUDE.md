@@ -18,6 +18,7 @@ mvn test -Dtest=LinterTest
 # Run tests from a specific package
 mvn test -Dtest="com.example.linter.config.blocks.*"
 mvn test -Dtest="com.example.linter.cli.*"
+mvn test -Dtest="com.example.linter.validator.block.*"
 
 # Package the application (creates executable JAR)
 mvn clean package
@@ -35,6 +36,9 @@ mvn clean install -DskipTests
 # Run with JaCoCo coverage
 mvn clean test jacoco:report
 # View coverage report: target/site/jacoco/index.html
+
+# Run with specific log level (via system property)
+java -Dlog4j.configurationFile=src/main/resources/log4j2.xml -jar target/power-adoc-linter.jar -i document.adoc
 ```
 
 ## CLI Usage
@@ -76,6 +80,7 @@ java -jar target/power-adoc-linter.jar -i document.adoc -l warn
 - JaCoCo 0.8.13
 - networknt json-schema-validator 1.5.7
 - Log4j2 2.24.3
+- SLF4J Bridge 2.0.16 (for AsciidoctorJ logging)
 
 ## Architecture Overview
 
@@ -86,10 +91,12 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 1. **Builder Pattern**: All configuration classes and validation results use immutable builders
    - Example: `LinterConfiguration.builder().build()`
    - Every config class has a static `builder()` method
+   - Required fields enforced via `Objects.requireNonNull()` in builders
 
 2. **Inheritance Hierarchy**: Block types extend `AbstractBlock`
    - Concrete implementations: `ParagraphBlock`, `ListingBlock`, `TableBlock`, `ImageBlock`, `VerseBlock`
-   - Each block type has specific validation rules
+   - Each block type has specific validation rules as inner classes
+   - All blocks annotated with Jackson annotations for YAML parsing
 
 3. **Configuration Loading**: YAML-based configuration through `ConfigurationLoader`
    - Uses Jackson with custom `BlockListDeserializer` for special YAML structure
@@ -97,20 +104,29 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
    - Hierarchical structure: LinterConfiguration → DocumentConfiguration → Sections/Metadata
    - Integrated schema validation with networknt json-schema-validator
    - Skip validation with `new ConfigurationLoader(true)` for testing
+   - Schema files in `src/main/resources/schemas/` using JSON Schema 2020-12
 
 4. **Validator Pattern**: Each component has dedicated validators
    - `MetadataValidator`, `SectionValidator`, `BlockValidator`
    - Block-specific validators implementing `BlockTypeValidator`
+   - Special validators: `BlockOrderValidator`, `BlockOccurrenceValidator`
+   - All validators work based on YAML schema structure
 
 5. **Strategy Pattern**: Report formatters
    - `ReportFormatter` interface with `ConsoleFormatter` and `JsonFormatter`
+   - Factory pattern for formatter selection
+
+6. **Severity Hierarchy**: Nested configuration severity overrides block-level severity
+   - Optional severity in nested rules (e.g., `ListingBlock.LanguageConfig`)
+   - Falls back to block-level severity when not specified
+   - Enables fine-grained control over validation error levels
 
 ### Package Structure
 
 - `com.example.linter`: Core linter class
 - `com.example.linter.config`: Core configuration classes and enums
 - `com.example.linter.config.blocks`: Type-specific block implementations
-- `com.example.linter.config.loader`: YAML configuration loading
+- `com.example.linter.config.loader`: YAML configuration loading with Jackson
 - `com.example.linter.config.rule`: Reusable rule configurations
 - `com.example.linter.config.validation`: Schema validation for configuration files
 - `com.example.linter.validator`: Core validation framework
@@ -144,16 +160,25 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 
 6. **Severity Levels**: ERROR, WARN, INFO for all validation rules
    - Block-level severity can be overridden by nested rules
+   - Severity hierarchy pattern implemented across all validators
 
 7. **CLI Components**:
    - `LinterCLI`: Main entry point with Apache Commons CLI
    - `CLIRunner`: Orchestrates validation based on CLI arguments
    - `FileDiscoveryService`: Finds files matching patterns
+   - Exit codes: 0 (success), 1 (validation failed), 2 (error)
 
 8. **Configuration Loader**: 
    - Uses Jackson ObjectMapper with YAMLFactory
    - Custom `BlockListDeserializer` handles special YAML structure where block types are keys
    - Schema validation integrated but can be skipped for testing
+   - Supports both file path and InputStream loading
+
+9. **Logging**:
+   - Log4j2 configuration in `src/main/resources/log4j2.xml`
+   - Separate console appenders for stdout and stderr
+   - Package-specific loggers for fine-grained control
+   - Suppresses verbose dependency logging
 
 ### Testing Strategy
 
@@ -163,6 +188,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - Comprehensive equals/hashCode testing for all domain objects
 - Builder pattern validation (null checks, required fields)
 - JaCoCo code coverage (target: 70% line, 65% branch)
+- Mockito for mocking AsciidoctorJ components
 
 ## Development Guidelines
 
@@ -180,6 +206,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - Null safety with `Objects.requireNonNull()`
 - Proper equals/hashCode implementations
 - No comments in generated code
+- All block type validators must reference YAML schema basis in Javadoc
 
 ### Adding New Features
 
@@ -187,21 +214,25 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
    - Extend `AbstractBlock`
    - Create inner classes for type-specific rules
    - Implement proper builders with `Objects.requireNonNull` checks
+   - Add Jackson annotations (@JsonProperty, @JsonDeserialize, @JsonPOJOBuilder)
    - Create corresponding validator implementing `BlockTypeValidator`
    - Register in `BlockValidatorFactory`
    - Add comprehensive test class with nested test structure
+   - Update `BlockListDeserializer` to handle new type
 
 2. **New Validation Rules**: 
    - Create inner classes within the block type
-   - Use builder pattern with required severity field
+   - Use builder pattern with optional severity field
    - Implement equals/hashCode properly (handle Pattern objects specially)
-   - Add Jackson annotations (@JsonProperty, @JsonDeserialize, @JsonPOJOBuilder)
+   - Add Jackson annotations for YAML parsing
+   - Consider severity hierarchy (nested rule severity overrides block severity)
 
 3. **Configuration Extensions**: 
    - Add Jackson annotations to new configuration classes
    - Update `BlockListDeserializer` if adding new block types
    - Add test cases in `ConfigurationLoaderTest`
    - Update `linter-config-specification.yaml` with examples
+   - Add JSON schema definition if new structure
 
 ### Prototype Development Approach
 
@@ -215,7 +246,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - ✅ YAML configuration parser with Jackson 2.18.2 (replaced SnakeYAML)
 - ✅ Hierarchical configuration structure (Document → Sections → Blocks)
 - ✅ Type-specific block classes with inner rule classes
-- ✅ Validation rules framework with severity levels
+- ✅ Validation rules framework with severity levels and hierarchy
 - ✅ JSON Schema definitions for block types (in `src/main/resources/schemas/blocks/`)
 - ✅ AsciiDoc document parsing with AsciidoctorJ
 - ✅ Complete validation framework (metadata, sections, blocks)
@@ -224,6 +255,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - ✅ Executable JAR with Maven Shade Plugin
 - ✅ Schema validation for configuration files (#12)
 - ✅ Jackson migration with custom deserializers (#23)
+- ✅ Logging framework with Log4j2
 - ⏳ Additional report formats
 - ⏳ Watch mode for continuous validation
 
@@ -234,6 +266,7 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - **Custom Deserializer**: `src/main/java/com/example/linter/config/loader/BlockListDeserializer.java` - Handles special YAML structure
 - **Test Examples**: `src/test/java/com/example/linter/config/loader/ConfigurationLoaderTest.java` - Shows YAML configuration patterns
 - **Main Entry Point**: `src/main/java/com/example/linter/cli/LinterCLI.java`
+- **Log Configuration**: `src/main/resources/log4j2.xml` - Logging setup
 
 ## Debug Notes
 
@@ -244,3 +277,4 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - Validation error messages should include:
   - Actual values found during validation
   - Expected values or criteria for validation
+  - Consistent format across all validators
