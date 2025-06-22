@@ -88,12 +88,14 @@ class VideoBlockTest {
         }
         
         @Test
-        @DisplayName("should throw when name is null")
-        void shouldThrowWhenNameIsNull() {
-            assertThrows(NullPointerException.class, () ->
-                    VideoBlock.builder()
-                            .severity(Severity.WARN)
-                            .build());
+        @DisplayName("should build successfully without name")
+        void shouldBuildSuccessfullyWithoutName() {
+            VideoBlock block = VideoBlock.builder()
+                    .severity(Severity.WARN)
+                    .build();
+            
+            assertNull(block.getName());
+            assertEquals(Severity.WARN, block.getSeverity());
         }
         
         @Test
