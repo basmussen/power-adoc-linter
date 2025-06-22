@@ -6,12 +6,15 @@ import java.util.List;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.blocks.AdmonitionBlock;
+import com.example.linter.config.blocks.AudioBlock;
 import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.config.blocks.LiteralBlock;
 import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.config.blocks.PassBlock;
+import com.example.linter.config.blocks.QuoteBlock;
+import com.example.linter.config.blocks.SidebarBlock;
 import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.config.blocks.VerseBlock;
 import com.example.linter.config.blocks.VideoBlock;
@@ -75,6 +78,9 @@ public class BlockListDeserializer extends JsonDeserializer<List<Block>> {
                 case ADMONITION -> mapper.treeToValue(blockData, AdmonitionBlock.class);
                 case PASS -> mapper.treeToValue(blockData, PassBlock.class);
                 case LITERAL -> mapper.treeToValue(blockData, LiteralBlock.class);
+                case AUDIO -> mapper.treeToValue(blockData, AudioBlock.class);
+                case QUOTE -> mapper.treeToValue(blockData, QuoteBlock.class);
+                case SIDEBAR -> mapper.treeToValue(blockData, SidebarBlock.class);
                 case VIDEO -> mapper.treeToValue(blockData, VideoBlock.class);
             };
             

@@ -54,11 +54,16 @@ public final class BlockTypeDetector {
             case "pass":
                 return BlockType.PASS;
                 
+            case "sidebar":
+                return BlockType.SIDEBAR;
+                
+            case "audio":
+                return BlockType.AUDIO;
+                
             case "video":
                 return BlockType.VIDEO;
                 
             case "example":
-            case "sidebar":
             case "open":
                 // These could contain other blocks, check content
                 return detectFromContent(node);
@@ -73,14 +78,30 @@ public final class BlockTypeDetector {
     }
     
     /**
-     * Determines if a quote/verse block is actually a verse block.
+     * Determines if a quote/verse block is actually a verse block or quote block.
      */
     private BlockType detectVerseOrQuote(StructuralNode node) {
-        // Verse blocks typically have attribution or cite attributes
+        // Check if it has verse style explicitly
+        if ("verse".equals(node.getStyle())) {
+            return BlockType.VERSE;
+        }
+        
+        // If context is "verse", it's definitely a verse block
+        if ("verse".equals(node.getContext())) {
+            return BlockType.VERSE;
+        }
+        
+        // If context is "quote", it's a quote block
+        if ("quote".equals(node.getContext())) {
+            return BlockType.QUOTE;
+        }
+        
+        // Default: if it has attribution or citetitle, treat as quote
         if (node.getAttribute("attribution") != null || 
             node.getAttribute("citetitle") != null ||
-            "verse".equals(node.getStyle())) {
-            return BlockType.VERSE;
+            node.getAttribute("author") != null ||
+            node.getAttribute("source") != null) {
+            return BlockType.QUOTE;
         }
         
         // Could be a quote block containing other content
