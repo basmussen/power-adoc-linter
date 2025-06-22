@@ -432,7 +432,13 @@ Beginnen Sie mit einer einfachen Konfiguration und erweitern Sie diese nach Beda
 # Schritt 1: Nur Metadaten
 document:
   metadata:
-    required: ["title", "author"]
+    attributes:
+      - name: title
+        required: true
+        severity: error
+      - name: author
+        required: true
+        severity: error
 
 # Schritt 2: Sections hinzufügen
 # Schritt 3: Block-Regeln ergänzen
@@ -470,5 +476,5 @@ git commit -m "Update linter configuration for v2.0 docs"
 == Nächste Schritte
 
 * link:../reference/rules/index.html[Regel-Referenz] - Alle verfügbaren Regeln im Detail
-* link:troubleshooting.html[Fehlerbehebung] - Lösungen für Konfigurationsprobleme
+* Fehlerbehebung - Lösungen für Konfigurationsprobleme
 * link:../examples/index.html[Beispiele] - Fertige Konfigurationen für verschiedene Anwendungsfälle

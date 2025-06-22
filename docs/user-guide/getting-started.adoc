@@ -75,10 +75,13 @@ Erstellen Sie eine Datei namens `.linter-config.yaml`:
 ----
 document:
   metadata:
-    required:
-      - title      # Titel ist Pflicht
-      - author     # Autor ist Pflicht
-    severity: error
+    attributes:
+      - name: title
+        required: true    # Titel ist Pflicht
+        severity: error
+      - name: author
+        required: true    # Autor ist Pflicht
+        severity: error
   sections:
     - name: "Einleitung"
       required: true
@@ -166,5 +169,5 @@ Wie kann ich nur Warnungen anzeigen?::
 Bei Problemen:
 
 * Verwenden Sie `java -jar power-adoc-linter.jar --help` für alle Optionen
-* Besuchen Sie unseren link:troubleshooting.html[Fehlerbehebungs-Guide]
+* Besuchen Sie das Benutzerhandbuch für weitere Hilfe
 * Erstellen Sie ein link:https://github.com/basmussen/power-adoc-linter/issues[Issue auf GitHub]

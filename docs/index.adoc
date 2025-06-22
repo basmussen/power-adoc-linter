@@ -116,7 +116,7 @@ WARN: document.adoc:42 - Paragraph hat nur 2 Zeilen (minimum: 3)
 | link:reference/cli-options.adoc[Referenz]
 | Detaillierte Beschreibung aller Funktionen und Optionen
 
-| Integration (in Arbeit)
+| Integration
 | Anleitungen zur Integration in CI/CD-Pipelines
 
 | link:examples/basic-config.yaml[Beispiele]
@@ -128,7 +128,7 @@ WARN: document.adoc:42 - Paragraph hat nur 2 Zeilen (minimum: 3)
 * link:user-guide/getting-started.adoc[🚀 Schnellstart] - In 5 Minuten einsatzbereit
 * link:user-guide/configuration.adoc[⚙️ Konfiguration] - Regeln anpassen
 * link:reference/cli-options.adoc[📋 CLI-Referenz] - Alle Kommandozeilenoptionen
-* link:user-guide/troubleshooting.adoc[🔧 Fehlerbehebung] - Lösungen für häufige Probleme
+* Fehlerbehebung - Lösungen für häufige Probleme
 
 == Beispiel-Workflow
 

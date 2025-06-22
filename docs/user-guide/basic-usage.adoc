@@ -336,4 +336,4 @@ Beispiel für VS Code (tasks.json):
 
 * link:configuration.html[Konfiguration] - Eigene Validierungsregeln erstellen
 * link:../reference/cli-options.html[CLI-Referenz] - Alle Kommandozeilenoptionen
-* link:troubleshooting.html[Fehlerbehebung] - Lösungen für häufige Probleme
+* Fehlerbehebung - Lösungen für häufige Probleme
