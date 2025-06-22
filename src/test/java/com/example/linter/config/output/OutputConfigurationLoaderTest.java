@@ -62,7 +62,6 @@ class OutputConfigurationLoaderTest {
             assertEquals(OutputFormat.ENHANCED, config.getFormat());
             assertTrue(config.getDisplay().isUseColors());
             assertEquals(3, config.getDisplay().getContextLines());
-            assertTrue(config.getDisplay().isShowRuleId());
             assertTrue(config.getDisplay().isShowLineNumbers());
             assertEquals(HighlightStyle.UNDERLINE, config.getDisplay().getHighlightStyle());
         }
@@ -121,25 +120,19 @@ class OutputConfigurationLoaderTest {
             DisplayConfig display = config.getDisplay();
             assertTrue(display.isUseColors());
             assertEquals(5, display.getContextLines());
-            assertTrue(display.isShowRuleId());
             assertTrue(display.isShowLineNumbers());
             assertEquals(HighlightStyle.BOX, display.getHighlightStyle());
             
             ErrorGroupingConfig grouping = config.getErrorGrouping();
             assertTrue(grouping.isEnabled());
-            assertTrue(grouping.isGroupBySeverity());
-            assertTrue(grouping.isGroupByRule());
-            assertFalse(grouping.isGroupByFile());
-            assertEquals(20, grouping.getMaxGroupSize());
-            assertEquals(5, grouping.getShowSampleErrors());
-            assertEquals(10, grouping.getCollapseThreshold());
+            assertTrue(grouping.isEnabled());
+            assertEquals(10, grouping.getThreshold());
             
             SummaryConfig summary = config.getSummary();
             assertTrue(summary.isEnabled());
             assertTrue(summary.isShowStatistics());
             assertTrue(summary.isShowMostCommon());
             assertTrue(summary.isShowFileList());
-            assertTrue(summary.isShowAutoFixHint());
         }
         
         @Test

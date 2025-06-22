@@ -43,7 +43,7 @@ class ReportWriterOutputConfigTest {
                 .location(SourceLocation.builder()
                     .filename("test.adoc")
                     .line(10)
-                    .column(5)
+                    .startColumn(5)
                     .build())
                 .build())
             .complete()

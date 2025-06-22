@@ -23,17 +23,12 @@ class OutputConfigurationTest {
             DisplayConfig display = DisplayConfig.builder()
                 .useColors(true)
                 .contextLines(3)
-                .showRuleId(true)
                 .showLineNumbers(true)
                 .highlightStyle(HighlightStyle.UNDERLINE)
                 .build();
                 
             ErrorGroupingConfig grouping = ErrorGroupingConfig.builder()
                 .enabled(true)
-                .groupBySeverity(true)
-                .groupByRule(true)
-                .maxGroupSize(10)
-                .showSampleErrors(3)
                 .build();
                 
             SummaryConfig summary = SummaryConfig.builder()
@@ -41,7 +36,6 @@ class OutputConfigurationTest {
                 .showStatistics(true)
                 .showMostCommon(true)
                 .showFileList(true)
-                .showAutoFixHint(true)
                 .build();
             
             // When
@@ -98,7 +92,6 @@ class OutputConfigurationTest {
             assertEquals(OutputFormat.ENHANCED, config.getFormat());
             assertTrue(config.getDisplay().isUseColors());
             assertEquals(3, config.getDisplay().getContextLines());
-            assertTrue(config.getDisplay().isShowRuleId());
             assertTrue(config.getDisplay().isShowLineNumbers());
             assertEquals(HighlightStyle.UNDERLINE, config.getDisplay().getHighlightStyle());
             
@@ -169,29 +162,18 @@ class OutputConfigurationTest {
             // When/Then
             assertThrows(IllegalArgumentException.class, () ->
                 ErrorGroupingConfig.builder()
-                    .maxGroupSize(0)
+                    .threshold(0)
                     .build()
             );
         }
         
         @Test
-        @DisplayName("should validate show sample errors")
-        void shouldValidateShowSampleErrors() {
+        @DisplayName("should validate threshold")
+        void shouldValidateThreshold() {
             // When/Then
             assertThrows(IllegalArgumentException.class, () ->
                 ErrorGroupingConfig.builder()
-                    .showSampleErrors(0)
-                    .build()
-            );
-        }
-        
-        @Test
-        @DisplayName("should validate collapse threshold")
-        void shouldValidateCollapseThreshold() {
-            // When/Then
-            assertThrows(IllegalArgumentException.class, () ->
-                ErrorGroupingConfig.builder()
-                    .collapseThreshold(0)
+                    .threshold(-1)
                     .build()
             );
         }
