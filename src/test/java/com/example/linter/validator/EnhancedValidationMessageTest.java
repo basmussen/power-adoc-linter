@@ -60,8 +60,8 @@ class EnhancedValidationMessageTest {
             
             // Then
             assertEquals(ErrorType.MISSING_VALUE, message.getErrorType());
-            assertEquals("actual", message.getActualValue());
-            assertEquals("expected", message.getExpectedValue());
+            assertEquals("actual", message.getActualValue().orElse(null));
+            assertEquals("expected", message.getExpectedValue().orElse(null));
             assertEquals("id", message.getMissingValueHint());
             assertEquals(suggestions, message.getSuggestions());
             assertEquals(contextLines, message.getContextLines());
@@ -85,8 +85,8 @@ class EnhancedValidationMessageTest {
             
             // Then
             assertEquals(ErrorType.GENERIC, message.getErrorType()); // Defaults to GENERIC
-            assertNull(message.getActualValue());
-            assertNull(message.getExpectedValue());
+            assertTrue(message.getActualValue().isEmpty());
+            assertTrue(message.getExpectedValue().isEmpty());
             assertNull(message.getMissingValueHint());
             assertTrue(message.getSuggestions().isEmpty());
             assertTrue(message.getContextLines().isEmpty());
