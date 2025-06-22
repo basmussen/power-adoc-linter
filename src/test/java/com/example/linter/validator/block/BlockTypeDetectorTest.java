@@ -137,8 +137,8 @@ class BlockTypeDetectorTest {
         }
         
         @Test
-        @DisplayName("should detect verse block from quote with attribution")
-        void shouldDetectVerseBlockFromQuoteWithAttribution() {
+        @DisplayName("should detect quote block from quote with attribution")
+        void shouldDetectQuoteBlockFromQuoteWithAttribution() {
             // Given
             when(mockNode.getContext()).thenReturn("quote");
             when(mockNode.getAttribute("attribution")).thenReturn("Some Author");
@@ -147,7 +147,7 @@ class BlockTypeDetectorTest {
             BlockType result = detector.detectType(mockNode);
             
             // Then
-            assertEquals(BlockType.VERSE, result);
+            assertEquals(BlockType.QUOTE, result);
         }
         
         @Test

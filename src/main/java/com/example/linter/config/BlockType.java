@@ -13,6 +13,7 @@ public enum BlockType {
     PASS,
     LITERAL,
     AUDIO,
+    QUOTE,
     SIDEBAR;
     
     @JsonValue
@@ -33,6 +34,7 @@ public enum BlockType {
             case "pass" -> PASS;
             case "literal" -> LITERAL;
             case "audio" -> AUDIO;
+            case "quote" -> QUOTE;
             case "sidebar" -> SIDEBAR;
             default -> throw new IllegalArgumentException("Unknown block type: " + value);
         };
