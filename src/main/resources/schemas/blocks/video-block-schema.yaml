@@ -137,5 +137,5 @@ properties:
         description: Severity level for caption validation issues
         enum: [error, warn, info]
     additionalProperties: false
-required: [name, severity]
+required: [severity]
 additionalProperties: false
