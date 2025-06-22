@@ -159,6 +159,7 @@ public final class VideoBlock extends AbstractBlock {
         
         @Override
         public VideoBlock build() {
+            Objects.requireNonNull(severity, "severity is required");
             return new VideoBlock(this);
         }
         

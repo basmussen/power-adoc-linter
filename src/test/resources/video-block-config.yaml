@@ -9,11 +9,12 @@ document:
         severity: error
   sections:
     - name: "introduction"
-      level: 1
+      level: 2
       min: 1
       max: 1
       title:
         pattern: "^Introduction$"
+        severity: error
       allowedBlocks:
         - paragraph:
             severity: warn
@@ -21,11 +22,12 @@ document:
               min: 1
               max: 3
     - name: "valid-video-blocks"
-      level: 1
+      level: 2
       min: 1
       max: 1
       title:
         pattern: "^Valid Video Blocks$"
+        severity: error
       allowedBlocks:
         - video:
             name: "Valid Video Configuration"
@@ -62,11 +64,12 @@ document:
               maxLength: 50
               severity: warn
     - name: "video-different-sources"
-      level: 1
+      level: 2
       min: 0
       max: 1
       title:
         pattern: "^Video with Different Sources$"
+        severity: error
       allowedBlocks:
         - video:
             severity: warn
@@ -75,11 +78,12 @@ document:
             poster:
               required: true
     - name: "video-various-options"
-      level: 1
+      level: 2
       min: 0
       max: 1
       title:
         pattern: "^Video with Various Options$"
+        severity: error
       allowedBlocks:
         - video:
             severity: warn
@@ -89,11 +93,12 @@ document:
               controls:
                 required: true
     - name: "edge-cases"
-      level: 1
+      level: 2
       min: 0
       max: 1
       title:
         pattern: "^Edge Cases$"
+        severity: error
       allowedBlocks:
         - video:
             severity: warn
@@ -107,11 +112,12 @@ document:
               required: true
               maxLength: 50
     - name: "missing-required-attributes"
-      level: 1
+      level: 2
       min: 0
       max: 1
       title:
         pattern: "^Missing Required Attributes$"
+        severity: error
       allowedBlocks:
         - video:
             severity: error

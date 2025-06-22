@@ -279,21 +279,24 @@ document:
               pattern: "^https://.*\\.(mp4|webm|ogv)$"  # Nur HTTPS und spezifische Formate
               severity: error           # Strenge Vorgabe für Video-URLs
             width:
-              min: 640                  # Mindestbreite für gute Qualität
-              max: 1920                 # Maximal Full HD Breite
+              minValue: 640             # Mindestbreite für gute Qualität
+              maxValue: 1920            # Maximal Full HD Breite
               severity: warn            # Warnung bei nicht optimalen Dimensionen
             height:
-              min: 360                  # Mindesthöhe für gute Qualität
-              max: 1080                 # Maximal Full HD Höhe
+              minValue: 360             # Mindesthöhe für gute Qualität
+              maxValue: 1080            # Maximal Full HD Höhe
               severity: warn            # Warnung bei nicht optimalen Dimensionen
             poster:
               required: true            # Poster-Bild ist Pflicht für Barrierefreiheit
               pattern: "^https://.*\\.(jpg|jpeg|png|webp)$"  # Nur HTTPS und Bildformate
               severity: error           # Strenge Vorgabe
             options:
-              autoplayAllowed: false    # Autoplay nicht erlaubt (Barrierefreiheit)
-              controlsRequired: true    # Controls müssen vorhanden sein
-              severity: error           # Strenge Vorgabe für Optionen
+              autoplay:                 # Autoplay-Konfiguration
+                allowed: false          # Autoplay nicht erlaubt (Barrierefreiheit)
+                severity: error         # Strenge Vorgabe
+              controls:                 # Controls-Konfiguration
+                required: true          # Controls müssen vorhanden sein
+                severity: error         # Strenge Vorgabe
             caption:
               required: true            # Caption/Titel ist Pflicht
               minLength: 10             # Mindestens 10 Zeichen

@@ -55,6 +55,12 @@ properties:
           $ref: "../blocks/table-block-schema.yaml"
         verse:
           $ref: "../blocks/verse-block-schema.yaml"
+        admonition:
+          $ref: "../blocks/admonition-block-schema.yaml"
+        pass:
+          $ref: "../blocks/pass-block-schema.yaml"
+        video:
+          $ref: "../blocks/video-block-schema.yaml"
       minProperties: 1
       maxProperties: 1
       additionalProperties: false

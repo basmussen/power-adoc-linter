@@ -47,6 +47,7 @@ class VideoBlockValidatorSimpleTest {
     void shouldValidateRequiredUrl() {
         // Given
         VideoBlock config = VideoBlock.builder()
+                .severity(Severity.ERROR)
                 .url(VideoBlock.UrlConfig.builder()
                         .required(true)
                         .severity(Severity.ERROR)
@@ -71,6 +72,7 @@ class VideoBlockValidatorSimpleTest {
     void shouldValidateUrlPattern() {
         // Given
         VideoBlock config = VideoBlock.builder()
+                .severity(Severity.WARN)
                 .url(VideoBlock.UrlConfig.builder()
                         .pattern("^https://.*\\.(mp4|webm)$")
                         .severity(Severity.WARN)
@@ -115,6 +117,7 @@ class VideoBlockValidatorSimpleTest {
     void shouldValidatePosterRequired() {
         // Given
         VideoBlock config = VideoBlock.builder()
+                .severity(Severity.ERROR)
                 .poster(VideoBlock.PosterConfig.builder()
                         .required(true)
                         .severity(Severity.ERROR)
@@ -137,6 +140,7 @@ class VideoBlockValidatorSimpleTest {
     void shouldValidateOptionsWithNestedAutoplayAndControls() {
         // Given
         VideoBlock config = VideoBlock.builder()
+                .severity(Severity.WARN)
                 .options(VideoBlock.OptionsConfig.builder()
                         .autoplay(VideoBlock.AutoplayConfig.builder()
                                 .allowed(false)
@@ -173,6 +177,7 @@ class VideoBlockValidatorSimpleTest {
     void shouldValidateCaptionLength() {
         // Given
         VideoBlock config = VideoBlock.builder()
+                .severity(Severity.INFO)
                 .caption(VideoBlock.CaptionConfig.builder()
                         .minLength(10)
                         .maxLength(50)
@@ -195,7 +200,9 @@ class VideoBlockValidatorSimpleTest {
     @DisplayName("should handle empty configuration")
     void shouldHandleEmptyConfiguration() {
         // Given
-        VideoBlock config = VideoBlock.builder().build();
+        VideoBlock config = VideoBlock.builder()
+                .severity(Severity.WARN)
+                .build();
 
         // When
         List<ValidationMessage> messages = validator.validate(mockBlock, config, context);

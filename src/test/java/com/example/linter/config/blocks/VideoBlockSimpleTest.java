@@ -21,11 +21,13 @@ class VideoBlockSimpleTest {
     @DisplayName("should create minimal video block")
     void shouldCreateMinimalVideoBlock() {
         // When
-        VideoBlock videoBlock = VideoBlock.builder().build();
+        VideoBlock videoBlock = VideoBlock.builder()
+                .severity(Severity.WARN)
+                .build();
 
         // Then
         assertNull(videoBlock.getName());
-        assertNull(videoBlock.getSeverity());
+        assertEquals(Severity.WARN, videoBlock.getSeverity());
         assertNull(videoBlock.getOccurrence());
         assertNull(videoBlock.getUrl());
         assertNull(videoBlock.getWidth());
@@ -79,6 +81,7 @@ class VideoBlockSimpleTest {
 
         // When
         VideoBlock videoBlock = VideoBlock.builder()
+                .severity(Severity.ERROR)
                 .width(widthConfig)
                 .height(heightConfig)
                 .build();
@@ -177,7 +180,7 @@ class VideoBlockSimpleTest {
 
         // Then
         assertTrue(yaml.contains("name: \"Video Block\""));
-        assertTrue(yaml.contains("ERROR"));
+        assertTrue(yaml.contains("error"));
         assertTrue(yaml.contains("url:"));
         assertTrue(yaml.contains("required: true"));
         assertTrue(yaml.contains("pattern: \"^https://.*\\\\.mp4$\""));

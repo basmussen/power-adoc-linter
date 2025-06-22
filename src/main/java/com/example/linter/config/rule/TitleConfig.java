@@ -52,7 +52,7 @@ public final class TitleConfig {
 
         @JsonProperty("severity")
         public Builder severity(Severity severity) {
-            this.severity = Objects.requireNonNull(severity, "severity must not be null");
+            this.severity = severity;
             return this;
         }
 

@@ -3,6 +3,8 @@ package com.example.linter.config.rule;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -161,16 +163,21 @@ class OrderConfigTest {
         }
         
         @Test
-        @DisplayName("should require non-null severity")
-        void shouldRequireNonNullSeverity() {
+        @DisplayName("should accept null severity")
+        void shouldAcceptNullSeverity() {
             // Given
             String first = "intro";
             String second = "body";
             Severity severity = null;
             
-            // When/Then
-            assertThrows(NullPointerException.class,
-                () -> OrderConfig.OrderConstraint.of(first, second, severity));
+            // When
+            OrderConfig.OrderConstraint constraint = OrderConfig.OrderConstraint.of(first, second, severity);
+            
+            // Then
+            assertNotNull(constraint);
+            assertEquals("intro", constraint.first());
+            assertEquals("body", constraint.second());
+            assertNull(constraint.severity());
         }
     }
     

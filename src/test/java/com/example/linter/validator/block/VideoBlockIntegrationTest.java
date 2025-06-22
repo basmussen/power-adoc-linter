@@ -151,9 +151,14 @@ class VideoBlockIntegrationTest {
         String minimalConfig = """
                 document:
                   sections:
-                    - title: "Videos"
-                      blocks:
-                        - type: VIDEO
+                    - title:
+                        pattern: "^Videos$"
+                      level: 1
+                      min: 0
+                      max: 1
+                      allowedBlocks:
+                        - video:
+                            severity: warn
                 """;
         
         LinterConfiguration config = configLoader.loadConfiguration(
