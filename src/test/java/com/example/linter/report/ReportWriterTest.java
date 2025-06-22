@@ -53,8 +53,9 @@ class ReportWriterTest {
         @DisplayName("should have default formatters registered")
         void shouldHaveDefaultFormattersRegistered() {
             Set<String> formats = writer.getAvailableFormats();
-            assertTrue(formats.contains("console"));
+            // Console formatter is created dynamically now
             assertTrue(formats.contains("json"));
+            assertTrue(formats.contains("json-compact"));
         }
         
         @Test

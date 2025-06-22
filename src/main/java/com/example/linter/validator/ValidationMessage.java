@@ -1,5 +1,7 @@
 package com.example.linter.validator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -13,6 +15,12 @@ public final class ValidationMessage {
     private final String attributeName;
     private final String actualValue;
     private final String expectedValue;
+    
+    // Enhanced fields for improved console output
+    private final ErrorType errorType;
+    private final String missingValueHint;
+    private final List<Suggestion> suggestions;
+    private final List<String> contextLines;
 
     private ValidationMessage(Builder builder) {
         this.severity = Objects.requireNonNull(builder.severity, "severity must not be null");
@@ -22,6 +30,10 @@ public final class ValidationMessage {
         this.attributeName = builder.attributeName;
         this.actualValue = builder.actualValue;
         this.expectedValue = builder.expectedValue;
+        this.errorType = builder.errorType != null ? builder.errorType : ErrorType.GENERIC;
+        this.missingValueHint = builder.missingValueHint;
+        this.suggestions = new ArrayList<>(builder.suggestions);
+        this.contextLines = new ArrayList<>(builder.contextLines);
     }
 
     public Severity getSeverity() {
@@ -50,6 +62,30 @@ public final class ValidationMessage {
 
     public Optional<String> getExpectedValue() {
         return Optional.ofNullable(expectedValue);
+    }
+    
+    public ErrorType getErrorType() {
+        return errorType;
+    }
+    
+    public String getMissingValueHint() {
+        return missingValueHint;
+    }
+    
+    public List<Suggestion> getSuggestions() {
+        return new ArrayList<>(suggestions);
+    }
+    
+    public boolean hasSuggestions() {
+        return !suggestions.isEmpty();
+    }
+    
+    public boolean hasAutoFixableSuggestions() {
+        return suggestions.stream().anyMatch(Suggestion::isAutoFixable);
+    }
+    
+    public List<String> getContextLines() {
+        return new ArrayList<>(contextLines);
     }
 
     public String format() {
@@ -87,12 +123,17 @@ public final class ValidationMessage {
                 Objects.equals(location, that.location) &&
                 Objects.equals(attributeName, that.attributeName) &&
                 Objects.equals(actualValue, that.actualValue) &&
-                Objects.equals(expectedValue, that.expectedValue);
+                Objects.equals(expectedValue, that.expectedValue) &&
+                errorType == that.errorType &&
+                Objects.equals(missingValueHint, that.missingValueHint) &&
+                Objects.equals(suggestions, that.suggestions) &&
+                Objects.equals(contextLines, that.contextLines);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(severity, ruleId, message, location, attributeName, actualValue, expectedValue);
+        return Objects.hash(severity, ruleId, message, location, attributeName, actualValue, 
+                          expectedValue, errorType, missingValueHint, suggestions, contextLines);
     }
 
     @Override
@@ -112,6 +153,10 @@ public final class ValidationMessage {
         private String attributeName;
         private String actualValue;
         private String expectedValue;
+        private ErrorType errorType;
+        private String missingValueHint;
+        private final List<Suggestion> suggestions = new ArrayList<>();
+        private final List<String> contextLines = new ArrayList<>();
 
         private Builder() {
         }
@@ -148,6 +193,46 @@ public final class ValidationMessage {
 
         public Builder expectedValue(String expectedValue) {
             this.expectedValue = expectedValue;
+            return this;
+        }
+        
+        public Builder errorType(ErrorType errorType) {
+            this.errorType = errorType;
+            return this;
+        }
+        
+        public Builder missingValueHint(String missingValueHint) {
+            this.missingValueHint = missingValueHint;
+            return this;
+        }
+        
+        public Builder addSuggestion(Suggestion suggestion) {
+            if (suggestion != null) {
+                this.suggestions.add(suggestion);
+            }
+            return this;
+        }
+        
+        public Builder suggestions(List<Suggestion> suggestions) {
+            this.suggestions.clear();
+            if (suggestions != null) {
+                this.suggestions.addAll(suggestions);
+            }
+            return this;
+        }
+        
+        public Builder addContextLine(String line) {
+            if (line != null) {
+                this.contextLines.add(line);
+            }
+            return this;
+        }
+        
+        public Builder contextLines(List<String> contextLines) {
+            this.contextLines.clear();
+            if (contextLines != null) {
+                this.contextLines.addAll(contextLines);
+            }
             return this;
         }
 
