@@ -147,7 +147,6 @@ class ComprehensiveSchemaValidationTest {
                             url:
                               required: true
                         - video:
-                            name: "video-block"  # Required field
                             severity: error
                             occurrence:
                               min: 0
@@ -309,7 +308,6 @@ class ComprehensiveSchemaValidationTest {
                     - name: "test"
                       allowedBlocks:
                         - video:
-                            name: "video-validation"  # Required field
                             severity: error
                             url:
                               required: true
