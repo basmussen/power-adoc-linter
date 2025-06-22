@@ -116,7 +116,7 @@ WARN: document.adoc:42 - Paragraph hat nur 2 Zeilen (minimum: 3)
 | link:reference/cli-options.adoc[Referenz]
 | Detaillierte Beschreibung aller Funktionen und Optionen
 
-| link:integration/github-actions.adoc[Integration]
+| Integration (in Arbeit)
 | Anleitungen zur Integration in CI/CD-Pipelines
 
 | link:examples/basic-config.yaml[Beispiele]

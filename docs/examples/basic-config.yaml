@@ -65,16 +65,4 @@ document:
         - image
         - admonition
   
-# Ausgabe-Optionen gemäß Output-Schema
-output:
-  format: enhanced          # Ausgabeformat (enhanced, simple, compact)
-  display:
-    contextLines: 3         # Anzahl der Kontextzeilen bei Fehlern
-    useColors: true         # Farbige Ausgabe in der Konsole
-    showLineNumbers: true   # Zeilennummern anzeigen
-    highlightStyle: underline  # Stil für Fehler-Highlighting
-  suggestions:
-    enabled: true           # Verbesserungsvorschläge anzeigen
-    maxPerError: 2          # Max. 2 Vorschläge pro Fehler
-  summary:
-    enabled: true           # Zusammenfassung anzeigen
+            - admonition

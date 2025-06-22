@@ -1,0 +1,31 @@
+# Ausgabe-Konfiguration für den Power AsciiDoc Linter
+# Diese Datei konfiguriert, wie Validierungsergebnisse dargestellt werden
+# HINWEIS: Dies ist eine SEPARATE Datei von der Regel-Konfiguration!
+
+# Erweiterte Ausgabe-Optionen gemäß Output-Schema
+output:
+  format: enhanced              # Ausgabeformat: enhanced, simple, compact
+  
+  display:
+    contextLines: 5             # Anzahl Kontextzeilen bei Fehlern (0-5)
+    highlightStyle: underline   # Fehler-Hervorhebung: underline, box, arrow, none
+    useColors: true             # ANSI-Farben für Terminal-Ausgabe
+    showLineNumbers: true       # Zeilennummern im Kontext anzeigen
+    maxLineWidth: 120           # Maximale Breite für Zeilenanzeige (40-200)
+    showHeader: true            # Validierungsbericht-Header anzeigen
+    
+  suggestions:
+    enabled: true               # Verbesserungsvorschläge aktivieren
+    maxPerError: 3              # Max. Vorschläge pro Fehler (1-10)
+    showExamples: true          # Beispiele in Vorschlägen zeigen
+    showAutoFixHint: true       # Hinweis auf automatisch korrigierbare Fehler
+    
+  errorGrouping:
+    enabled: true               # Ähnliche Fehler gruppieren
+    threshold: 3                # Ab dieser Anzahl gleicher Fehler gruppieren
+    
+  summary:
+    enabled: true               # Validierungszusammenfassung anzeigen
+    showStatistics: true        # Fehlerstatistik mit visuellen Balken
+    showMostCommon: true        # Häufigste Probleme anzeigen
+    showFileList: false         # Liste der Dateien mit Fehlern (bei vielen Dateien ausschalten)
