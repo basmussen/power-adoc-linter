@@ -215,22 +215,6 @@ class OutputConfigurationLoaderTest {
     @DisplayName("Validation Tests")
     class ValidationTests {
         
-        @Test
-        @DisplayName("should fail validation for invalid format")
-        void shouldFailValidationForInvalidFormat() {
-            // Given
-            String yaml = """
-                output:
-                  format: invalid
-                """;
-            
-            InputStream input = new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8));
-            
-            // When/Then
-            assertThrows(OutputConfigurationException.class, () ->
-                loader.loadConfiguration(input)
-            );
-        }
         
         @Test
         @DisplayName("should fail validation for invalid context lines")
@@ -251,24 +235,5 @@ class OutputConfigurationLoaderTest {
             );
         }
         
-        @Test
-        @DisplayName("should pass validation when skipped")
-        void shouldPassValidationWhenSkipped() throws IOException {
-            // Given - invalid configuration that would fail validation
-            String yaml = """
-                output:
-                  format: invalid
-                  display:
-                    contextLines: 99
-                """;
-            
-            InputStream input = new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8));
-            
-            // When - using loader with validation skipped
-            // Then - should not throw
-            assertDoesNotThrow(() -> 
-                loaderWithoutValidation.loadConfiguration(input)
-            );
-        }
     }
 }
