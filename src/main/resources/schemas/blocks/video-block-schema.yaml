@@ -1,33 +1,57 @@
-$schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://example.com/schemas/video-block.json"
-title: "Video Block Configuration"
-description: "Schema for video block validation rules"
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://example.com/schemas/blocks/video-block-schema.yaml
+title: Video Block Configuration Schema
+description: Schema for video block validation rules based on YAML configuration
 type: object
 properties:
   name:
     type: string
-    description: "Optional name for this block configuration"
+    description: Optional name for this block configuration
+    minLength: 1
+    maxLength: 50
   severity:
-    $ref: "../common/severity.json"
-    description: "Default severity for all video block rules"
+    type: string
+    description: Default severity level for all rules in this block
+    enum: [error, warn, info]
   occurrence:
-    $ref: "../common/occurrence.json"
+    type: object
+    description: Occurrence rules for this block type
+    properties:
+      order:
+        type: integer
+        description: Order in which this block should appear
+        minimum: 1
+      min:
+        type: integer
+        description: Minimum number of occurrences
+        minimum: 0
+      max:
+        type: integer
+        description: Maximum number of occurrences
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
+    additionalProperties: false
   url:
     type: object
-    description: "URL validation configuration"
+    description: URL validation configuration
     properties:
       required:
         type: boolean
         default: false
       pattern:
         type: string
-        description: "Regular expression pattern for URL validation"
+        description: Regular expression pattern for URL validation
       severity:
-        $ref: "../common/severity.json"
+        type: string
+        enum: [error, warn, info]
+        description: Severity for URL validation violations
     additionalProperties: false
   width:
     type: object
-    description: "Width dimension validation"
+    description: Width dimension validation
     properties:
       required:
         type: boolean
@@ -39,11 +63,13 @@ properties:
         type: integer
         minimum: 0
       severity:
-        $ref: "../common/severity.json"
+        type: string
+        enum: [error, warn, info]
+        description: Severity for width validation violations
     additionalProperties: false
   height:
     type: object
-    description: "Height dimension validation"
+    description: Height dimension validation
     properties:
       required:
         type: boolean
@@ -55,47 +81,55 @@ properties:
         type: integer
         minimum: 0
       severity:
-        $ref: "../common/severity.json"
+        type: string
+        enum: [error, warn, info]
+        description: Severity for height validation violations
     additionalProperties: false
   poster:
     type: object
-    description: "Poster image validation"
+    description: Poster image validation
     properties:
       required:
         type: boolean
         default: false
       pattern:
         type: string
-        description: "Regular expression pattern for poster image URL"
+        description: Regular expression pattern for poster image URL
       severity:
-        $ref: "../common/severity.json"
+        type: string
+        enum: [error, warn, info]
+        description: Severity for poster validation violations
     additionalProperties: false
   options:
     type: object
-    description: "Video playback options"
+    description: Video playback options
     properties:
       autoplay:
         type: object
         properties:
           allowed:
             type: boolean
-            description: "Whether autoplay is allowed"
+            description: Whether autoplay is allowed
           severity:
-            $ref: "../common/severity.json"
+            type: string
+            enum: [error, warn, info]
+            description: Severity for autoplay violations
         additionalProperties: false
       controls:
         type: object
         properties:
           required:
             type: boolean
-            description: "Whether controls are required"
+            description: Whether controls are required
           severity:
-            $ref: "../common/severity.json"
+            type: string
+            enum: [error, warn, info]
+            description: Severity for controls violations
         additionalProperties: false
     additionalProperties: false
   caption:
     type: object
-    description: "Caption validation configuration"
+    description: Caption validation configuration
     properties:
       required:
         type: boolean
@@ -107,32 +141,34 @@ properties:
         type: integer
         minimum: 0
       severity:
-        $ref: "../common/severity.json"
+        type: string
+        enum: [error, warn, info]
+        description: Severity for caption validation violations
     additionalProperties: false
 required:
   - severity
 additionalProperties: false
 examples:
-  - name: "strict-videos"
-    severity: "error"
+  - name: strict-videos
+    severity: error
     occurrence:
       min: 0
       max: 2
     url:
       required: true
-      pattern: "^(https?://|\\./|/).*\\.(mp4|webm|ogg|avi|mov)$|^https://(www\\.)?(youtube\\.com|vimeo\\.com)/.*"
-      severity: "error"
+      pattern: ^(https?://|\\./|/).*\\.(mp4|webm|ogg|avi|mov)$|^https://(www\\.)?(youtube\\.com|vimeo\\.com)/.*
+      severity: error
     caption:
       required: true
       minLength: 15
       maxLength: 200
-  - severity: "warn"
+  - severity: warn
     url:
       required: true
     options:
       autoplay:
         allowed: false
-        severity: "error"
+        severity: error
       controls:
         required: true
-        severity: "error"
+        severity: error
