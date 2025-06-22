@@ -128,7 +128,6 @@ WARN: document.adoc:42 - Paragraph hat nur 2 Zeilen (minimum: 3)
 * link:user-guide/getting-started.adoc[🚀 Schnellstart] - In 5 Minuten einsatzbereit
 * link:user-guide/configuration.adoc[⚙️ Konfiguration] - Regeln anpassen
 * link:reference/cli-options.adoc[📋 CLI-Referenz] - Alle Kommandozeilenoptionen
-* Fehlerbehebung - Lösungen für häufige Probleme
 
 == Beispiel-Workflow
 

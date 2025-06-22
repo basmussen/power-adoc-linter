@@ -476,5 +476,4 @@ git commit -m "Update linter configuration for v2.0 docs"
 == Nächste Schritte
 
 * link:../reference/rules/index.html[Regel-Referenz] - Alle verfügbaren Regeln im Detail
-* Fehlerbehebung - Lösungen für Konfigurationsprobleme
 * link:../examples/index.html[Beispiele] - Fertige Konfigurationen für verschiedene Anwendungsfälle
