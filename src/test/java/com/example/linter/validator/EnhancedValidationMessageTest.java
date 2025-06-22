@@ -59,7 +59,7 @@ class EnhancedValidationMessageTest {
                 .build();
             
             // Then
-            assertEquals(ErrorType.MISSING_REQUIRED, message.getErrorType());
+            assertEquals(ErrorType.MISSING_VALUE, message.getErrorType());
             assertEquals("actual", message.getActualValue());
             assertEquals("expected", message.getExpectedValue());
             assertEquals("id", message.getMissingValueHint());
