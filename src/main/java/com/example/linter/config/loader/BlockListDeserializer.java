@@ -8,6 +8,7 @@ import com.example.linter.config.BlockType;
 import com.example.linter.config.blocks.AdmonitionBlock;
 import com.example.linter.config.blocks.AudioBlock;
 import com.example.linter.config.blocks.Block;
+import com.example.linter.config.blocks.ExampleBlock;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.config.blocks.LiteralBlock;
@@ -80,6 +81,7 @@ public class BlockListDeserializer extends JsonDeserializer<List<Block>> {
                 case AUDIO -> mapper.treeToValue(blockData, AudioBlock.class);
                 case QUOTE -> mapper.treeToValue(blockData, QuoteBlock.class);
                 case SIDEBAR -> mapper.treeToValue(blockData, SidebarBlock.class);
+                case EXAMPLE -> mapper.treeToValue(blockData, ExampleBlock.class);
             };
             
             blocks.add(block);
