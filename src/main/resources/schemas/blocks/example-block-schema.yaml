@@ -9,11 +9,31 @@ properties:
     description: Name identifier for this block configuration
     minLength: 1
   severity:
-    $ref: "../common/severity-schema.yaml"
+    type: string
     description: Default severity level for all validations in this block
+    enum: [error, warn, info]
   occurrence:
-    $ref: "../common/occurrence-schema.yaml"
+    type: object
     description: Rules for how often this block type should appear
+    properties:
+      order:
+        type: integer
+        description: Order in which this block should appear
+        minimum: 1
+      min:
+        type: integer
+        description: Minimum number of occurrences
+        minimum: 0
+        default: 0
+      max:
+        type: integer
+        description: Maximum number of occurrences
+        minimum: 1
+      severity:
+        type: string
+        enum: [error, warn, info]
+        description: Severity for occurrence violations
+    additionalProperties: false
   caption:
     type: object
     description: Configuration for the example caption
@@ -36,7 +56,8 @@ properties:
         description: Maximum length for the caption
         minimum: 0
       severity:
-        $ref: "../common/severity-schema.yaml"
+        type: string
+        enum: [error, warn, info]
         description: Severity level for caption validation errors (overrides block severity)
     additionalProperties: false
   collapsible:
@@ -56,7 +77,8 @@ properties:
         examples:
           - [true, false]
       severity:
-        $ref: "../common/severity-schema.yaml"
+        type: string
+        enum: [error, warn, info]
         description: Severity level for collapsible validation errors (overrides block severity)
     additionalProperties: false
 required:
