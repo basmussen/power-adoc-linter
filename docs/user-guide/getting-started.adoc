@@ -1,0 +1,170 @@
+= Schnellstart-Guide
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+In diesem Guide lernen Sie, wie Sie den Power AsciiDoc Linter in weniger als 5 Minuten einrichten und Ihre ersten Dokumente validieren können.
+
+== Voraussetzungen
+
+Bevor Sie beginnen, stellen Sie sicher, dass folgende Voraussetzungen erfüllt sind:
+
+* ✓ **Java 17 oder höher** ist installiert
+* ✓ Mindestens **512 MB RAM** verfügbar (empfohlen: 1 GB)
+* ✓ **Kommandozeile/Terminal** Zugriff
+
+=== Java-Version prüfen
+
+[source,bash]
+----
+java -version
+----
+
+Sie sollten eine Ausgabe ähnlich dieser sehen:
+[source]
+----
+openjdk version "17.0.8" 2023-07-18
+OpenJDK Runtime Environment (build 17.0.8+7)
+----
+
+== Schritt 1: Download
+
+Laden Sie die neueste Version des Power AsciiDoc Linters herunter:
+
+[tabs]
+====
+Linux/macOS::
++
+[source,bash]
+----
+wget https://github.com/basmussen/power-adoc-linter/releases/latest/download/power-adoc-linter.jar
+----
+
+Windows (PowerShell)::
++
+[source,powershell]
+----
+Invoke-WebRequest -Uri "https://github.com/basmussen/power-adoc-linter/releases/latest/download/power-adoc-linter.jar" -OutFile "power-adoc-linter.jar"
+----
+====
+
+== Schritt 2: Erste Validierung
+
+Führen Sie Ihre erste Dokumentvalidierung durch:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+Dieser Befehl:
+- Sucht rekursiv nach allen `.adoc` Dateien
+- Validiert sie mit Standard-Regeln
+- Zeigt gefundene Probleme an
+
+== Schritt 3: Mit Konfiguration arbeiten
+
+=== Einfache Konfigurationsdatei erstellen
+
+Erstellen Sie eine Datei namens `.linter-config.yaml`:
+
+[source,yaml]
+----
+document:
+  metadata:
+    required:
+      - title      # Titel ist Pflicht
+      - author     # Autor ist Pflicht
+    severity: error
+  sections:
+    - name: "Einleitung"
+      required: true
+      severity: warn
+----
+
+=== Linter mit Konfiguration ausführen
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc" -c .linter-config.yaml
+----
+
+== Beispiel-Workflow
+
+Hier ein vollständiges Beispiel mit einem Test-Dokument:
+
+=== 1. Test-Dokument erstellen
+
+Erstellen Sie `test-document.adoc`:
+
+[source,asciidoc]
+----
+= Mein Test Dokument
+Max Mustermann
+:revdate: 2024-01-15
+
+== Einleitung
+
+Dies ist ein Test-Dokument für den Power AsciiDoc Linter.
+
+== Hauptteil
+
+Hier steht der Hauptinhalt.
+----
+
+=== 2. Validierung durchführen
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i test-document.adoc
+----
+
+=== 3. Ausgabe verstehen
+
+Bei erfolgreicher Validierung:
+[source]
+----
+✓ Validierung erfolgreich: test-document.adoc
+Validierte Dateien: 1
+Fehler: 0, Warnungen: 0
+----
+
+Bei Problemen:
+[source]
+----
+ERROR: test-document.adoc:1 - Fehlender erforderlicher Metadaten-Eintrag: author
+Validierte Dateien: 1
+Fehler: 1, Warnungen: 0
+----
+
+== Nächste Schritte
+
+[cols="1,3,1"]
+|===
+| 📚 | link:installation.html[Detaillierte Installation] | Erweiterte Installationsoptionen
+| ⚙️ | link:configuration.html[Konfiguration verstehen] | Alle Konfigurationsmöglichkeiten
+| 🔧 | link:basic-usage.html[Grundlegende Verwendung] | Alltägliche Anwendungsfälle
+|===
+
+== Häufige Fragen
+
+[qanda]
+Warum werden meine Dateien nicht gefunden?::
+  Stellen Sie sicher, dass Sie das Glob-Pattern in Anführungszeichen setzen: `"**/*.adoc"` statt `**/*.adoc`
+
+Kann ich mehrere Dateimuster angeben?::
+  Ja! Trennen Sie diese mit Komma: `java -jar power-adoc-linter.jar -i "docs/**/*.adoc,README.adoc"`
+
+Wie kann ich nur Warnungen anzeigen?::
+  Verwenden Sie die Option `-l warn`: `java -jar power-adoc-linter.jar -i "**/*.adoc" -l warn`
+
+== Hilfe
+
+Bei Problemen:
+
+* Verwenden Sie `java -jar power-adoc-linter.jar --help` für alle Optionen
+* Besuchen Sie unseren link:troubleshooting.html[Fehlerbehebungs-Guide]
+* Erstellen Sie ein link:https://github.com/basmussen/power-adoc-linter/issues[Issue auf GitHub]

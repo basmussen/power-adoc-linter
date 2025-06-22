@@ -1,0 +1,390 @@
+= Fehlerbehebung
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Dieser Guide hilft Ihnen bei der Lösung häufiger Probleme mit dem Power AsciiDoc Linter. Von Installation bis zur Konfiguration finden Sie hier Antworten auf typische Herausforderungen.
+
+== Installationsprobleme
+
+=== Java-bezogene Fehler
+
+==== "java: command not found"
+
+*Problem:* Java ist nicht installiert oder nicht im PATH.
+
+*Lösung:*
+[source,bash]
+----
+# Java-Installation prüfen
+which java
+
+# Falls nicht vorhanden, Java 17+ installieren:
+# Ubuntu/Debian
+sudo apt update && sudo apt install openjdk-17-jdk
+
+# macOS (mit Homebrew)
+brew install openjdk@17
+
+# Windows: Download von https://adoptium.net/
+----
+
+==== "Unsupported class file major version 61"
+
+*Problem:* Ihre Java-Version ist zu alt (< 17).
+
+*Lösung:*
+[source,bash]
+----
+# Aktuelle Version prüfen
+java -version
+
+# Auf Java 17+ aktualisieren
+# Dann JAVA_HOME setzen:
+export JAVA_HOME=/pfad/zu/java17
+export PATH=$JAVA_HOME/bin:$PATH
+----
+
+==== "Could not find or load main class"
+
+*Problem:* JAR-Datei ist beschädigt oder unvollständig.
+
+*Lösung:*
+[source,bash]
+----
+# JAR-Integrität prüfen
+jar tf power-adoc-linter.jar | head
+
+# Neu herunterladen
+rm power-adoc-linter.jar
+wget https://github.com/basmussen/power-adoc-linter/releases/latest/download/power-adoc-linter.jar
+----
+
+== Ausführungsprobleme
+
+=== Speicherfehler
+
+==== "OutOfMemoryError: Java heap space"
+
+*Problem:* Nicht genügend Arbeitsspeicher für große Dokumentensammlungen.
+
+*Lösung:*
+[source,bash]
+----
+# Mit mehr Speicher ausführen
+java -Xmx2g -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Oder spezifischere Patterns verwenden
+java -jar power-adoc-linter.jar -i "docs/current/**/*.adoc"
+----
+
+==== "GC overhead limit exceeded"
+
+*Problem:* Zu viel Zeit mit Garbage Collection verbracht.
+
+*Lösung:*
+[source,bash]
+----
+# Heap und GC optimieren
+java -Xmx2g -XX:+UseG1GC -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+=== Dateizugriffsprobleme
+
+==== "Permission denied"
+
+*Problem:* Keine Berechtigung zum Lesen der Dateien.
+
+*Lösung:*
+[source,bash]
+----
+# Berechtigungen prüfen
+ls -la power-adoc-linter.jar
+
+# Ausführbar machen
+chmod +x power-adoc-linter.jar
+
+# Oder mit java -jar ausführen
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+==== "No such file or directory"
+
+*Problem:* Angegebene Dateien oder Verzeichnisse existieren nicht.
+
+*Lösung:*
+[source,bash]
+----
+# Aktuelles Verzeichnis prüfen
+pwd
+
+# Vorhandene AsciiDoc-Dateien finden
+find . -name "*.adoc" -type f
+
+# Mit korrektem Pfad ausführen
+java -jar power-adoc-linter.jar -i "./docs/**/*.adoc"
+----
+
+== Konfigurationsprobleme
+
+=== YAML-Syntaxfehler
+
+==== "while scanning a simple key"
+
+*Problem:* Ungültige YAML-Syntax in der Konfigurationsdatei.
+
+*Lösung:*
+[source,yaml]
+----
+# Falsch - fehlende Einrückung
+document:
+metadata:
+  required:
+    - title
+
+# Richtig - korrekte Einrückung
+document:
+  metadata:
+    required:
+      - title
+----
+
+==== "found character '\t' that cannot start any token"
+
+*Problem:* Tabs statt Leerzeichen in YAML.
+
+*Lösung:*
+[source,bash]
+----
+# Tabs durch Leerzeichen ersetzen
+sed -i 's/\t/  /g' .linter-config.yaml
+
+# Oder in Ihrem Editor:
+# - VS Code: "Convert Indentation to Spaces"
+# - Vim: :set expandtab | :retab
+----
+
+=== Schema-Validierungsfehler
+
+==== "Unknown property 'xyz'"
+
+*Problem:* Nicht unterstützte Eigenschaft in der Konfiguration.
+
+*Lösung:*
+[source,yaml]
+----
+# Falsch
+document:
+  metadata:
+    needed:     # ❌ Unbekannte Eigenschaft
+      - title
+
+# Richtig
+document:
+  metadata:
+    required:   # ✓ Korrekte Eigenschaft
+      - title
+----
+
+==== "Invalid severity value"
+
+*Problem:* Ungültiger Severity-Wert.
+
+*Lösung:*
+[source,yaml]
+----
+# Falsch
+severity: critical  # ❌
+
+# Richtig - nur diese Werte sind erlaubt:
+severity: error     # ✓
+severity: warn      # ✓
+severity: info      # ✓
+----
+
+== Validierungsprobleme
+
+=== Keine Dateien gefunden
+
+==== "No files found matching pattern"
+
+*Problem:* Das Glob-Pattern findet keine Dateien.
+
+*Lösung:*
+[source,bash]
+----
+# Pattern in Anführungszeichen setzen
+java -jar power-adoc-linter.jar -i "**/*.adoc"  # ✓
+# Nicht: java -jar power-adoc-linter.jar -i **/*.adoc  # ❌
+
+# Verfügbare Dateien anzeigen
+find . -name "*.adoc" -o -name "*.asciidoc"
+
+# Mehrere Patterns verwenden
+java -jar power-adoc-linter.jar -i "**/*.adoc,**/*.asciidoc,**/*.asc"
+----
+
+=== Falsche Fehlermeldungen
+
+==== "Required metadata 'xyz' missing" obwohl vorhanden
+
+*Problem:* Metadaten werden nicht erkannt.
+
+*Lösung:*
+[source,asciidoc]
+----
+// Falsch - Leerzeichen vor Doppelpunkt
+= Titel
+:author : Max Mustermann  // ❌
+
+// Richtig - kein Leerzeichen vor Doppelpunkt
+= Titel
+:author: Max Mustermann   // ✓
+----
+
+==== Encoding-Probleme
+
+*Problem:* Sonderzeichen werden falsch interpretiert.
+
+*Lösung:*
+[source,bash]
+----
+# Mit UTF-8 Encoding ausführen
+java -Dfile.encoding=UTF-8 -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Datei-Encoding prüfen
+file -i dokument.adoc
+----
+
+== Performance-Probleme
+
+=== Langsame Verarbeitung
+
+==== Sehr lange Laufzeit bei vielen Dateien
+
+*Problem:* Validierung dauert zu lange.
+
+*Lösung:*
+[source,bash]
+----
+# 1. Spezifischere Patterns verwenden
+java -jar power-adoc-linter.jar -i "docs/current/**/*.adoc"
+
+# 2. Parallelität erhöhen
+java -Djava.util.concurrent.ForkJoinPool.common.parallelism=8 \
+  -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# 3. Ausschluss-Pattern verwenden
+java -jar power-adoc-linter.jar \
+  -i "**/*.adoc" \
+  --exclude "**/archive/**,**/temp/**"
+----
+
+=== Hohe CPU-Auslastung
+
+*Problem:* CPU bei 100% während der Validierung.
+
+*Lösung:*
+[source,bash]
+----
+# Threads begrenzen
+java -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 \
+  -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+== Ausgabeprobleme
+
+=== Keine farbige Ausgabe
+
+==== Farben werden nicht angezeigt
+
+*Problem:* Terminal unterstützt keine Farben oder sie sind deaktiviert.
+
+*Lösung:*
+[source,bash]
+----
+# Farben explizit aktivieren
+java -jar power-adoc-linter.jar -i "**/*.adoc" --colors
+
+# Oder in Konfiguration:
+# output:
+#   colors: true
+
+# Für Windows PowerShell
+$env:TERM = "xterm-256color"
+----
+
+=== Unleserliche JSON-Ausgabe
+
+*Problem:* JSON-Output ist nicht formatiert.
+
+*Lösung:*
+[source,bash]
+----
+# JSON formatiert ausgeben
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json | jq .
+
+# Oder in Datei speichern und öffnen
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json -o report.json
+----
+
+== Debugging
+
+=== Verbose-Modus aktivieren
+
+Für detaillierte Fehleranalyse:
+
+[source,bash]
+----
+# Debug-Logging aktivieren
+java -Dlog4j2.debug=true -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Oder eigene Log-Konfiguration
+java -Dlog4j.configurationFile=debug-log4j2.xml \
+  -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+=== Konfiguration validieren
+
+[source,bash]
+----
+# Nur Konfiguration prüfen
+java -jar power-adoc-linter.jar --validate-config .linter-config.yaml
+
+# Test-Lauf ohne Ausgabe
+java -jar power-adoc-linter.jar -i "test.adoc" -c config.yaml --dry-run
+----
+
+== Häufig gestellte Fragen
+
+[qanda]
+Kann ich eigene Validierungsregeln erstellen?::
+  Ja, über die YAML-Konfiguration können Sie umfangreiche eigene Regeln definieren. Siehe link:configuration.html[Konfiguration].
+
+Unterstützt der Linter AsciiDoc-Includes?::
+  Ja, Include-Direktiven werden automatisch aufgelöst und die inkludierten Dateien mit validiert.
+
+Wie kann ich bestimmte Dateien von der Validierung ausschließen?::
+  Verwenden Sie spezifischere Glob-Patterns oder die `--exclude` Option (wenn verfügbar).
+
+Gibt es eine maximale Dateigröße?::
+  Standardmäßig nein, aber sehr große Dateien können mehr Speicher benötigen. Verwenden Sie `-Xmx` für mehr Heap-Speicher.
+
+== Support erhalten
+
+Wenn Sie weitere Hilfe benötigen:
+
+1. 📖 Prüfen Sie die link:../reference/index.html[Referenzdokumentation]
+2. 🔍 Suchen Sie in bestehenden link:https://github.com/basmussen/power-adoc-linter/issues[GitHub Issues]
+3. 💬 Stellen Sie Fragen in den link:https://github.com/basmussen/power-adoc-linter/discussions[GitHub Discussions]
+4. 🐛 Melden Sie neue Probleme als link:https://github.com/basmussen/power-adoc-linter/issues/new[GitHub Issue]
+
+Bei Issue-Meldungen bitte angeben:
+- Java-Version (`java -version`)
+- Linter-Version (`java -jar power-adoc-linter.jar --version`)
+- Verwendete Konfiguration
+- Beispiel-Dokument, das das Problem zeigt
+- Vollständige Fehlermeldung

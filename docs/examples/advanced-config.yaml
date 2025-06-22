@@ -1,0 +1,324 @@
+# Erweiterte Konfiguration für den Power AsciiDoc Linter
+# Diese Konfiguration zeigt alle verfügbaren Features und eignet sich
+# für professionelle technische Dokumentation mit strikten Anforderungen
+
+document:
+  # Umfassende Metadaten-Validierung gemäß Schema
+  metadata:
+    attributes:
+      # Pflicht-Metadaten
+      - name: title
+        required: true
+        minLength: 10
+        maxLength: 100
+        pattern: "^[A-Z].*"  # Muss mit Großbuchstabe beginnen
+        severity: error
+        
+      - name: author
+        required: true
+        minLength: 5
+        maxLength: 50
+        pattern: "^[A-Z][a-zA-Z\\s\\.]+$"
+        severity: error
+        
+      - name: email
+        required: true
+        pattern: "^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$"
+        severity: error
+        
+      - name: revdate
+        required: true
+        pattern: "\\d{4}-\\d{2}-\\d{2}"  # ISO-Datum (YYYY-MM-DD)
+        severity: error
+        
+      - name: version
+        required: true
+        pattern: "v?\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?"  # Semantic Versioning
+        severity: error
+        
+      # Projekt-spezifische Pflicht-Metadaten
+      - name: project-id
+        required: true
+        pattern: "^[A-Z]{2,5}-\\d{3,5}$"  # z.B. PROJ-1234
+        severity: error
+        
+      - name: component
+        required: true
+        allowedValues:  # Nur bestimmte Komponenten erlaubt
+          - "backend-api"
+          - "frontend-web"
+          - "mobile-app"
+          - "shared-lib"
+          - "infrastructure"
+        severity: error
+        
+      - name: status
+        required: true
+        allowedValues:  # Nur bestimmte Status-Werte
+          - "draft"
+          - "review"
+          - "approved"
+          - "published"
+          - "deprecated"
+        severity: error
+        
+      # Optionale Metadaten
+      - name: keywords
+        required: false
+        maxLength: 200
+        pattern: "^[a-zA-Z0-9,\\s-]+$"  # Komma-separierte Keywords
+        severity: info
+        
+      - name: description
+        required: false
+        minLength: 20
+        maxLength: 500
+        severity: warn
+        
+      - name: copyright
+        required: false
+        minLength: 10
+        maxLength: 100
+        severity: info
+        
+      - name: lang
+        required: false
+        allowedValues: ["de", "en", "fr", "es", "it"]  # Sprach-Codes
+        severity: info
+        
+      - name: api-version
+        required: false
+        pattern: "^v\\d+(\\.\\d+)?$"  # z.B. v2.1
+        severity: warn
+  
+  # Detaillierte Abschnitts-Struktur
+  sections:
+    # 1. Übersicht (Pflicht)
+    - name: "Übersicht"
+      level: 1
+      required: true
+      severity: error
+      subsections:
+        - name: "Zielgruppe"
+          level: 2
+          required: true
+        - name: "Voraussetzungen"
+          level: 2
+          required: false
+        - name: "Konventionen"
+          level: 2
+          required: false
+      blocks:
+        - paragraph:
+            minLines: 5
+            maxLines: 50
+            minSentences: 3
+            maxSentences: 20
+            severity: warn
+        - table:
+            occurrence:
+              max: 2
+    
+    # 2. Installation/Setup
+    - name: "(Installation|Setup|Einrichtung)"
+      level: 1
+      required: true
+      severity: error
+      blocks:
+        # Beschreibungstext
+        - paragraph:
+            minLines: 3
+            occurrence:
+              min: 1
+              max: 5
+        
+        # Code-Beispiele mit Sprache
+        - listing:
+            language:
+              required: true
+              allowed: ["bash", "powershell", "shell", "yaml", "properties"]
+            title:
+              required: false
+              pattern: "^(Listing|Beispiel|Code)\\s+\\d+:"
+            callouts:
+              required: false
+            occurrence:
+              min: 1
+              max: 10
+            severity: error
+        
+        # Hinweise und Warnungen
+        - admonition:
+            types: ["NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"]
+            occurrence:
+              max: 5
+    
+    # 3. Konfiguration
+    - name: "Konfiguration"
+      level: 1
+      required: true
+      blocks:
+        - paragraph:
+            minLines: 2
+        
+        # Konfigurations-Beispiele
+        - listing:
+            language:
+              required: true
+              allowed: ["yaml", "json", "xml", "properties", "ini", "toml"]
+            title:
+              required: true
+            occurrence:
+              min: 1
+        
+        # Konfigurations-Tabellen
+        - table:
+            header:
+              required: true
+            caption:
+              required: true
+              pattern: "^Tabelle\\s+\\d+:"
+            columns:
+              min: 2
+              max: 5
+            rows:
+              min: 1
+              max: 100
+            occurrence:
+              min: 1
+              max: 10
+    
+    # 4. Verwendung/Beispiele
+    - name: "(Verwendung|Beispiele|Anwendung)"
+      level: 1
+      required: true
+      # Spezielle Block-Reihenfolge
+      blockOrder:
+        - paragraph      # Erst Erklärung
+        - listing        # Dann Code
+        - image          # Optional: Screenshot
+        - table          # Optional: Parameter-Tabelle
+      blocks:
+        - paragraph:
+            minLines: 3
+            minSentences: 2
+        
+        - listing:
+            language:
+              required: true
+            title:
+              required: true
+              pattern: "^Beispiel\\s+\\d+:"
+            occurrence:
+              min: 2
+        
+        - image:
+            alt:
+              required: true
+              minLength: 10
+              maxLength: 200
+            title:
+              required: false
+            width:
+              min: 400
+              max: 1920
+            height:
+              min: 300
+              max: 1080
+            formats:
+              allowed: ["png", "jpg", "jpeg", "svg", "webp"]
+            urlPattern: "^(images/|https://)"
+            occurrence:
+              max: 5
+    
+    # 5. API-Referenz (für API-Dokumentation)
+    - name: "API-Referenz"
+      level: 1
+      required: false
+      pattern: "^(API-Referenz|Endpunkte|REST API)$"
+      blocks:
+        # Endpoint-Beschreibung
+        - paragraph:
+            pattern: "^(GET|POST|PUT|DELETE|PATCH)\\s+/api/.*"
+            occurrence:
+              min: 1
+        
+        # Request/Response Beispiele
+        - listing:
+            language:
+              required: true
+              allowed: ["json", "xml", "curl", "http"]
+            title:
+              required: true
+              pattern: "^(Request|Response|Beispiel|Example):"
+        
+        # Parameter-Tabellen
+        - table:
+            header:
+              required: true
+            caption:
+              required: true
+              pattern: "^(Parameter|Headers|Query-Parameter):"
+            columns:
+              min: 3  # Name, Typ, Beschreibung
+              max: 5  # + Required, Default
+    
+    # 6. Fehlerbehebung
+    - name: "(Fehlerbehebung|Troubleshooting|Problemlösung)"
+      level: 1
+      required: false
+      severity: warn
+      blocks:
+        - paragraph
+        - listing:
+            language:
+              allowed: ["bash", "log", "text"]
+        - table
+        - admonition:
+            types: ["TIP", "WARNING", "CAUTION"]
+    
+    # 7. FAQ (Optional)
+    - name: "(FAQ|Häufig gestellte Fragen|Frequently Asked Questions)"
+      level: 1
+      required: false
+      blocks:
+        - paragraph
+        - listing
+        - qanda  # Spezieller Q&A Block
+    
+    # 8. Anhang/Appendix
+    - name: "(Anhang|Appendix|Referenzen)"
+      level: 1
+      required: false
+      blocks:
+        - paragraph
+        - table
+        - listing
+  
+# Erweiterte Ausgabe-Optionen gemäß Output-Schema
+output:
+  format: enhanced              # Erweitertes Format mit allen Features
+  
+  display:
+    contextLines: 5             # Mehr Kontext bei Fehlern (5 Zeilen)
+    highlightStyle: underline   # Fehler unterstreichen
+    useColors: true             # Farbige Ausgabe aktiviert
+    showLineNumbers: true       # Zeilennummern anzeigen
+    maxLineWidth: 120           # Maximale Zeilenbreite
+    showHeader: true            # Report-Header anzeigen
+    
+  suggestions:
+    enabled: true               # Verbesserungsvorschläge aktiviert
+    maxPerError: 3              # Bis zu 3 Vorschläge pro Fehler
+    showExamples: true          # Beispiele in Vorschlägen zeigen
+    showAutoFixHint: true       # Hinweis auf automatische Korrekturen
+    
+  errorGrouping:
+    enabled: true               # Ähnliche Fehler gruppieren
+    threshold: 3                # Ab 3 gleichen Fehlern gruppieren
+    
+  summary:
+    enabled: true               # Zusammenfassung anzeigen
+    showStatistics: true        # Fehlerstatistik mit Balken
+    showMostCommon: true        # Häufigste Probleme anzeigen
+    showFileList: false         # Dateiliste nicht anzeigen (zu viele)

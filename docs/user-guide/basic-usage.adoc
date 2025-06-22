@@ -1,0 +1,339 @@
+= Grundlegende Verwendung
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Lernen Sie die alltäglichen Anwendungsfälle des Power AsciiDoc Linters kennen - von der einfachen Dateivalidierung bis zur Arbeit mit verschiedenen Ausgabeformaten.
+
+== Übersicht der Kommandozeile
+
+Der Power AsciiDoc Linter wird über die Kommandozeile gesteuert:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar [OPTIONEN]
+----
+
+Die wichtigsten Optionen im Überblick:
+
+[cols="1,3,2"]
+|===
+| Option | Beschreibung | Beispiel
+
+| `-i, --input`
+| Dateimuster für zu validierende Dateien
+| `-i "**/*.adoc"`
+
+| `-c, --config`
+| Pfad zur Konfigurationsdatei
+| `-c config.yaml`
+
+| `-f, --format`
+| Ausgabeformat
+| `-f json`
+
+| `-o, --output`
+| Ausgabedatei
+| `-o report.json`
+
+| `-l, --fail-level`
+| Fehler-Level für Exit-Code
+| `-l warn`
+|===
+
+== Einzelne Dateien validieren
+
+=== Eine spezifische Datei prüfen
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i README.adoc
+----
+
+=== Mehrere spezifische Dateien
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "README.adoc,CHANGELOG.adoc,docs/guide.adoc"
+----
+
+== Verzeichnisse durchsuchen
+
+=== Alle AsciiDoc-Dateien im aktuellen Verzeichnis
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "*.adoc"
+----
+
+=== Rekursive Suche
+
+[source,bash]
+----
+# Alle .adoc Dateien in allen Unterverzeichnissen
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Alle .adoc und .asciidoc Dateien
+java -jar power-adoc-linter.jar -i "**/*.{adoc,asciidoc}"
+----
+
+=== Spezifische Verzeichnisse
+
+[source,bash]
+----
+# Nur im docs/ Verzeichnis
+java -jar power-adoc-linter.jar -i "docs/**/*.adoc"
+
+# In mehreren Verzeichnissen
+java -jar power-adoc-linter.jar -i "docs/**/*.adoc,src/*/README.adoc"
+----
+
+== Mit Konfigurationsdateien arbeiten
+
+=== Standard-Konfiguration verwenden
+
+Ohne explizite Konfiguration verwendet der Linter eingebaute Standardregeln:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+=== Eigene Konfiguration laden
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc" -c my-rules.yaml
+----
+
+=== Konfiguration aus anderem Verzeichnis
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc" -c /pfad/zu/shared-config.yaml
+----
+
+== Ausgabeformate
+
+=== Konsolen-Ausgabe (Standard)
+
+Die Standard-Ausgabe zeigt Fehler mit Kontext:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+Beispiel-Ausgabe:
+[source]
+----
+ERROR: docs/guide.adoc:15 - Fehlender erforderlicher Metadaten-Eintrag: author
+   13 | = Benutzerhandbuch
+   14 | :toc:
+>> 15 | :revdate: 2024-01-15
+   16 | 
+   17 | == Einleitung
+
+WARN: docs/guide.adoc:42 - Paragraph hat nur 2 Zeilen (minimum: 3)
+----
+
+=== JSON-Format
+
+Für die Weiterverarbeitung in anderen Tools:
+
+[source,bash]
+----
+# JSON auf Konsole ausgeben
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json
+
+# JSON in Datei speichern
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json -o validation-report.json
+----
+
+=== Kompaktes JSON-Format
+
+Für CI/CD-Pipelines (einzeilig):
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json-compact
+----
+
+== Fehler-Level steuern
+
+=== Nur Fehler anzeigen
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc" -l error
+----
+
+=== Bei Warnungen fehlschlagen
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc" -l warn
+----
+
+Exit-Codes:
+- `0`: Erfolgreich (keine Fehler auf oder über fail-level)
+- `1`: Validierungsfehler gefunden
+- `2`: Anwendungsfehler
+
+== Praktische Beispiele
+
+=== Beispiel 1: Dokumentation vor Release prüfen
+
+[source,bash]
+----
+# Strenge Prüfung aller Docs
+java -jar power-adoc-linter.jar \
+  -i "docs/**/*.adoc,README.adoc,CHANGELOG.adoc" \
+  -c strict-rules.yaml \
+  -l warn \
+  -o release-check.json
+----
+
+=== Beispiel 2: Nur neue Dateien prüfen
+
+[source,bash]
+----
+# Git-Dateien im Staging prüfen
+git diff --cached --name-only --diff-filter=A | \
+  grep "\.adoc$" | \
+  xargs java -jar power-adoc-linter.jar -i
+----
+
+=== Beispiel 3: Täglicher Quality-Check
+
+[source,bash]
+----
+#!/bin/bash
+# daily-doc-check.sh
+
+LINTER_JAR="/opt/tools/power-adoc-linter.jar"
+CONFIG="/opt/config/documentation-standards.yaml"
+REPORT_DIR="/var/reports/docs"
+TODAY=$(date +%Y-%m-%d)
+
+java -jar $LINTER_JAR \
+  -i "**/*.adoc" \
+  -c $CONFIG \
+  -f json \
+  -o "$REPORT_DIR/doc-quality-$TODAY.json"
+----
+
+== Glob-Patterns verstehen
+
+Der Linter verwendet Ant-Style Glob-Patterns:
+
+[cols="1,3,2"]
+|===
+| Pattern | Bedeutung | Beispiel-Treffer
+
+| `*`
+| Beliebige Zeichen (außer `/`)
+| `*.adoc` → `README.adoc`
+
+| `**`
+| Beliebige Verzeichnistiefe
+| `**/*.adoc` → `docs/guide/intro.adoc`
+
+| `?`
+| Genau ein Zeichen
+| `doc?.adoc` → `doc1.adoc`
+
+| `{a,b}`
+| Alternativen
+| `*.{adoc,asc}` → `README.adoc`, `guide.asc`
+|===
+
+== Performance-Tipps
+
+=== Große Dokumentensammlungen
+
+Bei vielen Dateien:
+
+[source,bash]
+----
+# Mehr Speicher zuweisen
+java -Xmx2g -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Spezifischere Patterns verwenden
+java -jar power-adoc-linter.jar -i "docs/current/**/*.adoc"
+----
+
+=== Parallel-Verarbeitung
+
+Der Linter verarbeitet Dateien automatisch parallel. Die Anzahl der Threads kann gesteuert werden:
+
+[source,bash]
+----
+# Mit 4 Threads
+java -Djava.util.concurrent.ForkJoinPool.common.parallelism=4 \
+  -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+== Integration in Arbeitsabläufe
+
+=== Pre-Commit Hook
+
+`.git/hooks/pre-commit`:
+[source,bash]
+----
+#!/bin/bash
+# Prüfe alle staged AsciiDoc-Dateien
+
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep "\.adoc$")
+
+if [ -n "$FILES" ]; then
+  java -jar /path/to/power-adoc-linter.jar -i "$FILES" -c .linter-config.yaml
+  if [ $? -ne 0 ]; then
+    echo "❌ Linter-Fehler gefunden. Commit abgebrochen."
+    exit 1
+  fi
+fi
+----
+
+=== Editor-Integration
+
+Beispiel für VS Code (tasks.json):
+[source,json]
+----
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lint AsciiDoc",
+      "type": "shell",
+      "command": "java",
+      "args": [
+        "-jar",
+        "${workspaceFolder}/tools/power-adoc-linter.jar",
+        "-i",
+        "${file}",
+        "-c",
+        "${workspaceFolder}/.linter-config.yaml"
+      ],
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(ERROR|WARN):\\s+(.+):(\\d+)\\s+-\\s+(.+)$",
+          "severity": 1,
+          "file": 2,
+          "line": 3,
+          "message": 4
+        }
+      }
+    }
+  ]
+}
+----
+
+== Nächste Schritte
+
+* link:configuration.html[Konfiguration] - Eigene Validierungsregeln erstellen
+* link:../reference/cli-options.html[CLI-Referenz] - Alle Kommandozeilenoptionen
+* link:troubleshooting.html[Fehlerbehebung] - Lösungen für häufige Probleme

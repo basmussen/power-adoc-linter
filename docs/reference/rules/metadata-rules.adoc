@@ -1,0 +1,305 @@
+= Metadaten-Regeln
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Referenz aller verfügbaren Validierungsregeln für AsciiDoc-Dokumentmetadaten.
+
+== Übersicht
+
+Metadaten-Regeln validieren die Dokumentattribute im Header eines AsciiDoc-Dokuments.
+
+[source,asciidoc]
+----
+= Dokumenttitel
+Max Mustermann <max@example.com>
+v1.0, 2024-01-15
+:keywords: AsciiDoc, Linter
+:description: Beispieldokument
+----
+
+== Verfügbare Regeln
+
+=== attributes
+
+Definiert Metadaten-Attribute mit detaillierten Validierungsregeln.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Beschreibung
+
+| Typ
+| Array von Attribut-Objekten
+
+| Pflichtfelder pro Attribut
+| name, severity
+
+| Optionale Felder
+| required, minLength, maxLength, pattern, allowedValues
+|===
+
+*Konfiguration:*
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true      # Attribut ist Pflicht
+        minLength: 5
+        maxLength: 100
+        pattern: "^[A-Z].*"
+        severity: error
+        
+      - name: author
+        required: true
+        severity: error
+----
+
+*Häufig verwendete Metadaten:*
+[cols="1,3,2"]
+|===
+| Attribut | Beschreibung | Beispiel
+
+| title
+| Dokumenttitel
+| `= Benutzerhandbuch`
+
+| author
+| Autor(en)
+| `:author: Max Mustermann`
+
+| revdate
+| Revisionsdatum
+| `:revdate: 2024-01-15`
+
+| version
+| Versionsnummer
+| `:version: 1.2.3`
+
+| email
+| Kontakt-E-Mail
+| `:email: docs@example.com`
+
+| keywords
+| Schlüsselwörter
+| `:keywords: API, REST, Guide`
+|===
+
+=== Attribut-Felder
+
+Jedes Attribut-Objekt kann folgende Felder haben:
+
+[cols="1,2,2"]
+|===
+| Feld | Beschreibung | Beispiel
+
+| name
+| Name des Metadaten-Attributs (Pflicht)
+| `title`, `author`, `revdate`
+
+| required
+| Ist das Attribut erforderlich?
+| `true` oder `false`
+
+| minLength
+| Minimale Länge des Werts
+| `5`
+
+| maxLength
+| Maximale Länge des Werts
+| `100`
+
+| pattern
+| Regex-Pattern für Validierung
+| `"\\d{4}-\\d{2}-\\d{2}"`
+
+| allowedValues
+| Liste erlaubter Werte
+| `["draft", "final"]`
+
+| severity
+| Schweregrad (Pflicht)
+| `error`, `warn`, `info`
+|===
+
+*Beispiel mit optionalen Attributen:*
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: keywords
+        required: false     # Optional
+        maxLength: 200
+        severity: info
+        
+      - name: status
+        required: true
+        allowedValues:      # Nur diese Werte erlaubt
+          - "draft"
+          - "review"
+          - "published"
+        severity: error
+----
+
+=== Pattern-Validierung
+
+Pattern werden direkt im Attribut-Objekt definiert:
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: revdate
+        required: true
+        pattern: "\\d{4}-\\d{2}-\\d{2}"  # YYYY-MM-DD
+        severity: error
+        
+      - name: version
+        required: true
+        pattern: "v?\\d+\\.\\d+\\.\\d+(-\\w+)?"  # Semantic Versioning
+        severity: error
+        
+      - name: email
+        required: false
+        pattern: "^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$"
+        severity: warn
+----
+
+*Pattern-Beispiele:*
+
+[cols="1,2,2"]
+|===
+| Attribut | Pattern | Gültige Werte
+
+| revdate
+| `\\d{4}-\\d{2}-\\d{2}`
+| 2024-01-15, 2023-12-31
+
+| version
+| `v?\\d+\\.\\d+\\.\\d+`
+| 1.0.0, v2.3.1
+
+| isbn
+| `\\d{3}-\\d{10}`
+| 978-1234567890
+
+| lang
+| `(de\|en\|fr\|es)`
+| de, en, fr, es
+|===
+
+=== Schweregrad (Severity)
+
+Jedes Attribut muss einen eigenen Severity-Wert haben:
+
+[cols="1,3"]
+|===
+| Wert | Bedeutung
+
+| error
+| Kritischer Fehler, muss behoben werden
+
+| warn
+| Warnung, sollte beachtet werden
+
+| info
+| Hinweis zur Verbesserung
+|===
+
+*Hinweis:* Es gibt keine globale Severity für alle Metadaten. Jedes Attribut definiert seinen eigenen Schweregrad.
+
+== Anwendungsbeispiele
+
+=== Minimale Dokumentation
+
+[source,yaml]
+----
+document:
+  metadata:
+    required:
+      - title
+      - author
+----
+
+Validiert:
+[source,asciidoc]
+----
+= Mein Dokument
+Max Mustermann
+----
+
+=== Technische Dokumentation
+
+[source,yaml]
+----
+document:
+  metadata:
+    required:
+      - title
+      - author
+      - revdate
+      - version
+      - component
+    patterns:
+      version: "\\d+\\.\\d+\\.\\d+"
+      revdate: "\\d{4}-\\d{2}-\\d{2}"
+      component: "^(api|web|mobile|backend)$"
+    severity: error
+----
+
+=== API-Dokumentation
+
+[source,yaml]
+----
+document:
+  metadata:
+    required:
+      - title
+      - api-version
+      - api-endpoint
+      - last-modified
+    patterns:
+      api-version: "v\\d+(\\.\\d+)?"
+      api-endpoint: "^/api/.*"
+      last-modified: "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"
+----
+
+== Fehlermeldungen
+
+Typische Fehlermeldungen und ihre Bedeutung:
+
+[cols="1,2,2"]
+|===
+| Fehler | Bedeutung | Lösung
+
+| "Missing required metadata: author"
+| Pflicht-Attribut fehlt
+| `:author: Name` hinzufügen
+
+| "Metadata 'version' does not match pattern"
+| Wert entspricht nicht dem Pattern
+| Format anpassen (z.B. 1.2.3)
+
+| "Unknown metadata attribute: foo"
+| Attribut nicht in required/optional/custom
+| Zu custom hinzufügen oder entfernen
+|===
+
+== Best Practices
+
+1. **Schrittweise erweitern**: Beginnen Sie mit wenigen Pflicht-Metadaten
+2. **Patterns sparsam nutzen**: Nur wo Format wichtig ist
+3. **Dokumentieren**: Custom-Attribute immer dokumentieren
+4. **Konsistenz**: Gleiche Patterns projektübergreifend verwenden
+
+== Siehe auch
+
+* link:../user-guide/configuration.html[Konfiguration] - Wie man Regeln konfiguriert
+* link:structure-rules.html[Struktur-Regeln] - Regeln für Dokumentstruktur
+* link:block-rules/index.html[Block-Regeln] - Regeln für Inhaltsblöcke
