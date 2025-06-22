@@ -47,7 +47,6 @@ class OutputConfigurationLoaderTest {
                   display:
                     useColors: true
                     contextLines: 3
-                    showRuleId: true
                     showLineNumbers: true
                     highlightStyle: underline
                 """;
@@ -90,23 +89,16 @@ class OutputConfigurationLoaderTest {
                   display:
                     useColors: true
                     contextLines: 5
-                    showRuleId: true
                     showLineNumbers: true
                     highlightStyle: box
                   errorGrouping:
                     enabled: true
-                    groupBySeverity: true
-                    groupByRule: true
-                    groupByFile: false
-                    maxGroupSize: 20
-                    showSampleErrors: 5
-                    collapseThreshold: 10
+                    threshold: 10
                   summary:
                     enabled: true
                     showStatistics: true
                     showMostCommon: true
                     showFileList: true
-                    showAutoFixHint: true
                 """;
             
             InputStream input = new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8));
