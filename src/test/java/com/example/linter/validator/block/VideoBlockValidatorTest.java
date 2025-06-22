@@ -4,6 +4,7 @@ import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.config.blocks.VideoBlock;
+import com.example.linter.validator.ErrorType;
 import com.example.linter.validator.SourceLocation;
 import com.example.linter.validator.ValidationMessage;
 import org.asciidoctor.ast.StructuralNode;
@@ -84,8 +85,12 @@ class VideoBlockValidatorTest {
             List<ValidationMessage> messages = validator.validate(node, config, context);
             
             assertEquals(1, messages.size());
-            assertEquals(Severity.ERROR, messages.get(0).getSeverity());
-            assertEquals("Video URL is required but not provided", messages.get(0).getMessage());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.ERROR, msg.getSeverity());
+            assertEquals("Video URL is required but not provided", msg.getMessage());
+            assertEquals(ErrorType.MISSING_VALUE, msg.getErrorType());
+            assertEquals("target", msg.getMissingValueHint());
+            assertTrue(msg.hasSuggestions());
         }
         
         @Test
@@ -104,8 +109,13 @@ class VideoBlockValidatorTest {
             List<ValidationMessage> messages = validator.validate(node, config, context);
             
             assertEquals(1, messages.size());
-            assertEquals(Severity.WARN, messages.get(0).getSeverity());
-            assertTrue(messages.get(0).getMessage().contains("does not match required pattern"));
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity());
+            assertEquals("Video URL does not match required pattern", msg.getMessage());
+            assertEquals(ErrorType.INVALID_PATTERN, msg.getErrorType());
+            assertEquals("https://example.com/video.avi", msg.getActualValue().orElse(null));
+            assertEquals("^https?://.*\\.(mp4|webm)$", msg.getExpectedValue().orElse(null));
+            assertTrue(msg.hasSuggestions());
         }
         
         @Test
@@ -150,7 +160,12 @@ class VideoBlockValidatorTest {
             List<ValidationMessage> messages = validator.validate(node, config, context);
             
             assertEquals(1, messages.size());
-            assertEquals("Video width 200 is below minimum value 320", messages.get(0).getMessage());
+            ValidationMessage msg = messages.get(0);
+            assertEquals("Video width is below minimum value", msg.getMessage());
+            assertEquals(ErrorType.OUT_OF_RANGE, msg.getErrorType());
+            assertEquals("200", msg.getActualValue().orElse(null));
+            assertEquals(">= 320", msg.getExpectedValue().orElse(null));
+            assertTrue(msg.hasSuggestions());
         }
         
         @Test
@@ -170,8 +185,13 @@ class VideoBlockValidatorTest {
             List<ValidationMessage> messages = validator.validate(node, config, context);
             
             assertEquals(1, messages.size());
-            assertEquals(Severity.INFO, messages.get(0).getSeverity());
-            assertEquals("Video height 2000 exceeds maximum value 1080", messages.get(0).getMessage());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.INFO, msg.getSeverity());
+            assertEquals("Video height exceeds maximum value", msg.getMessage());
+            assertEquals(ErrorType.OUT_OF_RANGE, msg.getErrorType());
+            assertEquals("2000", msg.getActualValue().orElse(null));
+            assertEquals("<= 1080", msg.getExpectedValue().orElse(null));
+            assertTrue(msg.hasSuggestions());
         }
         
         @Test
@@ -190,7 +210,12 @@ class VideoBlockValidatorTest {
             List<ValidationMessage> messages = validator.validate(node, config, context);
             
             assertEquals(1, messages.size());
-            assertEquals("Video width 'invalid' is not a valid number", messages.get(0).getMessage());
+            ValidationMessage msg = messages.get(0);
+            assertEquals("Video width is not a valid number", msg.getMessage());
+            assertEquals(ErrorType.INVALID_PATTERN, msg.getErrorType());
+            assertEquals("invalid", msg.getActualValue().orElse(null));
+            assertEquals("numeric value", msg.getExpectedValue().orElse(null));
+            assertTrue(msg.hasSuggestions());
         }
     }
     
@@ -214,7 +239,12 @@ class VideoBlockValidatorTest {
             List<ValidationMessage> messages = validator.validate(node, config, context);
             
             assertEquals(1, messages.size());
-            assertTrue(messages.get(0).getMessage().contains("Video poster 'poster.gif' does not match"));
+            ValidationMessage msg = messages.get(0);
+            assertEquals("Video poster does not match required pattern", msg.getMessage());
+            assertEquals(ErrorType.INVALID_PATTERN, msg.getErrorType());
+            assertEquals("poster.gif", msg.getActualValue().orElse(null));
+            assertEquals(".*\\.(jpg|jpeg|png)$", msg.getExpectedValue().orElse(null));
+            assertTrue(msg.hasSuggestions());
         }
     }
     
@@ -241,8 +271,15 @@ class VideoBlockValidatorTest {
             List<ValidationMessage> messages = validator.validate(node, config, context);
             
             assertEquals(1, messages.size());
-            assertEquals(Severity.ERROR, messages.get(0).getSeverity());
-            assertEquals("Video controls are required but not enabled", messages.get(0).getMessage());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.ERROR, msg.getSeverity());
+            assertEquals("Video controls are required but not enabled", msg.getMessage());
+            assertEquals(ErrorType.MISSING_VALUE, msg.getErrorType());
+            assertEquals("options=controls", msg.getMissingValueHint());
+            assertEquals("autoplay", msg.getActualValue().orElse(null));
+            assertEquals("controls", msg.getExpectedValue().orElse(null));
+            assertTrue(msg.hasSuggestions());
+            assertTrue(msg.hasAutoFixableSuggestions());
         }
         
         @Test
@@ -287,8 +324,13 @@ class VideoBlockValidatorTest {
             List<ValidationMessage> messages = validator.validate(node, config, context);
             
             assertEquals(1, messages.size());
-            assertEquals(Severity.WARN, messages.get(0).getSeverity());
-            assertEquals("Video caption length 5 is below minimum 15", messages.get(0).getMessage());
+            ValidationMessage msg = messages.get(0);
+            assertEquals(Severity.WARN, msg.getSeverity());
+            assertEquals("Video caption is too short", msg.getMessage());
+            assertEquals(ErrorType.OUT_OF_RANGE, msg.getErrorType());
+            assertEquals("5 characters", msg.getActualValue().orElse(null));
+            assertEquals(">= 15 characters", msg.getExpectedValue().orElse(null));
+            assertTrue(msg.hasSuggestions());
         }
         
         @Test
@@ -308,7 +350,12 @@ class VideoBlockValidatorTest {
             List<ValidationMessage> messages = validator.validate(node, config, context);
             
             assertEquals(1, messages.size());
-            assertTrue(messages.get(0).getMessage().contains("exceeds maximum"));
+            ValidationMessage msg = messages.get(0);
+            assertEquals("Video caption is too long", msg.getMessage());
+            assertEquals(ErrorType.OUT_OF_RANGE, msg.getErrorType());
+            assertEquals("78 characters", msg.getActualValue().orElse(null));
+            assertEquals("<= 50 characters", msg.getExpectedValue().orElse(null));
+            assertTrue(msg.hasSuggestions());
         }
         
         @Test
