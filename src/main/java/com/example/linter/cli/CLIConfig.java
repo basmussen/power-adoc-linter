@@ -15,6 +15,7 @@ public class CLIConfig {
     private final List<String> inputPatterns;
     private final Path baseDirectory;
     private final Path configFile;
+    private final Path outputConfigFile;
     private final String reportFormat;
     private final Path reportOutput;
     private final Severity failLevel;
@@ -26,6 +27,7 @@ public class CLIConfig {
         }
         this.baseDirectory = Objects.requireNonNull(builder.baseDirectory, "baseDirectory must not be null");
         this.configFile = builder.configFile;
+        this.outputConfigFile = builder.outputConfigFile;
         this.reportFormat = Objects.requireNonNull(builder.reportFormat, "reportFormat must not be null");
         this.reportOutput = builder.reportOutput;
         this.failLevel = Objects.requireNonNull(builder.failLevel, "failLevel must not be null");
@@ -41,6 +43,10 @@ public class CLIConfig {
     
     public Path getConfigFile() {
         return configFile;
+    }
+    
+    public Path getOutputConfigFile() {
+        return outputConfigFile;
     }
     
     public String getReportFormat() {
@@ -67,6 +73,7 @@ public class CLIConfig {
         private List<String> inputPatterns;
         private Path baseDirectory = Paths.get(System.getProperty("user.dir"));
         private Path configFile;
+        private Path outputConfigFile;
         private String reportFormat = "console";
         private Path reportOutput;
         private Severity failLevel = Severity.ERROR;
@@ -83,6 +90,11 @@ public class CLIConfig {
         
         public Builder configFile(Path configFile) {
             this.configFile = configFile;
+            return this;
+        }
+        
+        public Builder outputConfigFile(Path outputConfigFile) {
+            this.outputConfigFile = outputConfigFile;
             return this;
         }
         

@@ -1,0 +1,26 @@
+# Enhanced output configuration for detailed error reporting
+# This configuration provides maximum detail and visual feedback
+
+output:
+  format: enhanced
+  
+  display:
+    useColors: true
+    contextLines: 3
+    showRuleId: true
+    showLineNumbers: true
+    highlightStyle: underline
+    
+  errorGrouping:
+    enabled: true
+    groupBySeverity: true
+    groupByRule: true
+    maxGroupSize: 10
+    showSampleErrors: 3
+    
+  summary:
+    enabled: true
+    showStatistics: true
+    showMostCommon: true
+    showFileList: true
+    showAutoFixHint: true

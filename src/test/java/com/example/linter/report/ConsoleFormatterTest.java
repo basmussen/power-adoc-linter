@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.example.linter.config.Severity;
+import com.example.linter.config.output.DisplayConfig;
+import com.example.linter.config.output.OutputConfiguration;
+import com.example.linter.config.output.OutputFormat;
 import com.example.linter.validator.SourceLocation;
 import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.ValidationResult;
@@ -25,7 +28,14 @@ class ConsoleFormatterTest {
     
     @BeforeEach
     void setUp() {
-        formatter = new ConsoleFormatter(false); // No colors for testing
+        // Create formatter with no colors for testing
+        OutputConfiguration config = OutputConfiguration.builder()
+            .format(OutputFormat.SIMPLE)
+            .display(DisplayConfig.builder()
+                .useColors(false)
+                .build())
+            .build();
+        formatter = new ConsoleFormatter(config);
         stringWriter = new StringWriter();
         printWriter = new PrintWriter(stringWriter);
     }

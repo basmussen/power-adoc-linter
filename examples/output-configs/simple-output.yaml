@@ -1,0 +1,22 @@
+# Simple output configuration for basic error reporting
+# Clean and minimal output without extra visual elements
+
+output:
+  format: simple
+  
+  display:
+    useColors: false
+    contextLines: 0
+    showRuleId: true
+    showLineNumbers: true
+    highlightStyle: none
+    
+  errorGrouping:
+    enabled: false
+    
+  summary:
+    enabled: true
+    showStatistics: false
+    showMostCommon: false
+    showFileList: false
+    showAutoFixHint: false

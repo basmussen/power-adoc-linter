@@ -1,0 +1,304 @@
+package com.example.linter.validator;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import com.example.linter.config.Severity;
+
+/**
+ * Tests for enhanced ValidationMessage features.
+ */
+@DisplayName("Enhanced ValidationMessage Tests")
+class EnhancedValidationMessageTest {
+    
+    @Nested
+    @DisplayName("Enhanced Fields Tests")
+    class EnhancedFieldsTests {
+        
+        @Test
+        @DisplayName("should create message with all enhanced fields")
+        void shouldCreateMessageWithAllEnhancedFields() {
+            // Given
+            List<Suggestion> suggestions = Arrays.asList(
+                Suggestion.builder()
+                    .description("Fix suggestion 1")
+                    .example("Example code")
+                    .isAutoFixable(true)
+                    .build()
+            );
+            
+            List<String> contextLines = Arrays.asList(
+                "Line before",
+                "Error line",
+                "Line after"
+            );
+            
+            // When
+            ValidationMessage message = ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("test.rule")
+                .message("Test error")
+                .location(SourceLocation.builder()
+                    .filename("test.adoc")
+                    .line(10)
+                    .column(5)
+                    .build())
+                .errorType(ErrorType.MISSING_REQUIRED)
+                .actualValue("actual")
+                .expectedValue("expected")
+                .missingValueHint("id")
+                .suggestions(suggestions)
+                .contextLines(contextLines)
+                .build();
+            
+            // Then
+            assertEquals(ErrorType.MISSING_REQUIRED, message.getErrorType());
+            assertEquals("actual", message.getActualValue());
+            assertEquals("expected", message.getExpectedValue());
+            assertEquals("id", message.getMissingValueHint());
+            assertEquals(suggestions, message.getSuggestions());
+            assertEquals(contextLines, message.getContextLines());
+            assertTrue(message.hasSuggestions());
+            assertTrue(message.hasAutoFixableSuggestions());
+        }
+        
+        @Test
+        @DisplayName("should handle null enhanced fields")
+        void shouldHandleNullEnhancedFields() {
+            // When
+            ValidationMessage message = ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("test.rule")
+                .message("Test error")
+                .location(SourceLocation.builder()
+                    .filename("test.adoc")
+                    .line(10)
+                    .build())
+                .build();
+            
+            // Then
+            assertNull(message.getErrorType());
+            assertNull(message.getActualValue());
+            assertNull(message.getExpectedValue());
+            assertNull(message.getMissingValueHint());
+            assertTrue(message.getSuggestions().isEmpty());
+            assertTrue(message.getContextLines().isEmpty());
+            assertFalse(message.hasSuggestions());
+            assertFalse(message.hasAutoFixableSuggestions());
+        }
+    }
+    
+    @Nested
+    @DisplayName("Suggestion Tests")
+    class SuggestionTests {
+        
+        @Test
+        @DisplayName("should detect auto-fixable suggestions")
+        void shouldDetectAutoFixableSuggestions() {
+            // Given
+            List<Suggestion> suggestions = Arrays.asList(
+                Suggestion.builder()
+                    .description("Manual fix")
+                    .isAutoFixable(false)
+                    .build(),
+                Suggestion.builder()
+                    .description("Auto fix")
+                    .isAutoFixable(true)
+                    .build()
+            );
+            
+            // When
+            ValidationMessage message = ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("test.rule")
+                .message("Test error")
+                .location(SourceLocation.builder()
+                    .filename("test.adoc")
+                    .line(10)
+                    .build())
+                .suggestions(suggestions)
+                .build();
+            
+            // Then
+            assertTrue(message.hasSuggestions());
+            assertTrue(message.hasAutoFixableSuggestions());
+        }
+        
+        @Test
+        @DisplayName("should handle only manual suggestions")
+        void shouldHandleOnlyManualSuggestions() {
+            // Given
+            List<Suggestion> suggestions = Arrays.asList(
+                Suggestion.builder()
+                    .description("Manual fix 1")
+                    .isAutoFixable(false)
+                    .build(),
+                Suggestion.builder()
+                    .description("Manual fix 2")
+                    .isAutoFixable(false)
+                    .build()
+            );
+            
+            // When
+            ValidationMessage message = ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("test.rule")
+                .message("Test error")
+                .location(SourceLocation.builder()
+                    .filename("test.adoc")
+                    .line(10)
+                    .build())
+                .suggestions(suggestions)
+                .build();
+            
+            // Then
+            assertTrue(message.hasSuggestions());
+            assertFalse(message.hasAutoFixableSuggestions());
+        }
+    }
+    
+    @Nested
+    @DisplayName("Error Type Tests")
+    class ErrorTypeTests {
+        
+        @Test
+        @DisplayName("should support all error types")
+        void shouldSupportAllErrorTypes() {
+            for (ErrorType type : ErrorType.values()) {
+                // When
+                ValidationMessage message = ValidationMessage.builder()
+                    .severity(Severity.ERROR)
+                    .ruleId("test.rule")
+                    .message("Test error")
+                    .location(SourceLocation.builder()
+                        .filename("test.adoc")
+                        .line(10)
+                        .build())
+                    .errorType(type)
+                    .build();
+                
+                // Then
+                assertEquals(type, message.getErrorType());
+            }
+        }
+    }
+    
+    @Nested
+    @DisplayName("Builder Defense Tests")
+    class BuilderDefenseTests {
+        
+        @Test
+        @DisplayName("should make defensive copies of lists")
+        void shouldMakeDefensiveCopiesOfLists() {
+            // Given
+            List<Suggestion> mutableSuggestions = Arrays.asList(
+                Suggestion.builder()
+                    .description("Suggestion")
+                    .build()
+            );
+            List<String> mutableContext = Arrays.asList("Line 1", "Line 2");
+            
+            // When
+            ValidationMessage message = ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("test.rule")
+                .message("Test error")
+                .location(SourceLocation.builder()
+                    .filename("test.adoc")
+                    .line(10)
+                    .build())
+                .suggestions(mutableSuggestions)
+                .contextLines(mutableContext)
+                .build();
+            
+            // Then - returned lists should be unmodifiable
+            assertThrows(UnsupportedOperationException.class, () ->
+                message.getSuggestions().add(Suggestion.builder().description("new").build())
+            );
+            assertThrows(UnsupportedOperationException.class, () ->
+                message.getContextLines().add("new line")
+            );
+        }
+        
+        @Test
+        @DisplayName("should handle null lists in builder")
+        void shouldHandleNullListsInBuilder() {
+            // When
+            ValidationMessage message = ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("test.rule")
+                .message("Test error")
+                .location(SourceLocation.builder()
+                    .filename("test.adoc")
+                    .line(10)
+                    .build())
+                .suggestions(null)
+                .contextLines(null)
+                .build();
+            
+            // Then
+            assertNotNull(message.getSuggestions());
+            assertNotNull(message.getContextLines());
+            assertTrue(message.getSuggestions().isEmpty());
+            assertTrue(message.getContextLines().isEmpty());
+        }
+    }
+    
+    @Nested
+    @DisplayName("Equals and HashCode Tests")
+    class EqualsHashCodeTests {
+        
+        @Test
+        @DisplayName("should consider enhanced fields in equals")
+        void shouldConsiderEnhancedFieldsInEquals() {
+            // Given
+            ValidationMessage message1 = ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("test.rule")
+                .message("Test error")
+                .location(SourceLocation.builder()
+                    .filename("test.adoc")
+                    .line(10)
+                    .build())
+                .errorType(ErrorType.MISSING_REQUIRED)
+                .actualValue("actual")
+                .build();
+            
+            ValidationMessage message2 = ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("test.rule")
+                .message("Test error")
+                .location(SourceLocation.builder()
+                    .filename("test.adoc")
+                    .line(10)
+                    .build())
+                .errorType(ErrorType.MISSING_REQUIRED)
+                .actualValue("actual")
+                .build();
+            
+            ValidationMessage message3 = ValidationMessage.builder()
+                .severity(Severity.ERROR)
+                .ruleId("test.rule")
+                .message("Test error")
+                .location(SourceLocation.builder()
+                    .filename("test.adoc")
+                    .line(10)
+                    .build())
+                .errorType(ErrorType.INVALID_VALUE)  // Different
+                .actualValue("actual")
+                .build();
+            
+            // Then
+            assertEquals(message1, message2);
+            assertNotEquals(message1, message3);
+            assertEquals(message1.hashCode(), message2.hashCode());
+        }
+    }
+}

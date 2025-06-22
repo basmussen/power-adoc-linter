@@ -92,6 +92,11 @@ public class LinterCLI {
             builder.configFile(Paths.get(cmd.getOptionValue("config")));
         }
         
+        // Output config file
+        if (cmd.hasOption("output-config")) {
+            builder.outputConfigFile(Paths.get(cmd.getOptionValue("output-config")));
+        }
+        
         // Report format
         if (cmd.hasOption("report-format")) {
             String format = cmd.getOptionValue("report-format");
@@ -130,6 +135,7 @@ public class LinterCLI {
             "  " + PROGRAM_NAME + " -i \"**/*.adoc\"\n" +
             "  " + PROGRAM_NAME + " -i \"docs/**/*.adoc,examples/**/*.asciidoc\" -f json -o report.json\n" +
             "  " + PROGRAM_NAME + " --input \"src/*/docs/**/*.adoc,README.adoc\" --config strict.yaml --fail-level warn\n" +
+            "  " + PROGRAM_NAME + " -i \"**/*.adoc\" --output-config enhanced-output.yaml\n" +
             "\nAnt Pattern Syntax:\n" +
             "  **  - matches any number of directories\n" +
             "  *   - matches any number of characters (except /)\n" +

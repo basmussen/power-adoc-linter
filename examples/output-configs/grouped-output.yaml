@@ -1,0 +1,28 @@
+# Grouped output configuration for large projects
+# Groups similar errors together to reduce noise
+
+output:
+  format: enhanced
+  
+  display:
+    useColors: true
+    contextLines: 2
+    showRuleId: true
+    showLineNumbers: true
+    highlightStyle: underline
+    
+  errorGrouping:
+    enabled: true
+    groupBySeverity: true
+    groupByRule: true
+    groupByFile: false
+    maxGroupSize: 20
+    showSampleErrors: 5
+    collapseThreshold: 10
+    
+  summary:
+    enabled: true
+    showStatistics: true
+    showMostCommon: true
+    showFileList: false
+    showAutoFixHint: true

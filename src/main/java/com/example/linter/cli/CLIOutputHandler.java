@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import com.example.linter.config.output.OutputConfiguration;
+import com.example.linter.config.output.OutputConfigurationLoader;
 import com.example.linter.report.ReportWriter;
 import com.example.linter.validator.ValidationResult;
 
@@ -16,9 +18,11 @@ import com.example.linter.validator.ValidationResult;
 public class CLIOutputHandler {
     
     private final ReportWriter reportWriter;
+    private final OutputConfigurationLoader outputConfigLoader;
     
     public CLIOutputHandler() {
         this.reportWriter = new ReportWriter();
+        this.outputConfigLoader = new OutputConfigurationLoader();
     }
     
     /**
