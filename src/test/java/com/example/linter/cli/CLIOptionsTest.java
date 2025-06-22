@@ -61,14 +61,18 @@ class CLIOptionsTest {
     }
     
     @Test
-    @DisplayName("should require input parameter")
-    void shouldRequireInputParameter() {
+    @DisplayName("should parse without input when using generate-docs")
+    void shouldParseWithoutInputWhenUsingGenerateDocs() throws ParseException {
         // Given
-        String[] args = {"-c", "config.yaml"};
+        String[] args = {"--generate-docs", "-c", "config.yaml"};
         
-        // When/Then
-        assertThrows(ParseException.class, () -> 
-            parser.parse(cliOptions.getOptions(), args));
+        // When
+        CommandLine cmd = parser.parse(cliOptions.getOptions(), args);
+        
+        // Then
+        assertTrue(cmd.hasOption("generate-docs"));
+        assertTrue(cmd.hasOption("config"));
+        assertFalse(cmd.hasOption("input"));
     }
     
     @Test

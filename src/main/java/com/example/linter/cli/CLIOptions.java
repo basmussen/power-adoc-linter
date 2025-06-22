@@ -16,13 +16,12 @@ public class CLIOptions {
     }
     
     private void defineOptions() {
-        // Input patterns (required)
+        // Input patterns (required for validation, optional for doc generation)
         options.addOption(Option.builder("i")
             .longOpt("input")
             .hasArg()
             .argName("patterns")
             .desc("Comma-separated Ant file patterns (e.g., '**/*.adoc,docs/**/*.asciidoc')")
-            .required()
             .build());
         
         // Configuration file
@@ -75,6 +74,20 @@ public class CLIOptions {
         options.addOption(Option.builder("v")
             .longOpt("version")
             .desc("Show version")
+            .build());
+        
+        // Generate documentation
+        options.addOption(Option.builder()
+            .longOpt("generate-docs")
+            .desc("Generate human-readable documentation from configuration")
+            .build());
+        
+        // Visualization style for documentation
+        options.addOption(Option.builder()
+            .longOpt("viz-style")
+            .hasArg()
+            .argName("styles")
+            .desc("Comma-separated visualization styles: tree, nested, breadcrumb, table (default: tree)")
             .build());
     }
     
