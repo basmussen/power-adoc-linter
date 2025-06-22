@@ -12,23 +12,15 @@ Erfahren Sie, wie Sie den Power AsciiDoc Linter an Ihre spezifischen Anforderung
 
 Der Power AsciiDoc Linter verwendet YAML-Dateien zur Konfiguration von Validierungsregeln. Die Konfiguration folgt einer hierarchischen Struktur:
 
-[plantuml, config-hierarchy, svg]
+[source]
 ----
-@startuml
-!theme plain
-skinparam backgroundColor #FFFFFF
-
-rectangle "Konfiguration" {
-  rectangle "Document" {
-    rectangle "Metadata"
-    rectangle "Sections" {
-      rectangle "Blocks" {
-        rectangle "Rules"
-      }
-    }
-  }
-}
-@enduml
+Konfiguration
+└── Document
+    ├── Metadata
+    │   └── Attributes[]
+    └── Sections[]
+        └── Blocks[]
+            └── Rules
 ----
 
 == Basis-Konfiguration

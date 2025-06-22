@@ -39,17 +39,18 @@ Um sofort loszulegen, benötigen Sie nur drei Schritte:
 
 [source,bash]
 ----
-# 1. Linter herunterladen
-wget https://github.com/basmussen/power-adoc-linter/releases/latest/download/power-adoc-linter.jar
+# 1. Repository klonen
+git clone https://github.com/basmussen/power-adoc-linter.git
+cd power-adoc-linter
 
-# 2. Ausführbar machen
-chmod +x power-adoc-linter.jar
+# 2. Mit Maven bauen
+mvn clean package
 
 # 3. Erste Validierung durchführen
-java -jar power-adoc-linter.jar -i "**/*.adoc"
+java -jar target/power-adoc-linter.jar -i "**/*.adoc"
 ----
 
-Weitere Details finden Sie im link:user-guide/getting-started.html[Schnellstart-Guide].
+Weitere Details finden Sie im link:user-guide/getting-started.adoc[Schnellstart-Guide].
 
 == Hauptfunktionen
 
@@ -61,11 +62,18 @@ Erstellen Sie maßgeschneiderte Validierungsregeln für Ihre spezifischen Anford
 ----
 document:
   metadata:
-    required:
-      - title
-      - author
-      - revdate
-    severity: error
+    attributes:
+      - name: title
+        required: true
+        minLength: 5
+        severity: error
+      - name: author
+        required: true
+        severity: error
+      - name: revdate
+        required: true
+        pattern: "\\d{4}-\\d{2}-\\d{2}"
+        severity: error
   sections:
     - name: "Einleitung"
       required: true
@@ -102,50 +110,34 @@ WARN: document.adoc:42 - Paragraph hat nur 2 Zeilen (minimum: 3)
 |===
 | Bereich | Beschreibung
 
-| link:user-guide/index.html[Benutzerhandbuch]
+| link:user-guide/getting-started.adoc[Benutzerhandbuch]
 | Schritt-für-Schritt-Anleitungen für die tägliche Arbeit
 
-| link:reference/index.html[Referenz]
+| link:reference/cli-options.adoc[Referenz]
 | Detaillierte Beschreibung aller Funktionen und Optionen
 
-| link:integration/index.html[Integration]
+| link:integration/github-actions.adoc[Integration]
 | Anleitungen zur Integration in CI/CD-Pipelines
 
-| link:examples/index.html[Beispiele]
+| link:examples/basic-config.yaml[Beispiele]
 | Praxisnahe Beispielkonfigurationen
 |===
 
 == Schnelle Links
 
-* link:user-guide/getting-started.html[🚀 Schnellstart] - In 5 Minuten einsatzbereit
-* link:user-guide/configuration.html[⚙️ Konfiguration] - Regeln anpassen
-* link:reference/cli-options.html[📋 CLI-Referenz] - Alle Kommandozeilenoptionen
-* link:user-guide/troubleshooting.html[🔧 Fehlerbehebung] - Lösungen für häufige Probleme
+* link:user-guide/getting-started.adoc[🚀 Schnellstart] - In 5 Minuten einsatzbereit
+* link:user-guide/configuration.adoc[⚙️ Konfiguration] - Regeln anpassen
+* link:reference/cli-options.adoc[📋 CLI-Referenz] - Alle Kommandozeilenoptionen
+* link:user-guide/troubleshooting.adoc[🔧 Fehlerbehebung] - Lösungen für häufige Probleme
 
 == Beispiel-Workflow
 
-[plantuml, workflow, svg]
-----
-@startuml
-!theme plain
-skinparam backgroundColor #FFFFFF
-skinparam defaultFontName Arial
-
-start
-:AsciiDoc-Dokumente;
-:Linter-Konfiguration;
-:Power AsciiDoc Linter|
-:Validierung;
-if (Fehler gefunden?) then (ja)
-  :Fehlerbericht;
-  :Korrekturen;
-  stop
-else (nein)
-  :✓ Validierung erfolgreich;
-  stop
-endif
-@enduml
-----
+. AsciiDoc-Dokumente vorbereiten
+. Linter-Konfiguration erstellen (optional)
+. Power AsciiDoc Linter ausführen
+. Validierungsergebnisse prüfen
+.. Bei Fehlern: Dokumente korrigieren
+.. Ohne Fehler: ✓ Validierung erfolgreich
 
 == Community und Support
 
