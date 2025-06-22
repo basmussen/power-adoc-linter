@@ -18,6 +18,7 @@ import com.example.linter.config.blocks.QuoteBlock;
 import com.example.linter.config.blocks.SidebarBlock;
 import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.config.blocks.VerseBlock;
+import com.example.linter.config.blocks.VideoBlock;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -82,6 +83,7 @@ public class BlockListDeserializer extends JsonDeserializer<List<Block>> {
                 case QUOTE -> mapper.treeToValue(blockData, QuoteBlock.class);
                 case SIDEBAR -> mapper.treeToValue(blockData, SidebarBlock.class);
                 case EXAMPLE -> mapper.treeToValue(blockData, ExampleBlock.class);
+                case VIDEO -> mapper.treeToValue(blockData, VideoBlock.class);
             };
             
             blocks.add(block);
