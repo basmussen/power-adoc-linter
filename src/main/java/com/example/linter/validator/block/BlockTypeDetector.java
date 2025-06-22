@@ -57,6 +57,9 @@ public final class BlockTypeDetector {
             case "sidebar":
                 return BlockType.SIDEBAR;
                 
+            case "audio":
+                return BlockType.AUDIO;
+                
             case "example":
             case "open":
                 // These could contain other blocks, check content
