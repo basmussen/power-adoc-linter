@@ -1,0 +1,257 @@
+= Document-Regeln
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Vollständige Referenz der Document-Level-Konfiguration für den Power AsciiDoc Linter. Diese Ebene definiert die Struktur für Metadaten und Sections.
+
+== Übersicht
+
+Die Document-Konfiguration ist die oberste Ebene der Linter-Konfiguration und definiert:
+- Metadaten-Validierung
+- Section-Struktur
+- Globale Einstellungen
+
+== Konfigurationsstruktur
+
+[source,yaml]
+----
+document:
+  metadata:        # Metadaten-Konfiguration
+    attributes:    # Array von Attribut-Definitionen
+      - ...
+  sections:        # Section-Definitionen
+    - ...
+----
+
+== Document-Felder
+
+[cols="20,20,60", options="header"]
+|===
+| Feld | Typ | Beschreibung
+
+| `metadata`
+| Object
+| Definiert die Metadaten-Validierung. +
+Enthält ein `attributes` Array mit Attribut-Definitionen.
+
+| `sections`
+| Array
+| Liste der Section-Definitionen. +
+Definiert die erlaubte Dokumentstruktur.
+|===
+
+== Metadata-Konfiguration
+
+Die Metadaten-Konfiguration erfolgt über das `metadata` Objekt:
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:      # Einziges erlaubtes Feld
+      - name: title
+        required: true
+        severity: error
+      - name: author
+        required: true
+        severity: error
+----
+
+[IMPORTANT]
+====
+Das `metadata` Objekt enthält NUR das `attributes` Array. Andere Felder wie `required`, `optional`, `patterns` oder `severity` auf Metadata-Ebene sind NICHT erlaubt!
+====
+
+Siehe link:metadata-rules.adoc[Metadaten-Regeln] für die vollständige Dokumentation der Attribut-Konfiguration.
+
+== Sections-Konfiguration
+
+Sections definieren die hierarchische Struktur des Dokuments:
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Einleitung"
+      level: 1
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            minLines: 3
+            severity: warn
+    - name: "Hauptteil"
+      level: 1
+      required: false
+      blocks:
+        - ...
+----
+
+Siehe link:section-rules.adoc[Section-Regeln] für die vollständige Dokumentation der Section-Konfiguration.
+
+== Vollständiges Beispiel
+
+[source,yaml]
+----
+document:
+  # Metadaten-Validierung
+  metadata:
+    attributes:
+      # Pflicht-Metadaten
+      - name: title
+        required: true
+        minLength: 10
+        maxLength: 100
+        pattern: "^[A-Z].*"
+        severity: error
+        
+      - name: author
+        required: true
+        minLength: 5
+        maxLength: 50
+        severity: error
+        
+      - name: revdate
+        required: true
+        pattern: "\\d{4}-\\d{2}-\\d{2}"
+        severity: error
+        
+      # Optionale Metadaten
+      - name: keywords
+        required: false
+        maxLength: 200
+        severity: info
+  
+  # Dokumentstruktur
+  sections:
+    # Pflicht-Section
+    - name: "Übersicht"
+      level: 1
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            minLines: 5
+            severity: warn
+        - image:
+            occurrence:
+              max: 2
+            severity: info
+              
+    # Optionale Section
+    - name: "Details"
+      level: 1
+      required: false
+      severity: warn
+      blocks:
+        - paragraph:
+            minLines: 3
+        - listing:
+            language:
+              required: true
+            severity: error
+        - table:
+            header:
+              required: true
+            severity: warn
+              
+    # Flexible Sections (ohne festen Namen)
+    - level: 1
+      min: 1
+      max: 10
+      blocks:
+        - paragraph
+        - listing
+        - image
+        - table
+----
+
+== Validierungsverhalten
+
+=== Metadaten-Validierung
+
+1. Titel wird automatisch aus dem Dokument extrahiert
+2. Alle definierten Attribute werden geprüft
+3. System-Attribute werden ignoriert
+4. Jedes Attribut hat eigene Severity
+
+=== Section-Validierung
+
+1. Required Sections müssen vorhanden sein
+2. Section-Namen werden gegen Pattern geprüft (falls definiert)
+3. Blocks innerhalb von Sections werden validiert
+4. Hierarchie wird beachtet (level, subsections)
+
+== Häufige Fehler
+
+=== Falsche Metadata-Struktur
+
+❌ **FALSCH**:
+[source,yaml]
+----
+document:
+  metadata:
+    required:      # FALSCH!
+      - title
+      - author
+    severity: error # FALSCH!
+----
+
+✅ **RICHTIG**:
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+      - name: author
+        required: true
+        severity: error
+----
+
+=== Fehlende Severity in Attributen
+
+❌ **FALSCH**:
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        # severity fehlt!
+----
+
+✅ **RICHTIG**:
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error  # Pflichtfeld!
+----
+
+== Best Practices
+
+1. **Minimale Konfiguration beginnen**: Starten Sie mit wenigen Pflicht-Metadaten
+2. **Klare Section-Namen**: Verwenden Sie eindeutige Namen für Sections
+3. **Severity sinnvoll wählen**: 
+   - `error` für kritische Strukturvorgaben
+   - `warn` für wichtige Empfehlungen
+   - `info` für optionale Verbesserungen
+4. **Flexibilität erlauben**: Nutzen Sie generische Sections für variable Inhalte
+
+== Siehe auch
+
+* link:metadata-rules.adoc[Metadaten-Regeln] - Detaillierte Attribut-Konfiguration
+* link:section-rules.adoc[Section-Regeln] - Section-Struktur und Blocks
+* link:../../examples/basic-config.yaml[Basis-Beispiel] - Einfache Konfiguration
+* link:../../examples/advanced-config.yaml[Erweiterte Beispiel] - Komplexe Konfiguration

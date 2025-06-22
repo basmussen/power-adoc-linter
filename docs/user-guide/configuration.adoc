@@ -1,0 +1,479 @@
+= Konfiguration
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Erfahren Sie, wie Sie den Power AsciiDoc Linter an Ihre spezifischen Anforderungen anpassen können. Von einfachen Metadaten-Regeln bis zu komplexen Block-Validierungen.
+
+== Konfigurationskonzept
+
+Der Power AsciiDoc Linter verwendet YAML-Dateien zur Konfiguration von Validierungsregeln. Die Konfiguration folgt einer hierarchischen Struktur:
+
+[source]
+----
+Konfiguration
+└── Document
+    ├── Metadata
+    │   └── Attributes[]
+    └── Sections[]
+        └── Blocks[]
+            └── Rules
+----
+
+== Basis-Konfiguration
+
+=== Minimale Konfiguration
+
+Die einfachste Konfiguration prüft nur erforderliche Metadaten:
+
+[source,yaml]
+----
+document:
+  metadata:
+    required:
+      - title
+      - author
+----
+
+=== Erweiterte Basis-Konfiguration
+
+[source,yaml]
+----
+document:
+  metadata:
+    required:
+      - title
+      - author
+      - revdate
+    optional:
+      - keywords
+      - description
+    severity: error
+  output:
+    contextLines: 3
+    colors: true
+----
+
+== Metadaten-Konfiguration
+
+=== Metadaten-Konfiguration nach Schema
+
+Die Metadaten werden als Array von Attribut-Objekten definiert:
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true       # Titel ist Pflicht
+        minLength: 5         # Mindestens 5 Zeichen
+        maxLength: 100       # Maximal 100 Zeichen
+        pattern: "^[A-Z].*"  # Muss mit Großbuchstabe beginnen
+        severity: error      # Bei Verletzung = ERROR
+        
+      - name: author
+        required: true       # Autor ist Pflicht
+        minLength: 5
+        maxLength: 50
+        pattern: "^[A-Z][a-zA-Z\\s\\.]+$"
+        severity: error
+        
+      - name: revdate
+        required: true       # Datum ist Pflicht
+        pattern: "\\d{4}-\\d{2}-\\d{2}"  # Format: YYYY-MM-DD
+        severity: error
+        
+      - name: version
+        required: false      # Version ist optional
+        pattern: "v?\\d+\\.\\d+\\.\\d+"  # Format: 1.0.0 oder v1.0.0
+        severity: warn
+        
+      - name: keywords
+        required: false      # Schlüsselwörter optional
+        allowedValues:       # Nur bestimmte Werte erlaubt
+          - "AsciiDoc"
+          - "Documentation"
+          - "Technical Writing"
+        severity: info
+----
+
+== Sections-Konfiguration
+
+=== Einfache Section-Definition
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Einleitung"
+      required: true
+      severity: error
+    - name: "Hauptteil"
+      required: false
+      severity: warn
+----
+
+=== Sections mit Hierarchie
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Übersicht"
+      level: 1
+      required: true
+      subsections:
+        - name: "Zielgruppe"
+          level: 2
+          required: true
+        - name: "Voraussetzungen"
+          level: 2
+          required: false
+----
+
+=== Sections mit erlaubten Blöcken
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Installation"
+      required: true
+      blocks:
+        - paragraph:
+            minLines: 3
+        - listing:
+            language:
+              required: true
+              allowed: ["bash", "powershell"]
+        - admonition:
+            types: ["NOTE", "TIP", "WARNING"]
+----
+
+== Block-Konfiguration
+
+=== Paragraph-Blöcke
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Beschreibung"
+      blocks:
+        - paragraph:
+            minLines: 3          # Mindestens 3 Zeilen
+            maxLines: 20         # Maximal 20 Zeilen
+            minSentences: 2      # Mindestens 2 Sätze
+            maxSentences: 10     # Maximal 10 Sätze
+            severity: warn
+----
+
+=== Listing-Blöcke (Code)
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Beispiele"
+      blocks:
+        - listing:
+            language:
+              required: true
+              allowed: ["java", "python", "bash", "yaml"]
+            title:
+              required: false
+              pattern: "^(Listing|Beispiel)\\s+\\d+:"
+            callouts:
+              required: false
+              minCallouts: 1
+            severity: error
+----
+
+=== Tabellen
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Übersicht"
+      blocks:
+        - table:
+            header:
+              required: true
+            caption:
+              required: true
+              pattern: "^Tabelle\\s+\\d+:"
+            columns:
+              min: 2
+              max: 6
+            rows:
+              min: 1
+              max: 50
+            severity: warn
+----
+
+=== Bilder
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Screenshots"
+      blocks:
+        - image:
+            alt:
+              required: true
+              minLength: 10
+            title:
+              required: false
+            width:
+              min: 100
+              max: 1920
+            height:
+              min: 100
+              max: 1080
+            formats:
+              allowed: ["png", "jpg", "svg"]
+            severity: error
+----
+
+== Erweiterte Konfigurationsoptionen
+
+=== Block-Reihenfolge
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "API-Dokumentation"
+      blockOrder:
+        - paragraph    # Erst Beschreibung
+        - listing      # Dann Code-Beispiel
+        - table        # Dann Parameter-Tabelle
+      severity: warn
+----
+
+=== Block-Vorkommen
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Tutorial"
+      blocks:
+        - paragraph:
+            occurrence:
+              min: 1
+              max: 5
+        - listing:
+            occurrence:
+              min: 1    # Mindestens ein Code-Beispiel
+              max: 10
+        - image:
+            occurrence:
+              min: 0
+              max: 3
+----
+
+=== Severity-Hierarchie
+
+[source,yaml]
+----
+document:
+  metadata:
+    required: ["title"]
+    severity: error      # Standard für alle Metadaten
+  sections:
+    - name: "Einleitung"
+      severity: warn     # Standard für diese Section
+      blocks:
+        - paragraph:
+            minLines: 5
+            severity: info  # Überschreibt Section-Standard
+            minSentences: 2
+            sentences:
+              severity: error  # Spezifisch für Satz-Regel
+----
+
+== Komplette Beispiel-Konfiguration
+
+=== Technische Dokumentation
+
+[source,yaml]
+----
+# .linter-config.yaml
+document:
+  metadata:
+    required:
+      - title
+      - author
+      - revdate
+      - version
+    patterns:
+      version: "\\d+\\.\\d+\\.\\d+"
+      revdate: "\\d{4}-\\d{2}-\\d{2}"
+    severity: error
+    
+  sections:
+    - name: "Übersicht"
+      level: 1
+      required: true
+      blocks:
+        - paragraph:
+            minLines: 5
+            minSentences: 3
+            
+    - name: "Installation"
+      level: 1
+      required: true
+      blocks:
+        - paragraph:
+            minLines: 3
+        - listing:
+            language:
+              required: true
+              allowed: ["bash", "powershell"]
+              
+    - name: "Konfiguration"
+      level: 1
+      required: true
+      blocks:
+        - paragraph:
+            occurrence:
+              min: 1
+        - listing:
+            language:
+              allowed: ["yaml", "json", "properties"]
+        - table:
+            header:
+              required: true
+              
+    - name: "Beispiele"
+      level: 1
+      required: false
+      blocks:
+        - listing:
+            language:
+              required: true
+            title:
+              required: true
+              
+  output:
+    contextLines: 5
+    colors: true
+    includeSuccessMessages: false
+----
+
+=== API-Dokumentation
+
+[source,yaml]
+----
+document:
+  metadata:
+    required:
+      - title
+      - api-version
+      - last-modified
+    severity: error
+    
+  sections:
+    - name: "Endpoint"
+      pattern: "^(GET|POST|PUT|DELETE|PATCH)\\s+"
+      blocks:
+        - paragraph:
+            minLines: 2
+        - listing:
+            language:
+              required: true
+              allowed: ["json", "xml"]
+            title:
+              pattern: "^(Request|Response)"
+        - table:
+            caption:
+              pattern: "^Parameter"
+            header:
+              required: true
+----
+
+== Konfiguration validieren
+
+Sie können Ihre Konfiguration vor der Verwendung validieren:
+
+[source,bash]
+----
+# Konfiguration testen
+java -jar power-adoc-linter.jar --validate-config my-config.yaml
+
+# Mit einem Test-Dokument
+java -jar power-adoc-linter.jar -i test.adoc -c my-config.yaml --dry-run
+----
+
+== Regel-Dokumentation generieren
+
+Erstellen Sie automatisch eine Dokumentation Ihrer Regeln:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar --generate-docs -c my-config.yaml -o rules.adoc
+----
+
+== Best Practices
+
+=== 1. Schrittweise erweitern
+
+Beginnen Sie mit einer einfachen Konfiguration und erweitern Sie diese nach Bedarf:
+
+[source,yaml]
+----
+# Schritt 1: Nur Metadaten
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+      - name: author
+        required: true
+        severity: error
+
+# Schritt 2: Sections hinzufügen
+# Schritt 3: Block-Regeln ergänzen
+----
+
+=== 2. Severity-Level sinnvoll nutzen
+
+* `ERROR`: Kritische Fehler, die korrigiert werden müssen
+* `WARN`: Wichtige Hinweise, die beachtet werden sollten  
+* `INFO`: Empfehlungen zur Verbesserung
+
+=== 3. Patterns sparsam einsetzen
+
+Verwenden Sie Regex-Patterns nur wenn nötig:
+
+[source,yaml]
+----
+# Gut: Einfaches Pattern
+pattern: "^v\\d+\\.\\d+\\.\\d+$"
+
+# Vermeiden: Zu komplexe Patterns
+pattern: "^(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)))"
+----
+
+=== 4. Konfiguration versionieren
+
+Versionieren Sie Ihre Konfigurationsdateien zusammen mit der Dokumentation:
+
+[source,bash]
+----
+git add .linter-config.yaml
+git commit -m "Update linter configuration for v2.0 docs"
+----
+
+== Nächste Schritte
+
+* link:../reference/rules/index.html[Regel-Referenz] - Alle verfügbaren Regeln im Detail
+* link:../examples/index.html[Beispiele] - Fertige Konfigurationen für verschiedene Anwendungsfälle

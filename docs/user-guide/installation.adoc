@@ -1,0 +1,233 @@
+= Installation
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Dieser Guide führt Sie durch die verschiedenen Installationsmöglichkeiten des Power AsciiDoc Linters - von der einfachen JAR-Installation bis zur Integration in Ihre Entwicklungsumgebung.
+
+== Systemvoraussetzungen
+
+=== Mindestanforderungen
+
+[cols="1,3"]
+|===
+| Komponente | Anforderung
+
+| Java
+| Version 17 oder höher
+
+| Arbeitsspeicher
+| Minimum: 512 MB +
+Empfohlen: 1 GB
+
+| Festplattenspeicher
+| 50 MB für die Anwendung
+
+| Betriebssystem
+| Windows, Linux, macOS
+|===
+
+=== Java Installation prüfen
+
+Überprüfen Sie Ihre Java-Installation:
+
+[source,bash]
+----
+java -version
+----
+
+Falls Java nicht installiert ist, können Sie es hier herunterladen:
+
+* link:https://adoptium.net/[Eclipse Temurin] (empfohlen)
+* link:https://www.oracle.com/java/technologies/downloads/[Oracle JDK]
+* link:https://openjdk.org/[OpenJDK]
+
+== Installationsmethoden
+
+=== Methode 1: Direkter Download (Empfohlen)
+
+Die einfachste Methode ist der direkte Download der JAR-Datei:
+
+[tabs]
+====
+Linux/macOS::
++
+[source,bash]
+----
+# Download der neuesten Version
+wget https://github.com/basmussen/power-adoc-linter/releases/latest/download/power-adoc-linter.jar
+
+# Ausführbar machen (optional)
+chmod +x power-adoc-linter.jar
+
+# In PATH verschieben (optional)
+sudo mv power-adoc-linter.jar /usr/local/bin/
+----
+
+Windows::
++
+[source,powershell]
+----
+# Download mit PowerShell
+Invoke-WebRequest -Uri "https://github.com/basmussen/power-adoc-linter/releases/latest/download/power-adoc-linter.jar" -OutFile "power-adoc-linter.jar"
+
+# In Programmverzeichnis verschieben (optional)
+Move-Item power-adoc-linter.jar "C:\Program Files\power-adoc-linter\"
+----
+====
+
+=== Methode 2: Von Quellcode kompilieren
+
+Für Entwickler oder spezielle Anpassungen:
+
+[source,bash]
+----
+# Repository klonen
+git clone https://github.com/basmussen/power-adoc-linter.git
+cd power-adoc-linter
+
+# Mit Maven bauen
+mvn clean package
+
+# JAR befindet sich in target/
+ls target/power-adoc-linter.jar
+----
+
+=== Methode 3: Docker Container
+
+Für containerisierte Umgebungen:
+
+[source,bash]
+----
+# Docker Image bauen
+docker build -t power-adoc-linter .
+
+# Container ausführen
+docker run -v $(pwd):/workspace power-adoc-linter -i "**/*.adoc"
+----
+
+== Konfiguration der Umgebung
+
+=== Alias erstellen (Linux/macOS)
+
+Für einfacheren Zugriff können Sie einen Alias erstellen:
+
+[source,bash]
+----
+# Zu ~/.bashrc oder ~/.zshrc hinzufügen
+alias adoc-lint='java -jar /pfad/zu/power-adoc-linter.jar'
+
+# Konfiguration neu laden
+source ~/.bashrc
+----
+
+=== Batch-Datei erstellen (Windows)
+
+Erstellen Sie `adoc-lint.bat`:
+
+[source,batch]
+----
+@echo off
+java -jar "C:\Program Files\power-adoc-linter\power-adoc-linter.jar" %*
+----
+
+Fügen Sie das Verzeichnis zu Ihrem PATH hinzu.
+
+== Installation verifizieren
+
+Nach der Installation überprüfen Sie die korrekte Funktion:
+
+[source,bash]
+----
+# Hilfe anzeigen
+java -jar power-adoc-linter.jar --help
+
+# Version anzeigen
+java -jar power-adoc-linter.jar --version
+----
+
+Sie sollten eine Ausgabe wie diese sehen:
+
+[source]
+----
+Power AsciiDoc Linter Version 1.0
+Usage: java -jar power-adoc-linter.jar [options]
+...
+----
+
+== Speicheroptimierung
+
+Bei großen Dokumentensammlungen kann es nötig sein, den Arbeitsspeicher anzupassen:
+
+[source,bash]
+----
+# Mit 2GB Heap-Speicher ausführen
+java -Xmx2g -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Mit initialer und maximaler Heap-Größe
+java -Xms512m -Xmx2g -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+== Updates
+
+=== Automatische Update-Prüfung
+
+Der Linter prüft beim Start auf neue Versionen:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar --check-updates
+----
+
+=== Manuelles Update
+
+1. Laden Sie die neue Version herunter
+2. Ersetzen Sie die alte JAR-Datei
+3. Verifizieren Sie die neue Version:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar --version
+----
+
+== Deinstallation
+
+=== Linux/macOS
+
+[source,bash]
+----
+# JAR-Datei entfernen
+rm /usr/local/bin/power-adoc-linter.jar
+
+# Alias entfernen (aus ~/.bashrc oder ~/.zshrc)
+# Zeile mit alias adoc-lint entfernen
+----
+
+=== Windows
+
+1. Löschen Sie die JAR-Datei
+2. Entfernen Sie ggf. die Batch-Datei
+3. Entfernen Sie den Pfad aus der PATH-Umgebungsvariable
+
+== Häufige Installationsprobleme
+
+[qanda]
+"java: command not found"::
+  Java ist nicht installiert oder nicht im PATH. Installieren Sie Java 17+ und fügen Sie es zum PATH hinzu.
+
+"Unsupported class file major version"::
+  Ihre Java-Version ist zu alt. Aktualisieren Sie auf Java 17 oder höher.
+
+"Permission denied"::
+  Auf Linux/macOS: Verwenden Sie `chmod +x power-adoc-linter.jar` oder führen Sie mit `java -jar` aus.
+
+== Nächste Schritte
+
+Nach erfolgreicher Installation:
+
+* link:getting-started.html[Schnellstart] - Erste Schritte mit dem Linter
+* link:basic-usage.html[Grundlegende Verwendung] - Alltägliche Anwendungsfälle
+* link:configuration.html[Konfiguration] - Anpassung der Validierungsregeln

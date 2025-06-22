@@ -1,0 +1,557 @@
+= CLI-Referenz
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Vollständige Referenz aller Kommandozeilenoptionen des Power AsciiDoc Linters mit detaillierten Beschreibungen und Beispielen.
+
+== Syntax
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar [OPTIONEN]
+----
+
+== Haupt-Optionen
+
+=== -i, --input
+
+Definiert die zu validierenden Dateien mittels Glob-Patterns.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| String (Glob-Pattern)
+
+| Pflicht
+| Ja
+
+| Mehrfachwerte
+| Ja (kommagetrennt)
+
+| Standard
+| -
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# Einzelne Datei
+-i "README.adoc"
+
+# Alle .adoc Dateien im aktuellen Verzeichnis
+-i "*.adoc"
+
+# Rekursiv alle .adoc Dateien
+-i "**/*.adoc"
+
+# Mehrere Patterns
+-i "docs/**/*.adoc,examples/**/*.asciidoc,README.adoc"
+
+# Mit Alternativen
+-i "**/*.{adoc,asciidoc,asc}"
+----
+
+=== -c, --config
+
+Pfad zur YAML-Konfigurationsdatei mit Validierungsregeln.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| Dateipfad
+
+| Pflicht
+| Nein
+
+| Standard
+| Interne Standardregeln
+
+| Unterstützte Formate
+| .yaml, .yml
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# Lokale Konfiguration
+-c .linter-config.yaml
+
+# Absoluter Pfad
+-c /etc/asciidoc-linter/strict-rules.yaml
+
+# Relative Pfade
+-c ../shared/documentation-rules.yaml
+----
+
+=== -f, --format
+
+Ausgabeformat für Validierungsergebnisse.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| Enum
+
+| Pflicht
+| Nein
+
+| Standard
+| console
+
+| Erlaubte Werte
+| console, json, json-compact
+|===
+
+*Formate im Detail:*
+
+[cols="1,3,2"]
+|===
+| Format | Beschreibung | Verwendung
+
+| console
+| Farbige Ausgabe mit Kontext
+| Entwicklung, manuelle Prüfung
+
+| json
+| Strukturiertes JSON (formatiert)
+| Tool-Integration, Reporting
+
+| json-compact
+| JSON in einer Zeile
+| CI/CD Pipelines
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# Standard Konsolen-Ausgabe
+-f console
+
+# JSON für Weiterverarbeitung
+-f json
+
+# Kompakt für Pipelines
+-f json-compact
+----
+
+=== -o, --output
+
+Ausgabedatei für Validierungsergebnisse.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| Dateipfad
+
+| Pflicht
+| Nein
+
+| Standard
+| stdout
+
+| Hinweis
+| Verzeichnisse werden automatisch erstellt
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# In Datei schreiben
+-o validation-report.json
+
+# Mit Verzeichnis
+-o reports/2024-01-15/asciidoc-validation.json
+
+# Kombiniert mit Format
+-f json -o results.json
+----
+
+=== -l, --fail-level
+
+Definiert ab welchem Severity-Level der Exit-Code 1 gesetzt wird.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| Enum
+
+| Pflicht
+| Nein
+
+| Standard
+| error
+
+| Erlaubte Werte
+| error, warn, info
+|===
+
+*Exit-Code Verhalten:*
+
+[cols="1,2,1"]
+|===
+| Level | Verhalten | Exit-Code
+
+| error
+| Nur bei ERROR-Meldungen
+| 0 oder 1
+
+| warn
+| Bei WARN oder ERROR
+| 0 oder 1
+
+| info
+| Bei INFO, WARN oder ERROR
+| 0 oder 1
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# Standard: Nur bei Fehlern
+-l error
+
+# Streng: Auch bei Warnungen
+-l warn
+
+# Sehr streng: Bei allen Hinweisen
+-l info
+----
+
+== Hilfs-Optionen
+
+=== -h, --help
+
+Zeigt die Hilfe mit allen verfügbaren Optionen.
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar --help
+----
+
+*Ausgabe:*
+[source]
+----
+Usage: power-adoc-linter [options]
+Options:
+  -i, --input <pattern>     Input file pattern(s)
+  -c, --config <file>       Configuration file
+  -f, --format <type>       Output format (console|json|json-compact)
+  ...
+----
+
+=== -v, --version
+
+Zeigt die Version des Linters.
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar --version
+----
+
+*Ausgabe:*
+[source]
+----
+Power AsciiDoc Linter v1.0.0
+----
+
+=== --validate-config
+
+Validiert eine Konfigurationsdatei ohne Dateien zu prüfen.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| Flag + Dateipfad
+
+| Verwendung
+| Konfiguration testen
+
+| Exit-Code
+| 0 = valide, 1 = invalide
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# Konfiguration validieren
+java -jar power-adoc-linter.jar --validate-config my-rules.yaml
+
+# Mit Ausgabe
+java -jar power-adoc-linter.jar --validate-config config.yaml -v
+----
+
+=== --generate-docs
+
+Generiert Dokumentation aus einer Konfigurationsdatei.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| Flag
+
+| Benötigt
+| -c (Konfiguration)
+
+| Ausgabe
+| AsciiDoc-Dokument
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# Dokumentation generieren
+java -jar power-adoc-linter.jar --generate-docs -c my-rules.yaml
+
+# In Datei speichern
+java -jar power-adoc-linter.jar --generate-docs -c my-rules.yaml -o rules.adoc
+----
+
+== Erweiterte Optionen
+
+=== --colors / --no-colors
+
+Steuert die farbige Ausgabe in der Konsole.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| Flag
+
+| Standard
+| Auto-Erkennung
+
+| --colors
+| Farben erzwingen
+
+| --no-colors
+| Farben deaktivieren
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# Farben erzwingen (z.B. für CI mit Farb-Support)
+java -jar power-adoc-linter.jar -i "**/*.adoc" --colors
+
+# Farben deaktivieren (z.B. für Log-Dateien)
+java -jar power-adoc-linter.jar -i "**/*.adoc" --no-colors > log.txt
+----
+
+=== --context-lines
+
+Anzahl der Kontextzeilen bei Fehlermeldungen.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| Integer
+
+| Standard
+| 3
+
+| Bereich
+| 0-10
+
+| Nur für
+| console Format
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# Mehr Kontext (5 Zeilen)
+java -jar power-adoc-linter.jar -i "**/*.adoc" --context-lines 5
+
+# Kein Kontext
+java -jar power-adoc-linter.jar -i "**/*.adoc" --context-lines 0
+----
+
+=== --quiet
+
+Unterdrückt Erfolgs- und Zusammenfassungsmeldungen.
+
+[cols="1,3"]
+|===
+| Eigenschaft | Wert
+
+| Typ
+| Flag
+
+| Wirkung
+| Nur Fehler/Warnungen ausgeben
+
+| Nützlich für
+| Scripting, CI/CD
+|===
+
+*Beispiele:*
+[source,bash]
+----
+# Nur Probleme ausgeben
+java -jar power-adoc-linter.jar -i "**/*.adoc" --quiet
+
+# Mit Pipe weiterverarbeiten
+java -jar power-adoc-linter.jar -i "**/*.adoc" --quiet | grep ERROR
+----
+
+== Java System Properties
+
+=== Speicherverwaltung
+
+[source,bash]
+----
+# Maximaler Heap-Speicher
+java -Xmx2g -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Initial und Maximum
+java -Xms512m -Xmx2g -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+=== Parallelität
+
+[source,bash]
+----
+# Anzahl paralleler Threads
+java -Djava.util.concurrent.ForkJoinPool.common.parallelism=4 \
+  -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+=== Encoding
+
+[source,bash]
+----
+# UTF-8 erzwingen
+java -Dfile.encoding=UTF-8 -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+=== Logging
+
+[source,bash]
+----
+# Debug-Logging
+java -Dlog4j2.debug=true -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Eigene Log-Konfiguration
+java -Dlog4j.configurationFile=my-log4j2.xml \
+  -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+== Verwendungsbeispiele
+
+=== Basis-Validierung
+
+[source,bash]
+----
+# Einfachste Form
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Mit Konfiguration
+java -jar power-adoc-linter.jar -i "**/*.adoc" -c .linter-config.yaml
+----
+
+=== CI/CD Integration
+
+[source,bash]
+----
+# Strenge Prüfung mit JSON-Output
+java -jar power-adoc-linter.jar \
+  -i "docs/**/*.adoc,README.adoc" \
+  -c ci/strict-rules.yaml \
+  -f json-compact \
+  -l warn \
+  --quiet
+
+# Exit-Code prüfen
+if [ $? -ne 0 ]; then
+  echo "Documentation validation failed!"
+  exit 1
+fi
+----
+
+=== Batch-Verarbeitung
+
+[source,bash]
+----
+#!/bin/bash
+# Verschiedene Dokumenttypen mit eigenen Regeln
+
+# API-Dokumentation
+java -jar power-adoc-linter.jar \
+  -i "api-docs/**/*.adoc" \
+  -c rules/api-rules.yaml \
+  -o reports/api-validation.json
+
+# Benutzerhandbücher
+java -jar power-adoc-linter.jar \
+  -i "user-guide/**/*.adoc" \
+  -c rules/user-guide-rules.yaml \
+  -o reports/user-guide-validation.json
+----
+
+=== Entwicklungs-Workflow
+
+[source,bash]
+----
+# Während der Entwicklung - verbose mit Kontext
+java -jar power-adoc-linter.jar \
+  -i "work-in-progress.adoc" \
+  -c dev-rules.yaml \
+  --context-lines 5 \
+  --colors
+
+# Pre-Commit Check
+java -jar power-adoc-linter.jar \
+  -i "*.adoc" \
+  -c .linter-config.yaml \
+  --quiet \
+  -l warn
+----
+
+== Fehlerbehandlung
+
+Exit-Codes:
+
+[cols="1,3,2"]
+|===
+| Code | Bedeutung | Beispiel-Ursache
+
+| 0
+| Erfolg
+| Keine Fehler oder unter fail-level
+
+| 1
+| Validierungsfehler
+| Dokumente haben Fehler
+
+| 2
+| Anwendungsfehler
+| Ungültige Parameter, Datei nicht gefunden
+|===
+
+== Siehe auch
+
+* link:../user-guide/basic-usage.html[Grundlegende Verwendung] - Praktische Anwendungsbeispiele
+* link:../user-guide/configuration.html[Konfiguration] - Regeln definieren
+* link:rules/index.html[Regel-Referenz] - Alle verfügbaren Validierungsregeln
