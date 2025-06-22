@@ -60,6 +60,5 @@ properties:
         description: Severity level for collapsible validation errors (overrides block severity)
     additionalProperties: false
 required:
-  - name
   - severity
 additionalProperties: false
