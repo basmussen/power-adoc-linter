@@ -672,3 +672,21 @@ document:
                 min: 1
                 max: 20
                 severity: info
+        - example:
+            name: "code-example"             # Für Beispielblöcke mit optionaler Nummerierung
+            severity: warn                   # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 10
+              # Kein severity = verwendet Block-Severity (warn)
+            # Example-spezifische Attribute
+            caption:
+              required: true                 # Caption ist Pflicht
+              pattern: "^(Example|Beispiel)\\s+\\d+\\.\\d*:.*"  # Format: "Example 1.2: Beschreibung"
+              minLength: 15
+              maxLength: 100
+              severity: error
+            collapsible:
+              required: false                # Klappbar machen optional
+              allowed: [true, false]
+              severity: info

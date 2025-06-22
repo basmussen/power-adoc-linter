@@ -54,6 +54,7 @@ public final class BlockValidatorFactory {
         registerValidator(map, new LiteralBlockValidator());
         registerValidator(map, new AudioBlockValidator());
         registerValidator(map, new QuoteBlockValidator());
+        registerValidator(map, new ExampleBlockValidator());
         
         return map;
     }

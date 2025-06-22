@@ -1,0 +1,65 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://github.com/basmussen/power-adoc-linter/schemas/blocks/example-block-schema.yaml
+title: Example Block Configuration Schema
+description: Schema for configuring validation rules for AsciiDoc example blocks
+type: object
+properties:
+  name:
+    type: string
+    description: Name identifier for this block configuration
+    minLength: 1
+  severity:
+    $ref: "../common/severity-schema.yaml"
+    description: Default severity level for all validations in this block
+  occurrence:
+    $ref: "../common/occurrence-schema.yaml"
+    description: Rules for how often this block type should appear
+  caption:
+    type: object
+    description: Configuration for the example caption
+    properties:
+      required:
+        type: boolean
+        description: Whether a caption is required
+        default: false
+      pattern:
+        type: string
+        description: Regular expression pattern the caption must match
+        examples:
+          - "^(Example|Beispiel)\\s+\\d+\\.\\d*:.*"
+      minLength:
+        type: integer
+        description: Minimum length for the caption
+        minimum: 0
+      maxLength:
+        type: integer
+        description: Maximum length for the caption
+        minimum: 0
+      severity:
+        $ref: "../common/severity-schema.yaml"
+        description: Severity level for caption validation errors (overrides block severity)
+    additionalProperties: false
+  collapsible:
+    type: object
+    description: Configuration for the collapsible attribute
+    properties:
+      required:
+        type: boolean
+        description: Whether the collapsible attribute is required
+        default: false
+      allowed:
+        type: array
+        description: Allowed values for the collapsible attribute
+        items:
+          type: boolean
+        uniqueItems: true
+        examples:
+          - [true, false]
+      severity:
+        $ref: "../common/severity-schema.yaml"
+        description: Severity level for collapsible validation errors (overrides block severity)
+    additionalProperties: false
+required:
+  - name
+  - severity
+additionalProperties: false
