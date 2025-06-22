@@ -129,7 +129,6 @@ public class VideoBlock extends AbstractBlock {
 
         @Override
         public VideoBlock build() {
-            Objects.requireNonNull(name, "name must not be null");
             Objects.requireNonNull(severity, "severity must not be null");
             return new VideoBlock(this);
         }
