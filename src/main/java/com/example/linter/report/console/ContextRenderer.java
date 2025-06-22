@@ -46,8 +46,12 @@ public class ContextRenderer {
         int startLine = Math.max(1, loc.getStartLine() - config.getContextLines());
         int endLine = Math.min(fileLines.size(), loc.getEndLine() + config.getContextLines());
         
+        // Ensure valid bounds for subList
+        int fromIndex = Math.max(0, Math.min(startLine - 1, fileLines.size()));
+        int toIndex = Math.max(fromIndex, Math.min(endLine, fileLines.size()));
+        
         // Extract context lines
-        List<String> contextLines = fileLines.subList(startLine - 1, endLine);
+        List<String> contextLines = fileLines.subList(fromIndex, toIndex);
         
         return new SourceContext(contextLines, startLine, loc);
     }
