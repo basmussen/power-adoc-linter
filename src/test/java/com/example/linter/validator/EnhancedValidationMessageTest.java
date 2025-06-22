@@ -29,8 +29,8 @@ class EnhancedValidationMessageTest {
             List<Suggestion> suggestions = Arrays.asList(
                 Suggestion.builder()
                     .description("Fix suggestion 1")
-                    .example("Example code")
-                    .isAutoFixable(true)
+                    .addExample("Example code")
+                    .autoFixable(true)
                     .build()
             );
             
@@ -48,9 +48,9 @@ class EnhancedValidationMessageTest {
                 .location(SourceLocation.builder()
                     .filename("test.adoc")
                     .line(10)
-                    .column(5)
+                    .startColumn(5)
                     .build())
-                .errorType(ErrorType.MISSING_REQUIRED)
+                .errorType(ErrorType.MISSING_VALUE)
                 .actualValue("actual")
                 .expectedValue("expected")
                 .missingValueHint("id")
@@ -106,11 +106,11 @@ class EnhancedValidationMessageTest {
             List<Suggestion> suggestions = Arrays.asList(
                 Suggestion.builder()
                     .description("Manual fix")
-                    .isAutoFixable(false)
+                    .autoFixable(false)
                     .build(),
                 Suggestion.builder()
                     .description("Auto fix")
-                    .isAutoFixable(true)
+                    .autoFixable(true)
                     .build()
             );
             
@@ -138,11 +138,11 @@ class EnhancedValidationMessageTest {
             List<Suggestion> suggestions = Arrays.asList(
                 Suggestion.builder()
                     .description("Manual fix 1")
-                    .isAutoFixable(false)
+                    .autoFixable(false)
                     .build(),
                 Suggestion.builder()
                     .description("Manual fix 2")
-                    .isAutoFixable(false)
+                    .autoFixable(false)
                     .build()
             );
             
@@ -267,7 +267,7 @@ class EnhancedValidationMessageTest {
                     .filename("test.adoc")
                     .line(10)
                     .build())
-                .errorType(ErrorType.MISSING_REQUIRED)
+                .errorType(ErrorType.MISSING_VALUE)
                 .actualValue("actual")
                 .build();
             
@@ -279,7 +279,7 @@ class EnhancedValidationMessageTest {
                     .filename("test.adoc")
                     .line(10)
                     .build())
-                .errorType(ErrorType.MISSING_REQUIRED)
+                .errorType(ErrorType.MISSING_VALUE)
                 .actualValue("actual")
                 .build();
             
@@ -291,7 +291,7 @@ class EnhancedValidationMessageTest {
                     .filename("test.adoc")
                     .line(10)
                     .build())
-                .errorType(ErrorType.INVALID_VALUE)  // Different
+                .errorType(ErrorType.INVALID_PATTERN)  // Different
                 .actualValue("actual")
                 .build();
             
