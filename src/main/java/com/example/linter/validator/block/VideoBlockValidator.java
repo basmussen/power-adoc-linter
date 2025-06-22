@@ -247,9 +247,8 @@ public class VideoBlockValidator implements BlockTypeValidator {
         Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
         
         // Check if autoplay is present in options
-        Object optionsObj = block.getAttribute("options");
-        String options = optionsObj != null ? optionsObj.toString() : null;
-        boolean hasAutoplay = options != null && options.contains("autoplay");
+        // For video blocks, AsciidoctorJ creates individual option attributes
+        boolean hasAutoplay = block.getAttribute("autoplay-option") != null;
         
         if (config.getAllowed() != null && !config.getAllowed() && hasAutoplay) {
             messages.add(ValidationMessage.builder()
@@ -272,14 +271,13 @@ public class VideoBlockValidator implements BlockTypeValidator {
         
         Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
         
-        // Check if controls are explicitly disabled
-        Object optionsObj = block.getAttribute("options");
-        String options = optionsObj != null ? optionsObj.toString() : null;
-        boolean noControls = options != null && options.contains("nocontrols");
+        // Check if controls are present or explicitly disabled
+        // For video blocks, AsciidoctorJ creates individual option attributes
+        boolean hasControls = block.getAttribute("controls-option") != null;
+        boolean noControls = block.getAttribute("nocontrols-option") != null;
         
-        // If required, check if controls are NOT present or explicitly disabled
+        // If required, check if controls are present
         if (config.isRequired()) {
-            boolean hasControls = options != null && options.contains("controls");
             if (noControls) {
                 // Controls explicitly disabled
                 messages.add(ValidationMessage.builder()

@@ -9,7 +9,7 @@ document:
         severity: error
   sections:
     - name: "introduction"
-      level: 2
+      level: 1
       min: 1
       max: 1
       title:
@@ -22,7 +22,7 @@ document:
               min: 1
               max: 3
     - name: "valid-video-blocks"
-      level: 2
+      level: 1
       min: 1
       max: 1
       title:
@@ -64,7 +64,7 @@ document:
               maxLength: 50
               severity: warn
     - name: "video-different-sources"
-      level: 2
+      level: 1
       min: 0
       max: 1
       title:
@@ -78,7 +78,7 @@ document:
             poster:
               required: true
     - name: "video-various-options"
-      level: 2
+      level: 1
       min: 0
       max: 1
       title:
@@ -93,7 +93,7 @@ document:
               controls:
                 required: true
     - name: "edge-cases"
-      level: 2
+      level: 1
       min: 0
       max: 1
       title:
@@ -112,7 +112,7 @@ document:
               required: true
               maxLength: 50
     - name: "missing-required-attributes"
-      level: 2
+      level: 1
       min: 0
       max: 1
       title:

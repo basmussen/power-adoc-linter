@@ -153,7 +153,10 @@ class VideoBlockValidatorSimpleTest {
                         .build())
                 .build();
 
-        when(mockBlock.getAttribute("options")).thenReturn("autoplay,muted");
+        // Video blocks have individual option attributes
+        when(mockBlock.getAttribute("autoplay-option")).thenReturn("");
+        when(mockBlock.getAttribute("muted-option")).thenReturn("");
+        when(mockBlock.getAttribute("controls-option")).thenReturn(null);
 
         // When
         List<ValidationMessage> messages = validator.validate(mockBlock, config, context);
