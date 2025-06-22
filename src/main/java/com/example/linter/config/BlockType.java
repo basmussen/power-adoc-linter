@@ -11,6 +11,7 @@ public enum BlockType {
     VERSE,
     ADMONITION,
     PASS,
+    LITERAL,
     VIDEO;
     
     @JsonValue
@@ -29,6 +30,7 @@ public enum BlockType {
             case "verse" -> VERSE;
             case "admonition" -> ADMONITION;
             case "pass" -> PASS;
+            case "literal" -> LITERAL;
             case "video" -> VIDEO;
             default -> throw new IllegalArgumentException("Unknown block type: " + value);
         };

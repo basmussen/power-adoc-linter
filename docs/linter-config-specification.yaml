@@ -545,6 +545,29 @@ document:
                   minLength: 20
                   maxLength: 200
                   severity: error
+            - literal:
+                name: "config-example"  # Optional: Benannter Literal-Block
+                severity: warn          # PFLICHT: Default-Severity für den gesamten Block
+                occurrence:
+                  min: 0
+                  max: 5
+                  severity: info
+                # Literal-spezifische Attribute
+                title:
+                  required: false       # Optional: Titel für den Literal-Block
+                  minLength: 5
+                  maxLength: 50
+                  severity: info
+                lines:
+                  min: 3                # Mindestens 3 Zeilen
+                  max: 100              # Maximal 100 Zeilen
+                  severity: warn
+                indentation:
+                  required: false       # Optional: Indentation-Prüfung
+                  consistent: true      # Alle nicht-leeren Zeilen müssen gleiche Einrückung haben
+                  minSpaces: 2          # Mindestens 2 Leerzeichen
+                  maxSpaces: 8          # Maximal 8 Leerzeichen
+                  severity: warn
               
           # Generische Unter-Unterabschnitte
           subsections:
@@ -614,3 +637,63 @@ document:
                 min: 8               # Mindestens 8 Wörter pro Satz
                 max: 25              # Maximal 25 Wörter pro Satz
                 severity: info       # Optional: Überschreibt Block-Severity
+
+    # Vierte Section: Code-Beispiele (optional)
+    - name: "code-examples"
+      order: 4               # Kommt nach conclusion
+      level: 1
+      min: 0                 # Optional
+      max: 1                 # Maximal 1x
+      title:
+        pattern: "^(Code Examples|Beispiele|Examples)$"
+        
+      allowedBlocks:
+        - literal:
+            name: "yaml-config"         # Für YAML-Konfigurationen
+            severity: error             # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 10
+              severity: warn
+            title:
+              required: true            # Titel ist Pflicht
+              minLength: 10
+              maxLength: 80
+              pattern: "^(Configuration|Example|Listing)\\s+\\d+:.*"
+              severity: error
+            lines:
+              min: 5                    # Mindestens 5 Zeilen
+              max: 200                  # Maximal 200 Zeilen
+              severity: warn
+            indentation:
+              required: true            # Einrückung muss geprüft werden
+              consistent: true          # Konsistente Einrückung erforderlich
+              minSpaces: 2              # Mindestens 2 Leerzeichen
+              maxSpaces: 2              # Exakt 2 Leerzeichen (YAML-Standard)
+              severity: error           # Streng, da YAML einrückungssensitiv ist
+        - literal:
+            name: "json-data"           # Für JSON-Daten
+            severity: warn              # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 5
+            title:
+              required: false           # Titel optional
+              pattern: "^JSON:.*"
+            lines:
+              min: 1
+              max: 100
+            indentation:
+              required: true
+              consistent: true          # JSON sollte konsistent eingerückt sein
+              minSpaces: 0              # JSON kann bei 0 starten
+              maxSpaces: 4              # Maximal 4 Leerzeichen Einrückung
+        - paragraph:
+            name: "example-description"
+            severity: info              # PFLICHT: Default-Severity für den gesamten Block
+            occurrence:
+              min: 0
+              max: 20
+            lines:
+              min: 1
+              max: 5                    # Kurze Beschreibungen
