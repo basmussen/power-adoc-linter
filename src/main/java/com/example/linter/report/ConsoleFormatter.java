@@ -4,122 +4,179 @@ import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import com.example.linter.config.Severity;
+import com.example.linter.config.output.OutputConfiguration;
+import com.example.linter.config.output.OutputFormat;
+import com.example.linter.report.console.*;
 import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.ValidationResult;
 
 /**
- * Formats validation results for console output.
- * Supports ANSI color codes for different severity levels when outputting to a terminal.
+ * Completely redesigned console formatter with enhanced error display,
+ * context visualization, and fix suggestions.
+ * This replaces the old ConsoleFormatter entirely.
  */
 public class ConsoleFormatter implements ReportFormatter {
     
-    private static final String ANSI_RESET = "\u001B[0m";
-    private static final String ANSI_RED = "\u001B[31m";
-    private static final String ANSI_YELLOW = "\u001B[33m";
-    private static final String ANSI_BLUE = "\u001B[34m";
+    private final OutputConfiguration config;
+    private final MessageRenderer messageRenderer;
+    private final GroupingEngine groupingEngine;
+    private final SummaryRenderer summaryRenderer;
     
-    private final boolean useColors;
-    
+    /**
+     * Creates a console formatter with default enhanced configuration.
+     */
     public ConsoleFormatter() {
-        this(System.console() != null);
+        this(OutputConfiguration.defaultConfig());
     }
     
-    public ConsoleFormatter(boolean useColors) {
-        this.useColors = useColors;
+    /**
+     * Creates a console formatter with the specified configuration.
+     */
+    public ConsoleFormatter(OutputConfiguration config) {
+        this.config = Objects.requireNonNull(config, "config must not be null");
+        this.messageRenderer = new MessageRenderer(config);
+        this.groupingEngine = new GroupingEngine(config.getErrorGrouping());
+        this.summaryRenderer = new SummaryRenderer(config.getSummary(), config.getDisplay());
     }
     
     @Override
     public void format(ValidationResult result, PrintWriter writer) {
-        writer.println("Validation Report");
-        writer.println("=================");
-        writer.println();
-        
-        if (result.getMessages().isEmpty()) {
-            writer.println("No validation issues found.");
-        } else {
-            formatMessages(result, writer);
+        // Header
+        if (config.getDisplay().isShowHeader()) {
+            renderHeader(writer);
         }
         
-        writer.println();
-        formatSummary(result, writer);
+        // Messages with grouping
+        if (!result.getMessages().isEmpty()) {
+            renderMessages(result, writer);
+        } else {
+            renderNoIssuesFound(writer);
+        }
+        
+        // Summary
+        if (config.getSummary().isEnabled()) {
+            summaryRenderer.render(result, writer);
+        }
     }
     
-    private void formatMessages(ValidationResult result, PrintWriter writer) {
-        Map<String, List<ValidationMessage>> messagesByFile = result.getMessagesByFile();
-        
-        for (Map.Entry<String, List<ValidationMessage>> entry : messagesByFile.entrySet()) {
-            String filename = entry.getKey();
-            List<ValidationMessage> fileMessages = entry.getValue();
-            
-            // Sort messages by line and column
-            fileMessages.sort(Comparator
-                .comparing((ValidationMessage msg) -> msg.getLocation().getStartLine())
-                .thenComparing(msg -> msg.getLocation().getStartColumn()));
-            
-            writer.println(filename + ":");
-            
-            for (ValidationMessage msg : fileMessages) {
-                formatMessage(msg, writer);
-            }
-            
+    private void renderHeader(PrintWriter writer) {
+        if (config.getFormat() != OutputFormat.COMPACT) {
+            writer.println("Validation Report");
+            writer.println("=================");
             writer.println();
         }
     }
     
-    private void formatMessage(ValidationMessage msg, PrintWriter writer) {
-        String severityLabel = formatSeverity(msg.getSeverity());
-        String location = String.format("  Line %d", msg.getLocation().getStartLine());
+    private void renderMessages(ValidationResult result, PrintWriter writer) {
+        List<ValidationMessage> messages = result.getMessages();
         
-        if (msg.getLocation().getStartColumn() > 0) {
-            location += String.format(", Column %d", msg.getLocation().getStartColumn());
-        }
-        
-        writer.println(location + ": " + severityLabel + " " + msg.getMessage());
-        
-        if (msg.getRuleId() != null) {
-            writer.println("    Rule: " + msg.getRuleId());
-        }
-        
-        if (msg.getActualValue().isPresent() || msg.getExpectedValue().isPresent()) {
-            msg.getActualValue().ifPresent(value -> 
-                writer.println("    Actual: " + value));
-            msg.getExpectedValue().ifPresent(value -> 
-                writer.println("    Expected: " + value));
+        // Grouping if enabled
+        if (config.getErrorGrouping().isEnabled() && config.getFormat() != OutputFormat.COMPACT) {
+            MessageGroups groups = groupingEngine.group(messages);
+            
+            // Ungrouped messages first
+            if (!groups.getUngroupedMessages().isEmpty()) {
+                renderUngroupedMessages(groups.getUngroupedMessages(), writer);
+            }
+            
+            // Then grouped messages
+            for (MessageGroup group : groups.getGroups()) {
+                renderGroupedMessages(group, writer);
+                writer.println();
+            }
+        } else {
+            // Normal output without grouping
+            if (config.getFormat() == OutputFormat.COMPACT) {
+                // Compact format: one line per message
+                renderCompactMessages(messages, writer);
+            } else {
+                // Standard format: group by file
+                Map<String, List<ValidationMessage>> byFile = groupByFile(messages);
+                for (Map.Entry<String, List<ValidationMessage>> entry : byFile.entrySet()) {
+                    renderFileMessages(entry.getKey(), entry.getValue(), writer);
+                }
+            }
         }
     }
     
-    private String formatSeverity(Severity severity) {
-        if (!useColors) {
-            return "[" + severity + "]";
+    private void renderUngroupedMessages(List<ValidationMessage> messages, PrintWriter writer) {
+        Map<String, List<ValidationMessage>> byFile = groupByFile(messages);
+        for (Map.Entry<String, List<ValidationMessage>> entry : byFile.entrySet()) {
+            renderFileMessages(entry.getKey(), entry.getValue(), writer);
         }
-        
-        return switch (severity) {
-            case ERROR -> ANSI_RED + "[ERROR]" + ANSI_RESET;
-            case WARN -> ANSI_YELLOW + "[WARN]" + ANSI_RESET;
-            case INFO -> ANSI_BLUE + "[INFO]" + ANSI_RESET;
-        };
     }
     
-    private void formatSummary(ValidationResult result, PrintWriter writer) {
-        int errors = result.getErrorCount();
-        int warnings = result.getWarningCount();
-        int infos = result.getInfoCount();
-        
-        String summary = String.format("Summary: %d error%s, %d warning%s, %d info message%s",
-            errors, errors == 1 ? "" : "s",
-            warnings, warnings == 1 ? "" : "s",
-            infos, infos == 1 ? "" : "s");
-        
-        if (useColors && errors > 0) {
-            summary = ANSI_RED + summary + ANSI_RESET;
-        } else if (useColors && warnings > 0) {
-            summary = ANSI_YELLOW + summary + ANSI_RESET;
+    private Map<String, List<ValidationMessage>> groupByFile(List<ValidationMessage> messages) {
+        return messages.stream()
+            .sorted(Comparator
+                .comparing((ValidationMessage msg) -> msg.getLocation().getFilename())
+                .thenComparing(msg -> msg.getLocation().getStartLine())
+                .thenComparing(msg -> msg.getLocation().getStartColumn()))
+            .collect(Collectors.groupingBy(
+                msg -> msg.getLocation().getFilename(),
+                Collectors.toList()
+            ));
+    }
+    
+    private void renderFileMessages(String filename, List<ValidationMessage> messages, PrintWriter writer) {
+        if (config.getFormat() != OutputFormat.COMPACT) {
+            writer.println(filename + ":");
+            writer.println();
         }
         
-        writer.println(summary);
-        writer.println("Validation completed in " + result.getValidationTimeMillis() + "ms");
+        for (ValidationMessage message : messages) {
+            messageRenderer.render(message, writer);
+            if (config.getFormat() == OutputFormat.ENHANCED) {
+                writer.println();
+            }
+        }
+        
+        if (config.getFormat() != OutputFormat.COMPACT) {
+            writer.println();
+        }
+    }
+    
+    private void renderCompactMessages(List<ValidationMessage> messages, PrintWriter writer) {
+        for (ValidationMessage message : messages) {
+            messageRenderer.render(message, writer);
+        }
+    }
+    
+    private void renderGroupedMessages(MessageGroup group, PrintWriter writer) {
+        writer.printf("Found %d similar errors: %s%n%n", 
+            group.getMessages().size(), 
+            group.getCommonDescription());
+        
+        // Show locations
+        for (ValidationMessage msg : group.getMessages()) {
+            writer.printf("  %s", msg.getLocation().formatLocation());
+            if (msg.getActualValue().isPresent()) {
+                writer.printf("   %s", msg.getActualValue().get());
+            }
+            writer.println();
+        }
+        
+        // Show common suggestion if available
+        if (!group.getMessages().isEmpty() && 
+            group.getMessages().get(0).hasSuggestions() &&
+            config.getSuggestions().isEnabled()) {
+            writer.println();
+            writer.println("💡 Common fix: " + 
+                group.getMessages().get(0).getSuggestions().get(0).getDescription());
+            
+            if (group.getMessages().get(0).hasAutoFixableSuggestions()) {
+                writer.println("🔧 Auto-fixable: Use --fix to apply suggested changes");
+            }
+        }
+    }
+    
+    private void renderNoIssuesFound(PrintWriter writer) {
+        if (config.getFormat() != OutputFormat.COMPACT) {
+            writer.println("No validation issues found.");
+        }
     }
     
     @Override

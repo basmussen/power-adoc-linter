@@ -1,0 +1,18 @@
+# CI/CD output configuration for automated pipelines
+# Optimized for parsing by CI tools with minimal formatting
+
+output:
+  format: compact
+  
+  display:
+    useColors: false
+    contextLines: 0
+    showRuleId: true
+    showLineNumbers: true
+    highlightStyle: none
+    
+  errorGrouping:
+    enabled: false
+    
+  summary:
+    enabled: false

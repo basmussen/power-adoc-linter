@@ -56,6 +56,14 @@ public class CLIOptions {
             .desc("Exit code 1 on: error, warn, info (default: error)")
             .build());
         
+        // Output configuration
+        options.addOption(Option.builder()
+            .longOpt("output-config")
+            .hasArg()
+            .argName("file")
+            .desc("YAML output configuration file for enhanced console formatting")
+            .build());
+        
         // Help
         options.addOption(Option.builder("h")
             .longOpt("help")

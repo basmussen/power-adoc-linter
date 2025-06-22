@@ -52,6 +52,11 @@ public final class BlockValidatorFactory {
         registerValidator(map, new AdmonitionBlockValidator());
         registerValidator(map, new PassBlockValidator());
         registerValidator(map, new LiteralBlockValidator());
+        registerValidator(map, new AudioBlockValidator());
+        registerValidator(map, new QuoteBlockValidator());
+        registerValidator(map, new SidebarBlockValidator());
+        registerValidator(map, new ExampleBlockValidator());
+        registerValidator(map, new VideoBlockValidator());
         
         return map;
     }

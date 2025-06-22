@@ -1,0 +1,97 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "quote-block-schema.yaml"
+title: "Quote Block Configuration"
+description: "Schema for quote block configuration in AsciiDoc linter"
+type: object
+properties:
+  name:
+    type: string
+    description: "Optional name for the quote block for better error messages"
+  severity:
+    $ref: "../common/severity-schema.yaml"
+    description: "Default severity for all quote block violations"
+  occurrence:
+    $ref: "../common/occurrence-schema.yaml"
+    description: "Constraints on quote block occurrence"
+  author:
+    type: object
+    description: "Author validation rules"
+    properties:
+      required:
+        type: boolean
+        default: false
+        description: "Whether author is required"
+      minLength:
+        type: integer
+        minimum: 1
+        description: "Minimum length for author"
+      maxLength:
+        type: integer
+        minimum: 1
+        description: "Maximum length for author"
+      pattern:
+        type: string
+        description: "Regular expression pattern for author"
+      severity:
+        $ref: "../common/severity-schema.yaml"
+        description: "Severity for author violations (overrides block severity)"
+    additionalProperties: false
+  source:
+    type: object
+    description: "Source/citation validation rules"
+    properties:
+      required:
+        type: boolean
+        default: false
+        description: "Whether source is required"
+      minLength:
+        type: integer
+        minimum: 1
+        description: "Minimum length for source"
+      maxLength:
+        type: integer
+        minimum: 1
+        description: "Maximum length for source"
+      pattern:
+        type: string
+        description: "Regular expression pattern for source"
+      severity:
+        $ref: "../common/severity-schema.yaml"
+        description: "Severity for source violations (overrides block severity)"
+    additionalProperties: false
+  content:
+    type: object
+    description: "Content validation rules"
+    properties:
+      required:
+        type: boolean
+        default: false
+        description: "Whether content is required"
+      minLength:
+        type: integer
+        minimum: 1
+        description: "Minimum length for content"
+      maxLength:
+        type: integer
+        minimum: 1
+        description: "Maximum length for content"
+      lines:
+        type: object
+        description: "Line count validation"
+        properties:
+          min:
+            type: integer
+            minimum: 1
+            description: "Minimum number of lines"
+          max:
+            type: integer
+            minimum: 1
+            description: "Maximum number of lines"
+          severity:
+            $ref: "../common/severity-schema.yaml"
+            description: "Severity for line count violations (overrides block severity)"
+        additionalProperties: false
+    additionalProperties: false
+required:
+  - severity
+additionalProperties: false
