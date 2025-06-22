@@ -15,7 +15,8 @@ public enum BlockType {
     AUDIO,
     QUOTE,
     SIDEBAR,
-    EXAMPLE;
+    EXAMPLE,
+    VIDEO;
     
     @JsonValue
     public String toValue() {
@@ -38,6 +39,7 @@ public enum BlockType {
             case "quote" -> QUOTE;
             case "sidebar" -> SIDEBAR;
             case "example" -> EXAMPLE;
+            case "video" -> VIDEO;
             default -> throw new IllegalArgumentException("Unknown block type: " + value);
         };
     }
