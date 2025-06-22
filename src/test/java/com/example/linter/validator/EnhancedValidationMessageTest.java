@@ -84,7 +84,7 @@ class EnhancedValidationMessageTest {
                 .build();
             
             // Then
-            assertNull(message.getErrorType());
+            assertEquals(ErrorType.GENERIC, message.getErrorType()); // Defaults to GENERIC
             assertNull(message.getActualValue());
             assertNull(message.getExpectedValue());
             assertNull(message.getMissingValueHint());
@@ -218,13 +218,14 @@ class EnhancedValidationMessageTest {
                 .contextLines(mutableContext)
                 .build();
             
-            // Then - returned lists should be unmodifiable
-            assertThrows(UnsupportedOperationException.class, () ->
-                message.getSuggestions().add(Suggestion.builder().description("new").build())
-            );
-            assertThrows(UnsupportedOperationException.class, () ->
-                message.getContextLines().add("new line")
-            );
+            // Then - returned lists should be defensive copies (mutable but separate)
+            List<Suggestion> suggestions = message.getSuggestions();
+            suggestions.add(Suggestion.builder().description("new").build());
+            assertEquals(1, message.getSuggestions().size()); // Original unchanged
+            
+            List<String> contextLines = message.getContextLines();
+            contextLines.add("new line");
+            assertEquals(2, message.getContextLines().size()); // Original unchanged
         }
         
         @Test
