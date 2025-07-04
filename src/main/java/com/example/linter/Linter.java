@@ -144,8 +144,8 @@ public class Linter {
             if (config.document() != null) {
                 // Metadata validation
                 if (config.document().metadata() != null) {
-                    MetadataValidator metadataValidator = MetadataValidator.builder()
-                        .configuration(config.document().metadata())
+                    MetadataValidator metadataValidator = MetadataValidator
+                        .fromConfiguration(config.document().metadata())
                         .build();
                     ValidationResult metadataResult = metadataValidator.validate(document);
                     messages.addAll(metadataResult.getMessages());

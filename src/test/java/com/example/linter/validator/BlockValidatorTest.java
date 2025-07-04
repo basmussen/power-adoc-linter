@@ -22,7 +22,6 @@ import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.config.rule.OccurrenceConfig;
-import com.example.linter.config.rule.OrderConfig;
 import com.example.linter.config.rule.SectionConfig;
 
 @DisplayName("BlockValidator")
@@ -255,13 +254,6 @@ class BlockValidatorTest {
                 .build();
             
             TableBlock tableConfig = TableBlock.builder()
-                .severity(Severity.ERROR)
-                .build();
-            
-            OrderConfig.OrderConstraint orderConstraint = OrderConfig.OrderConstraint.of(
-                "content", "summary", Severity.INFO);
-            OrderConfig orderConfig = OrderConfig.builder()
-                .before(Arrays.asList(orderConstraint))
                 .severity(Severity.ERROR)
                 .build();
             

@@ -76,13 +76,8 @@ public class FileDiscoveryService {
         // Convert Ant pattern to file filter
         AntPatternFileFilter antFilter = new AntPatternFileFilter(pattern, baseDir);
         
-        // Determine search depth based on pattern
+        // Use all directories for traversal
         IOFileFilter dirFilter = TrueFileFilter.INSTANCE;
-        if (!pattern.contains("**")) {
-            // If pattern doesn't contain **, limit directory traversal
-            int depth = calculateMaxDepth(pattern);
-            dirFilter = new DepthFileFilter(depth);
-        }
         
         // Find matching files
         File baseDirFile = baseDir.toFile();
@@ -95,17 +90,6 @@ public class FileDiscoveryService {
         return matchingFiles;
     }
     
-    private int calculateMaxDepth(String pattern) {
-        // Count directory separators to determine max depth
-        String[] parts = pattern.split("/");
-        int depth = 0;
-        for (String part : parts) {
-            if (!part.isEmpty() && !part.equals(".") && !part.equals("..")) {
-                depth++;
-            }
-        }
-        return Math.max(1, depth);
-    }
     
     /**
      * Custom file filter for Ant patterns.
@@ -144,27 +128,6 @@ public class FileDiscoveryService {
         }
     }
     
-    /**
-     * Custom directory filter based on depth.
-     */
-    private static class DepthFileFilter implements IOFileFilter {
-        private final int maxDepth;
-        
-        public DepthFileFilter(int maxDepth) {
-            this.maxDepth = maxDepth;
-        }
-        
-        @Override
-        public boolean accept(File file) {
-            // Always accept directories for traversal up to max depth
-            return true;
-        }
-        
-        @Override
-        public boolean accept(File dir, String name) {
-            return accept(new File(dir, name));
-        }
-    }
     
     /**
      * Simple Ant pattern matcher implementation.

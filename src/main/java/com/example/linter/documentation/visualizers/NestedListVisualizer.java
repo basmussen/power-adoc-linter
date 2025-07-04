@@ -108,7 +108,6 @@ public class NestedListVisualizer implements HierarchyVisualizer {
     }
     
     private void visualizeBlock(Block block, String indent, PrintWriter writer) {
-        String icon = getSeverityIcon(block.getSeverity());
         String blockIcon = getBlockIcon(block);
         
         writer.print(indent + " " + blockIcon + " **" + block.getType().toValue() + "**");
