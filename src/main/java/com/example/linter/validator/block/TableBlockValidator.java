@@ -11,7 +11,6 @@ import org.asciidoctor.ast.Table;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.TableBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -38,7 +37,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see TableBlock
  * @see BlockTypeValidator
  */
-public final class TableBlockValidator implements BlockTypeValidator {
+public final class TableBlockValidator extends AbstractBlockValidator<TableBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -46,9 +45,14 @@ public final class TableBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
+    protected Class<TableBlock> getBlockConfigClass() {
+        return TableBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               TableBlock tableConfig,
+                                                               BlockValidationContext context) {
         
         if (!(block instanceof Table)) {
             // Should not happen if BlockTypeDetector works correctly
@@ -56,7 +60,6 @@ public final class TableBlockValidator implements BlockTypeValidator {
         }
         
         Table table = (Table) block;
-        TableBlock tableConfig = (TableBlock) config;
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Validate columns

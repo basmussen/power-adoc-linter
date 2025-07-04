@@ -1,7 +1,6 @@
 package com.example.linter.validator.block;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -61,10 +60,13 @@ class VideoBlockValidatorTest {
     }
     
     @Test
-    @DisplayName("should throw exception for non-VideoBlock config")
-    void shouldThrowForNonVideoBlockConfig() {
-        assertThrows(IllegalArgumentException.class, () ->
-                validator.validate(node, ParagraphBlock.builder().name("test").severity(Severity.WARN).build(), context));
+    @DisplayName("should return empty list for non-VideoBlock config")
+    void shouldReturnEmptyListForNonVideoBlockConfig() {
+        // When
+        var messages = validator.validate(node, ParagraphBlock.builder().name("test").severity(Severity.WARN).build(), context);
+        
+        // Then
+        assertTrue(messages.isEmpty());
     }
     
     @Nested

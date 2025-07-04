@@ -7,7 +7,6 @@ import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ListingBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -33,7 +32,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see ListingBlock
  * @see BlockTypeValidator
  */
-public final class ListingBlockValidator implements BlockTypeValidator {
+public final class ListingBlockValidator extends AbstractBlockValidator<ListingBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -41,11 +40,14 @@ public final class ListingBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
-        
-        ListingBlock listingConfig = (ListingBlock) config;
+    protected Class<ListingBlock> getBlockConfigClass() {
+        return ListingBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               ListingBlock listingConfig,
+                                                               BlockValidationContext context) {
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Get listing attributes
@@ -98,25 +100,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         return null;
     }
     
-    private String getBlockContent(StructuralNode block) {
-        // Try different methods to get content
-        if (block.getContent() != null) {
-            return block.getContent().toString();
-        }
-        
-        // For listings, check blocks
-        if (block.getBlocks() != null && !block.getBlocks().isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (StructuralNode child : block.getBlocks()) {
-                if (child.getContent() != null) {
-                    sb.append(child.getContent()).append("\n");
-                }
-            }
-            return sb.toString();
-        }
-        
-        return "";
-    }
+    // getBlockContent is now inherited from AbstractBlockValidator
     
     private void validateLanguage(String language, ListingBlock.LanguageConfig config,
                                 ListingBlock blockConfig,
@@ -263,14 +247,7 @@ public final class ListingBlockValidator implements BlockTypeValidator {
         }
     }
     
-    private int countLines(String content) {
-        if (content == null || content.isEmpty()) {
-            return 0;
-        }
-        
-        String[] lines = content.split("\n");
-        return lines.length;
-    }
+    // countLines is now inherited from AbstractBlockValidator
     
     private int countCallouts(String content) {
         if (content == null || content.isEmpty()) {

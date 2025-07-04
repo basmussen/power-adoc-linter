@@ -6,7 +6,6 @@ import java.util.List;
 import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.VerseBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -31,7 +30,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see VerseBlock
  * @see BlockTypeValidator
  */
-public final class VerseBlockValidator implements BlockTypeValidator {
+public final class VerseBlockValidator extends AbstractBlockValidator<VerseBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -39,11 +38,14 @@ public final class VerseBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
-        
-        VerseBlock verseConfig = (VerseBlock) config;
+    protected Class<VerseBlock> getBlockConfigClass() {
+        return VerseBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               VerseBlock verseConfig,
+                                                               BlockValidationContext context) {
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Get verse attributes
@@ -95,25 +97,7 @@ public final class VerseBlockValidator implements BlockTypeValidator {
         return null;
     }
     
-    private String getBlockContent(StructuralNode block) {
-        // Try different methods to get content
-        if (block.getContent() != null) {
-            return block.getContent().toString();
-        }
-        
-        // For verses, check blocks
-        if (block.getBlocks() != null && !block.getBlocks().isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (StructuralNode child : block.getBlocks()) {
-                if (child.getContent() != null) {
-                    sb.append(child.getContent()).append("\n");
-                }
-            }
-            return sb.toString();
-        }
-        
-        return "";
-    }
+    // getBlockContent is now inherited from AbstractBlockValidator
     
     private void validateAuthor(String author, VerseBlock.AuthorConfig config,
                               BlockValidationContext context,
