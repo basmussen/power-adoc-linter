@@ -1,13 +1,13 @@
 package com.example.linter.config.blocks;
 
+import java.util.Objects;
+import java.util.regex.Pattern;
+
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * Configuration for quote blocks.

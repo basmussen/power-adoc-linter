@@ -1,18 +1,17 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.BlockType;
-import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
-import com.example.linter.config.blocks.VideoBlock;
-import com.example.linter.validator.ErrorType;
-import com.example.linter.validator.SourceLocation;
-import com.example.linter.validator.Suggestion;
-import com.example.linter.validator.ValidationMessage;
-import org.asciidoctor.ast.StructuralNode;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import org.asciidoctor.ast.StructuralNode;
+
+import com.example.linter.config.BlockType;
+import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.VideoBlock;
+import com.example.linter.validator.ErrorType;
+import com.example.linter.validator.Suggestion;
+import com.example.linter.validator.ValidationMessage;
 
 /**
  * Validator for video blocks in AsciiDoc documents.
@@ -24,7 +23,7 @@ import java.util.regex.Pattern;
  * - Controls requirement
  * - Caption validation
  */
-public class VideoBlockValidator implements BlockTypeValidator {
+public final class VideoBlockValidator extends AbstractBlockValidator<VideoBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -32,14 +31,14 @@ public class VideoBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode node, 
-                                           Block blockConfig,
-                                           BlockValidationContext context) {
-        if (!(blockConfig instanceof VideoBlock)) {
-            throw new IllegalArgumentException("Expected VideoBlock configuration");
-        }
-        
-        VideoBlock videoConfig = (VideoBlock) blockConfig;
+    protected Class<VideoBlock> getBlockConfigClass() {
+        return VideoBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode node, 
+                                                               VideoBlock videoConfig,
+                                                               BlockValidationContext context) {
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Validate URL

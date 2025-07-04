@@ -7,12 +7,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
-import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -77,13 +79,8 @@ public class FileDiscoveryService {
         // Convert Ant pattern to file filter
         AntPatternFileFilter antFilter = new AntPatternFileFilter(pattern, baseDir);
         
-        // Determine search depth based on pattern
+        // Use all directories for traversal
         IOFileFilter dirFilter = TrueFileFilter.INSTANCE;
-        if (!pattern.contains("**")) {
-            // If pattern doesn't contain **, limit directory traversal
-            int depth = calculateMaxDepth(pattern);
-            dirFilter = new DepthFileFilter(depth);
-        }
         
         // Find matching files
         File baseDirFile = baseDir.toFile();
@@ -96,17 +93,6 @@ public class FileDiscoveryService {
         return matchingFiles;
     }
     
-    private int calculateMaxDepth(String pattern) {
-        // Count directory separators to determine max depth
-        String[] parts = pattern.split("/");
-        int depth = 0;
-        for (String part : parts) {
-            if (!part.isEmpty() && !part.equals(".") && !part.equals("..")) {
-                depth++;
-            }
-        }
-        return Math.max(1, depth);
-    }
     
     /**
      * Custom file filter for Ant patterns.
@@ -145,32 +131,13 @@ public class FileDiscoveryService {
         }
     }
     
-    /**
-     * Custom directory filter based on depth.
-     */
-    private static class DepthFileFilter implements IOFileFilter {
-        private final int maxDepth;
-        
-        public DepthFileFilter(int maxDepth) {
-            this.maxDepth = maxDepth;
-        }
-        
-        @Override
-        public boolean accept(File file) {
-            // Always accept directories for traversal up to max depth
-            return true;
-        }
-        
-        @Override
-        public boolean accept(File dir, String name) {
-            return accept(new File(dir, name));
-        }
-    }
     
     /**
-     * Simple Ant pattern matcher implementation.
+     * Simple Ant pattern matcher implementation with pattern caching.
      */
     private static class AntPatternMatcher {
+        // Cache for compiled regex patterns to improve performance
+        private static final Map<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
         
         public static boolean match(String pattern, String path) {
             // Normalize paths
@@ -265,38 +232,43 @@ public class FileDiscoveryService {
         }
         
         private static boolean matchPart(String pattern, String text) {
-            // Convert pattern to regex
-            StringBuilder regex = new StringBuilder("^");
-            for (int i = 0; i < pattern.length(); i++) {
-                char c = pattern.charAt(i);
-                switch (c) {
-                    case '*':
-                        regex.append(".*");
-                        break;
-                    case '?':
-                        regex.append(".");
-                        break;
-                    case '.':
-                    case '\\':
-                    case '[':
-                    case ']':
-                    case '(':
-                    case ')':
-                    case '^':
-                    case '$':
-                    case '{':
-                    case '}':
-                    case '+':
-                    case '|':
-                        regex.append("\\").append(c);
-                        break;
-                    default:
-                        regex.append(c);
+            // Use cached pattern if available, otherwise compile and cache it
+            Pattern compiledPattern = PATTERN_CACHE.computeIfAbsent(pattern, p -> {
+                // Convert pattern to regex
+                StringBuilder regex = new StringBuilder("^");
+                for (int i = 0; i < p.length(); i++) {
+                    char c = p.charAt(i);
+                    switch (c) {
+                        case '*':
+                            regex.append(".*");
+                            break;
+                        case '?':
+                            regex.append(".");
+                            break;
+                        case '.':
+                        case '\\':
+                        case '[':
+                        case ']':
+                        case '(':
+                        case ')':
+                        case '^':
+                        case '$':
+                        case '{':
+                        case '}':
+                        case '+':
+                        case '|':
+                            regex.append("\\").append(c);
+                            break;
+                        default:
+                            regex.append(c);
+                    }
                 }
-            }
-            regex.append("$");
+                regex.append("$");
+                
+                return Pattern.compile(regex.toString());
+            });
             
-            return text.matches(regex.toString());
+            return compiledPattern.matcher(text).matches();
         }
     }
 }

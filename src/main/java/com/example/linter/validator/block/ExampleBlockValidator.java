@@ -2,16 +2,14 @@ package com.example.linter.validator.block;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ExampleBlock;
-import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
 
 /**
  * Validator for EXAMPLE blocks.
@@ -19,7 +17,7 @@ import com.example.linter.validator.SourceLocation;
  * Validates example blocks according to the YAML schema definition,
  * including caption format and collapsible attribute.
  */
-public class ExampleBlockValidator implements BlockTypeValidator {
+public final class ExampleBlockValidator extends AbstractBlockValidator<ExampleBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -27,11 +25,14 @@ public class ExampleBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode node, Block blockConfig, BlockValidationContext context) {
-        if (!(blockConfig instanceof ExampleBlock exampleBlock)) {
-            throw new IllegalArgumentException("Invalid block config type: " + blockConfig.getClass());
-        }
-        
+    protected Class<ExampleBlock> getBlockConfigClass() {
+        return ExampleBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode node, 
+                                                               ExampleBlock exampleBlock,
+                                                               BlockValidationContext context) {
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Validate caption

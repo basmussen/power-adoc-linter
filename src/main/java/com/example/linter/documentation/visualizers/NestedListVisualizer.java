@@ -7,9 +7,9 @@ import com.example.linter.config.DocumentConfiguration;
 import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.MetadataConfiguration;
 import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.rule.AttributeConfig;
 import com.example.linter.config.rule.SectionConfig;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.documentation.HierarchyVisualizer;
 import com.example.linter.documentation.VisualizationStyle;
 
@@ -108,7 +108,6 @@ public class NestedListVisualizer implements HierarchyVisualizer {
     }
     
     private void visualizeBlock(Block block, String indent, PrintWriter writer) {
-        String icon = getSeverityIcon(block.getSeverity());
         String blockIcon = getBlockIcon(block);
         
         writer.print(indent + " " + blockIcon + " **" + block.getType().toValue() + "**");
@@ -118,13 +117,13 @@ public class NestedListVisualizer implements HierarchyVisualizer {
         
         if (block.getOccurrence() != null) {
             writer.print(" (");
-            Integer min = block.getOccurrence().min();
-            Integer max = block.getOccurrence().max();
-            if (min != null && max != null) {
+            int min = block.getOccurrence().min();
+            int max = block.getOccurrence().max();
+            if (min > 0 && max < Integer.MAX_VALUE) {
                 writer.print(min + "-" + max + " Stück");
-            } else if (min != null) {
+            } else if (min > 0) {
                 writer.print("min. " + min + " Stück");
-            } else if (max != null) {
+            } else if (max < Integer.MAX_VALUE) {
                 writer.print("max. " + max + " Stück");
             }
             writer.print(")");

@@ -6,8 +6,6 @@ import java.util.List;
 import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
-import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ImageBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -33,7 +31,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see ImageBlock
  * @see BlockTypeValidator
  */
-public final class ImageBlockValidator implements BlockTypeValidator {
+public final class ImageBlockValidator extends AbstractBlockValidator<ImageBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -41,11 +39,14 @@ public final class ImageBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
-        
-        ImageBlock imageConfig = (ImageBlock) config;
+    protected Class<ImageBlock> getBlockConfigClass() {
+        return ImageBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               ImageBlock imageConfig,
+                                                               BlockValidationContext context) {
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Get image attributes

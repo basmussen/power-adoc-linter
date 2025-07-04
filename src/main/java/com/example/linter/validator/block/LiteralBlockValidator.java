@@ -1,14 +1,12 @@
 package com.example.linter.validator.block;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.LiteralBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -47,7 +45,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see LiteralBlock
  * @see BlockTypeValidator
  */
-public final class LiteralBlockValidator implements BlockTypeValidator {
+public final class LiteralBlockValidator extends AbstractBlockValidator<LiteralBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -55,11 +53,14 @@ public final class LiteralBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
-        
-        LiteralBlock literalConfig = (LiteralBlock) config;
+    protected Class<LiteralBlock> getBlockConfigClass() {
+        return LiteralBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               LiteralBlock config,
+                                                               BlockValidationContext context) {
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Get literal block attributes and content
@@ -67,18 +68,18 @@ public final class LiteralBlockValidator implements BlockTypeValidator {
         List<String> lines = getContentLines(block);
         
         // Validate title
-        if (literalConfig.getTitle() != null) {
-            validateTitle(title, literalConfig.getTitle(), literalConfig, context, block, messages);
+        if (config.getTitle() != null) {
+            validateTitle(title, config.getTitle(), config, context, block, messages);
         }
         
         // Validate lines
-        if (literalConfig.getLines() != null) {
-            validateLines(lines, literalConfig.getLines(), literalConfig, context, block, messages);
+        if (config.getLines() != null) {
+            validateLines(lines, config.getLines(), config, context, block, messages);
         }
         
         // Validate indentation
-        if (literalConfig.getIndentation() != null) {
-            validateIndentation(lines, literalConfig.getIndentation(), literalConfig, context, block, messages);
+        if (config.getIndentation() != null) {
+            validateIndentation(lines, config.getIndentation(), config, context, block, messages);
         }
         
         return messages;
@@ -91,28 +92,12 @@ public final class LiteralBlockValidator implements BlockTypeValidator {
     
     private List<String> getContentLines(StructuralNode block) {
         List<String> lines = new ArrayList<>();
+        String content = getBlockContent(block);
         
-        // For literal blocks, content is the primary source
-        if (block.getContent() != null) {
-            String content = block.getContent().toString();
-            if (!content.isEmpty()) {
-                String[] contentLines = content.split("\n");
-                for (String line : contentLines) {
-                    lines.add(line);
-                }
-            }
-        }
-        
-        // Try blocks as fallback
-        if (lines.isEmpty() && block.getBlocks() != null && !block.getBlocks().isEmpty()) {
-            for (StructuralNode child : block.getBlocks()) {
-                if (child.getContent() != null) {
-                    String childContent = child.getContent().toString();
-                    String[] childLines = childContent.split("\n");
-                    for (String line : childLines) {
-                        lines.add(line);
-                    }
-                }
+        if (!content.isEmpty()) {
+            String[] contentLines = content.split("\n");
+            for (String line : contentLines) {
+                lines.add(line);
             }
         }
         
@@ -126,47 +111,26 @@ public final class LiteralBlockValidator implements BlockTypeValidator {
                              List<ValidationMessage> messages) {
         
         // Get severity with fallback to block severity
-        Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
+        Severity severity = resolveSeverity(config.getSeverity(), blockConfig.getSeverity());
         
         // Check if title is required
-        if (config.isRequired() && (title == null || title.trim().isEmpty())) {
-            messages.add(ValidationMessage.builder()
-                .severity(severity)
-                .ruleId("literal.title.required")
-                .location(context.createLocation(block))
-                .message("Literal block must have a title")
-                .actualValue("No title")
-                .expectedValue("Title required")
-                .build());
+        ValidationMessage requiredMessage = validateRequired(title, "title", 
+                                                           config.isRequired(), 
+                                                           severity, context, block);
+        if (requiredMessage != null) {
+            messages.add(requiredMessage);
             return;
         }
         
         if (title != null && !title.trim().isEmpty()) {
-            int titleLength = title.trim().length();
+            String trimmedTitle = title.trim();
             
-            // Validate min length
-            if (config.getMinLength() != null && titleLength < config.getMinLength()) {
-                messages.add(ValidationMessage.builder()
-                    .severity(severity)
-                    .ruleId("literal.title.minLength")
-                    .location(context.createLocation(block))
-                    .message("Literal block title is too short")
-                    .actualValue(titleLength + " characters")
-                    .expectedValue("At least " + config.getMinLength() + " characters")
-                    .build());
-            }
-            
-            // Validate max length
-            if (config.getMaxLength() != null && titleLength > config.getMaxLength()) {
-                messages.add(ValidationMessage.builder()
-                    .severity(severity)
-                    .ruleId("literal.title.maxLength")
-                    .location(context.createLocation(block))
-                    .message("Literal block title is too long")
-                    .actualValue(titleLength + " characters")
-                    .expectedValue("At most " + config.getMaxLength() + " characters")
-                    .build());
-            }
+            // Validate length constraints
+            ValidationMessage lengthMessage = validateLength(trimmedTitle, 
+                                                           config.getMinLength(), 
+                                                           config.getMaxLength(),
+                                                           "title", severity, context, block);
+            addIfNotNull(messages, lengthMessage);
         }
     }
     
@@ -177,33 +141,16 @@ public final class LiteralBlockValidator implements BlockTypeValidator {
                              List<ValidationMessage> messages) {
         
         // Get severity with fallback to block severity
-        Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
+        Severity severity = resolveSeverity(config.getSeverity(), blockConfig.getSeverity());
         
         int lineCount = lines.size();
         
-        // Validate min lines
-        if (config.getMin() != null && lineCount < config.getMin()) {
-            messages.add(ValidationMessage.builder()
-                .severity(severity)
-                .ruleId("literal.lines.min")
-                .location(context.createLocation(block))
-                .message("Literal block has too few lines")
-                .actualValue(lineCount + " lines")
-                .expectedValue("At least " + config.getMin() + " lines")
-                .build());
-        }
-        
-        // Validate max lines
-        if (config.getMax() != null && lineCount > config.getMax()) {
-            messages.add(ValidationMessage.builder()
-                .severity(severity)
-                .ruleId("literal.lines.max")
-                .location(context.createLocation(block))
-                .message("Literal block has too many lines")
-                .actualValue(lineCount + " lines")
-                .expectedValue("At most " + config.getMax() + " lines")
-                .build());
-        }
+        // Validate line count constraints
+        ValidationMessage countMessage = validateMinMax(lineCount, 
+                                                      config.getMin(), 
+                                                      config.getMax(),
+                                                      "Line count", severity, context, block);
+        addIfNotNull(messages, countMessage);
     }
     
     private void validateIndentation(List<String> lines, LiteralBlock.IndentationConfig config,
@@ -213,7 +160,7 @@ public final class LiteralBlockValidator implements BlockTypeValidator {
                                    List<ValidationMessage> messages) {
         
         // Get severity with fallback to block severity
-        Severity severity = config.getSeverity() != null ? config.getSeverity() : blockConfig.getSeverity();
+        Severity severity = resolveSeverity(config.getSeverity(), blockConfig.getSeverity());
         
         // Skip if indentation checking is not required
         if (!config.isRequired()) {

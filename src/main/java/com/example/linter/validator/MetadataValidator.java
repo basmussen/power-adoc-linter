@@ -20,11 +20,9 @@ import com.example.linter.validator.rules.PatternRule;
 import com.example.linter.validator.rules.RequiredRule;
 
 public final class MetadataValidator {
-    private final MetadataConfiguration configuration;
     private final List<AttributeRule> rules;
 
     private MetadataValidator(Builder builder) {
-        this.configuration = Objects.requireNonNull(builder.configuration, "configuration must not be null");
         this.rules = Collections.unmodifiableList(new ArrayList<>(builder.rules));
     }
 
@@ -161,7 +159,7 @@ public final class MetadataValidator {
     }
 
     public static Builder fromConfiguration(MetadataConfiguration configuration) {
-        Builder builder = new Builder().configuration(configuration);
+        Builder builder = new Builder();
         
         RequiredRule.Builder requiredBuilder = RequiredRule.builder();
         PatternRule.Builder patternBuilder = PatternRule.builder();
@@ -196,15 +194,9 @@ public final class MetadataValidator {
     }
 
     public static final class Builder {
-        private MetadataConfiguration configuration;
         private final List<AttributeRule> rules = new ArrayList<>();
 
         private Builder() {
-        }
-
-        public Builder configuration(MetadataConfiguration configuration) {
-            this.configuration = configuration;
-            return this;
         }
 
         public Builder addRule(AttributeRule rule) {

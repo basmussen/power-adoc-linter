@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,11 +19,11 @@ import com.example.linter.documentation.VisualizationStyle;
 /**
  * Runner for generating documentation from linter configuration.
  */
-public class DocumentationGeneratorRunner {
+public class DocumentationGenerator {
     
     private final ConfigurationLoader configLoader;
     
-    public DocumentationGeneratorRunner() {
+    public DocumentationGenerator() {
         this.configLoader = new ConfigurationLoader();
     }
     

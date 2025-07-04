@@ -2,14 +2,11 @@ package com.example.linter.validator.block;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ParagraphBlock;
 import com.example.linter.config.rule.OccurrenceConfig;
 import com.example.linter.validator.ValidationMessage;
@@ -39,7 +36,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see ParagraphBlock
  * @see BlockTypeValidator
  */
-public final class ParagraphBlockValidator implements BlockTypeValidator {
+public final class ParagraphBlockValidator extends AbstractBlockValidator<ParagraphBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -47,11 +44,14 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
-        
-        ParagraphBlock paragraphConfig = (ParagraphBlock) config;
+    protected Class<ParagraphBlock> getBlockConfigClass() {
+        return ParagraphBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               ParagraphBlock paragraphConfig,
+                                                               BlockValidationContext context) {
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Get paragraph content
@@ -59,7 +59,7 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
         
         // Validate line count if configured
         if (paragraphConfig.getLines() != null) {
-            int lineCount = countLines(content);
+            int lineCount = countLinesNonEmpty(content);
             validateLineCount(lineCount, paragraphConfig.getLines(), paragraphConfig, context, block, messages);
         }
         
@@ -71,27 +71,9 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
         return messages;
     }
     
-    private String getBlockContent(StructuralNode block) {
-        // Try different methods to get content
-        if (block.getContent() != null) {
-            return block.getContent().toString();
-        }
-        
-        // For paragraphs, check blocks
-        if (block.getBlocks() != null && !block.getBlocks().isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (StructuralNode child : block.getBlocks()) {
-                if (child.getContent() != null) {
-                    sb.append(child.getContent()).append("\n");
-                }
-            }
-            return sb.toString();
-        }
-        
-        return "";
-    }
+    // getBlockContent is now inherited from AbstractBlockValidator
     
-    private int countLines(String content) {
+    private int countLinesNonEmpty(String content) {
         if (content == null || content.isEmpty()) {
             return 0;
         }
@@ -186,14 +168,6 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
     
     private List<String> splitIntoSentences(String content) {
         List<String> sentences = new ArrayList<>();
-        
-        // Pattern to match sentence endings: period, exclamation mark, question mark
-        // followed by whitespace or end of string
-        // Handles abbreviations like "e.g.", "i.e.", etc.
-        Pattern sentencePattern = Pattern.compile(
-            "([^.!?]+(?:[.!?](?![.!?])|\\.[a-z]\\.)+[.!?]?)(?:\\s+|$)", 
-            Pattern.CASE_INSENSITIVE | Pattern.DOTALL
-        );
         
         // First, replace newlines with spaces to handle multi-line sentences
         String normalizedContent = content.replaceAll("\\n+", " ").trim();

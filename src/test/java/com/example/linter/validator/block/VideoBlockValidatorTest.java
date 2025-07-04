@@ -1,12 +1,12 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.BlockType;
-import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.ParagraphBlock;
-import com.example.linter.config.blocks.VideoBlock;
-import com.example.linter.validator.ErrorType;
-import com.example.linter.validator.SourceLocation;
-import com.example.linter.validator.ValidationMessage;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import org.asciidoctor.ast.StructuralNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,11 +15,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
+import com.example.linter.config.BlockType;
+import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.ParagraphBlock;
+import com.example.linter.config.blocks.VideoBlock;
+import com.example.linter.validator.ErrorType;
+import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
 
 @DisplayName("VideoBlockValidator")
 class VideoBlockValidatorTest {
@@ -58,10 +60,13 @@ class VideoBlockValidatorTest {
     }
     
     @Test
-    @DisplayName("should throw exception for non-VideoBlock config")
-    void shouldThrowForNonVideoBlockConfig() {
-        assertThrows(IllegalArgumentException.class, () ->
-                validator.validate(node, ParagraphBlock.builder().name("test").severity(Severity.WARN).build(), context));
+    @DisplayName("should return empty list for non-VideoBlock config")
+    void shouldReturnEmptyListForNonVideoBlockConfig() {
+        // When
+        var messages = validator.validate(node, ParagraphBlock.builder().name("test").severity(Severity.WARN).build(), context);
+        
+        // Then
+        assertTrue(messages.isEmpty());
     }
     
     @Nested

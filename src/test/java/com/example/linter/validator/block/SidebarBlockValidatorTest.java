@@ -1,5 +1,9 @@
 package com.example.linter.validator.block;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 
 import org.asciidoctor.ast.Cursor;
@@ -16,9 +20,6 @@ import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.SidebarBlock;
 import com.example.linter.validator.ValidationMessage;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @DisplayName("SidebarBlockValidator")
 class SidebarBlockValidatorTest {

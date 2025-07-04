@@ -1,5 +1,11 @@
 package com.example.linter.config.blocks;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -9,8 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("SidebarBlock")
 class SidebarBlockTest {

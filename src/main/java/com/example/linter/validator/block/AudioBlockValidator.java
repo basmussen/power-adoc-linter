@@ -7,7 +7,6 @@ import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.AudioBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -34,7 +33,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see AudioBlock
  * @see BlockTypeValidator
  */
-public final class AudioBlockValidator implements BlockTypeValidator {
+public final class AudioBlockValidator extends AbstractBlockValidator<AudioBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -42,11 +41,15 @@ public final class AudioBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
+    protected Class<AudioBlock> getBlockConfigClass() {
+        return AudioBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               AudioBlock audioConfig,
+                                                               BlockValidationContext context) {
         
-        AudioBlock audioConfig = (AudioBlock) config;
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Get audio attributes

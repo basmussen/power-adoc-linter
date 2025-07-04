@@ -7,7 +7,6 @@ import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.PassBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -49,7 +48,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see PassBlock
  * @see BlockTypeValidator
  */
-public final class PassBlockValidator implements BlockTypeValidator {
+public final class PassBlockValidator extends AbstractBlockValidator<PassBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -57,11 +56,15 @@ public final class PassBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
+    protected Class<PassBlock> getBlockConfigClass() {
+        return PassBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               PassBlock passConfig,
+                                                               BlockValidationContext context) {
         
-        PassBlock passConfig = (PassBlock) config;
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Get pass block attributes
@@ -92,25 +95,6 @@ public final class PassBlockValidator implements BlockTypeValidator {
         return value != null ? value.toString() : null;
     }
     
-    private String getBlockContent(StructuralNode block) {
-        // Try different methods to get content
-        if (block.getContent() != null) {
-            return block.getContent().toString();
-        }
-        
-        // For pass blocks, check blocks
-        if (block.getBlocks() != null && !block.getBlocks().isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (StructuralNode child : block.getBlocks()) {
-                if (child.getContent() != null) {
-                    sb.append(child.getContent()).append("\n");
-                }
-            }
-            return sb.toString();
-        }
-        
-        return "";
-    }
     
     private void validateType(String passType, PassBlock.TypeConfig config,
                             PassBlock blockConfig,

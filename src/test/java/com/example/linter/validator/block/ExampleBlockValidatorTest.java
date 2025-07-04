@@ -1,8 +1,10 @@
 package com.example.linter.validator.block;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,8 +18,8 @@ import org.junit.jupiter.api.Test;
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.ExampleBlock;
-import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
 
 @DisplayName("ExampleBlockValidator")
 class ExampleBlockValidatorTest {
@@ -43,14 +45,16 @@ class ExampleBlockValidatorTest {
     }
     
     @Test
-    @DisplayName("should throw exception for invalid block config type")
-    void shouldThrowExceptionForInvalidBlockConfigType() {
+    @DisplayName("should return empty list for invalid block config type")
+    void shouldReturnEmptyListForInvalidBlockConfigType() {
         // Given
         var invalidBlock = mock(com.example.linter.config.blocks.Block.class);
         
-        // When/Then
-        assertThrows(IllegalArgumentException.class, 
-            () -> validator.validate(mockNode, invalidBlock, mockContext));
+        // When
+        var messages = validator.validate(mockNode, invalidBlock, mockContext);
+        
+        // Then
+        assertTrue(messages.isEmpty());
     }
     
     @Nested

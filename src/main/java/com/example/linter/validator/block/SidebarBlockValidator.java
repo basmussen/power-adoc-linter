@@ -8,7 +8,6 @@ import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.SidebarBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -29,7 +28,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see SidebarBlock
  * @see BlockTypeValidator
  */
-public final class SidebarBlockValidator implements BlockTypeValidator {
+public final class SidebarBlockValidator extends AbstractBlockValidator<SidebarBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -37,11 +36,15 @@ public final class SidebarBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
+    protected Class<SidebarBlock> getBlockConfigClass() {
+        return SidebarBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               SidebarBlock sidebarConfig,
+                                                               BlockValidationContext context) {
         
-        SidebarBlock sidebarConfig = (SidebarBlock) config;
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Validate title
@@ -132,7 +135,7 @@ public final class SidebarBlockValidator implements BlockTypeValidator {
                                BlockValidationContext context, List<ValidationMessage> messages) {
         SidebarBlock.ContentConfig contentConfig = config.getContent();
         
-        String content = block.getContent() != null ? block.getContent().toString() : "";
+        String content = getBlockContent(block);
         
         // Check if content is required
         if (contentConfig.isRequired() && content.isEmpty()) {
@@ -184,7 +187,7 @@ public final class SidebarBlockValidator implements BlockTypeValidator {
                              SidebarBlock.LinesConfig linesConfig,
                              BlockValidationContext context, List<ValidationMessage> messages) {
         
-        String content = block.getContent() != null ? block.getContent().toString() : "";
+        String content = getBlockContent(block);
         String[] lines = content.split("\n");
         int lineCount = lines.length;
         

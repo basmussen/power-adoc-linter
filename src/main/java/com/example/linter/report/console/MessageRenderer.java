@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.util.Objects;
 
 import com.example.linter.config.output.OutputConfiguration;
-import com.example.linter.config.output.OutputFormat;
 import com.example.linter.validator.ValidationMessage;
 
 /**
