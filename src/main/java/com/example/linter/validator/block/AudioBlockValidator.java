@@ -7,8 +7,8 @@ import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.AudioBlock;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.validator.ValidationMessage;
 
 /**

@@ -1,5 +1,13 @@
 package com.example.linter.config.blocks;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -14,8 +22,6 @@ import com.example.linter.config.blocks.PassBlock.ContentConfig;
 import com.example.linter.config.blocks.PassBlock.ReasonConfig;
 import com.example.linter.config.blocks.PassBlock.TypeConfig;
 import com.example.linter.config.rule.OccurrenceConfig;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class PassBlockTest {
     

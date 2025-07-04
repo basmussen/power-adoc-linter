@@ -8,9 +8,9 @@ import com.example.linter.config.DocumentConfiguration;
 import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.MetadataConfiguration;
 import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.rule.AttributeConfig;
 import com.example.linter.config.rule.SectionConfig;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.documentation.HierarchyVisualizer;
 import com.example.linter.documentation.VisualizationStyle;
 
@@ -194,13 +194,13 @@ public class TableVisualizer implements HierarchyVisualizer {
         }
         
         if (block.getOccurrence() != null) {
-            Integer min = block.getOccurrence().min();
-            Integer max = block.getOccurrence().max();
-            if (min != null && max != null) {
+            int min = block.getOccurrence().min();
+            int max = block.getOccurrence().max();
+            if (min > 0 && max < Integer.MAX_VALUE) {
                 desc.add(min + "-" + max + " mal");
-            } else if (min != null) {
+            } else if (min > 0) {
                 desc.add("Min. " + min + " mal");
-            } else if (max != null) {
+            } else if (max < Integer.MAX_VALUE) {
                 desc.add("Max. " + max + " mal");
             }
         }

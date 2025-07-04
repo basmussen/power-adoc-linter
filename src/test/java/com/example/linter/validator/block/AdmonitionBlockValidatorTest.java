@@ -1,9 +1,13 @@
 package com.example.linter.validator.block;
 
-import java.nio.file.Path;
-import java.util.HashMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
-import java.util.Map;
 
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.StructuralNode;
@@ -17,9 +21,6 @@ import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.AdmonitionBlock;
 import com.example.linter.config.rule.LineConfig;
 import com.example.linter.validator.ValidationMessage;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @DisplayName("AdmonitionBlockValidator Tests")
 class AdmonitionBlockValidatorTest {

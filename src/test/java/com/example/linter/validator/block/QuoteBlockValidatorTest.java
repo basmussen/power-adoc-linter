@@ -1,24 +1,25 @@
 package com.example.linter.validator.block;
 
-import com.example.linter.config.BlockType;
-import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
-import com.example.linter.config.blocks.QuoteBlock;
-import com.example.linter.validator.ValidationMessage;
-import com.example.linter.validator.SourceLocation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import org.asciidoctor.ast.StructuralNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.any;
+import com.example.linter.config.BlockType;
+import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.Block;
+import com.example.linter.config.blocks.QuoteBlock;
+import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
 
 @DisplayName("QuoteBlockValidator Tests")
 class QuoteBlockValidatorTest {

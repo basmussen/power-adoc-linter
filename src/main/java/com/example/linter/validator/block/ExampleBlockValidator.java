@@ -2,7 +2,6 @@ package com.example.linter.validator.block;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.asciidoctor.ast.StructuralNode;
 
@@ -10,8 +9,8 @@ import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.ExampleBlock;
-import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.SourceLocation;
+import com.example.linter.validator.ValidationMessage;
 
 /**
  * Validator for EXAMPLE blocks.

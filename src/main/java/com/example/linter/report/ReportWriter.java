@@ -157,10 +157,6 @@ public class ReportWriter {
         }
     }
     
-    private ReportFormatter getFormatter(String format) {
-        return getFormatter(format, null);
-    }
-    
     private ReportFormatter getFormatter(String format, OutputConfiguration outputConfig) {
         String formatName = format != null ? format.toLowerCase() : "console";
         

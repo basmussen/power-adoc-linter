@@ -12,7 +12,6 @@ import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.Block;
 import com.example.linter.config.rule.SectionConfig;
 import com.example.linter.validator.block.BlockOccurrenceValidator;
-import com.example.linter.validator.block.BlockOrderValidator;
 import com.example.linter.validator.block.BlockTypeDetector;
 import com.example.linter.validator.block.BlockTypeValidator;
 import com.example.linter.validator.block.BlockValidationContext;
@@ -20,20 +19,18 @@ import com.example.linter.validator.block.BlockValidatorFactory;
 
 /**
  * Main validator for blocks within sections.
- * Orchestrates block type validation, occurrence validation, and order validation.
+ * Orchestrates block type validation and occurrence validation.
  */
 public final class BlockValidator {
     
     private final BlockValidatorFactory validatorFactory;
     private final BlockTypeDetector typeDetector;
     private final BlockOccurrenceValidator occurrenceValidator;
-    private final BlockOrderValidator orderValidator;
     
     public BlockValidator() {
         this.validatorFactory = new BlockValidatorFactory();
         this.typeDetector = new BlockTypeDetector();
         this.occurrenceValidator = new BlockOccurrenceValidator();
-        this.orderValidator = new BlockOrderValidator();
     }
     
     /**

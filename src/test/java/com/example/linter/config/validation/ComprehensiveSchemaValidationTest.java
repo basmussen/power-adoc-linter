@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.example.linter.config.LinterConfiguration;
-import com.example.linter.config.loader.ConfigurationLoader;
 import com.example.linter.config.loader.ConfigurationException;
+import com.example.linter.config.loader.ConfigurationLoader;
 
 /**
  * Comprehensive schema validation tests for all block types.

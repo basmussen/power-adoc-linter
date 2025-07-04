@@ -2,8 +2,6 @@ package com.example.linter.validator.block;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.asciidoctor.ast.StructuralNode;
 
@@ -186,14 +184,6 @@ public final class ParagraphBlockValidator implements BlockTypeValidator {
     
     private List<String> splitIntoSentences(String content) {
         List<String> sentences = new ArrayList<>();
-        
-        // Pattern to match sentence endings: period, exclamation mark, question mark
-        // followed by whitespace or end of string
-        // Handles abbreviations like "e.g.", "i.e.", etc.
-        Pattern sentencePattern = Pattern.compile(
-            "([^.!?]+(?:[.!?](?![.!?])|\\.[a-z]\\.)+[.!?]?)(?:\\s+|$)", 
-            Pattern.CASE_INSENSITIVE | Pattern.DOTALL
-        );
         
         // First, replace newlines with spaces to handle multi-line sentences
         String normalizedContent = content.replaceAll("\\n+", " ").trim();

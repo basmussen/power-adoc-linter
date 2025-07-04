@@ -1,5 +1,12 @@
 package com.example.linter.config.loader;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -8,11 +15,9 @@ import org.junit.jupiter.api.Test;
 import com.example.linter.config.DocumentConfiguration;
 import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.Severity;
-import com.example.linter.config.rule.SectionConfig;
 import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.SidebarBlock;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.example.linter.config.rule.SectionConfig;
 
 /**
  * Tests for YAML parsing of sidebar block configurations.
