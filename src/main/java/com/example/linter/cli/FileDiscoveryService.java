@@ -7,7 +7,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -130,9 +133,11 @@ public class FileDiscoveryService {
     
     
     /**
-     * Simple Ant pattern matcher implementation.
+     * Simple Ant pattern matcher implementation with pattern caching.
      */
     private static class AntPatternMatcher {
+        // Cache for compiled regex patterns to improve performance
+        private static final Map<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
         
         public static boolean match(String pattern, String path) {
             // Normalize paths
@@ -227,38 +232,43 @@ public class FileDiscoveryService {
         }
         
         private static boolean matchPart(String pattern, String text) {
-            // Convert pattern to regex
-            StringBuilder regex = new StringBuilder("^");
-            for (int i = 0; i < pattern.length(); i++) {
-                char c = pattern.charAt(i);
-                switch (c) {
-                    case '*':
-                        regex.append(".*");
-                        break;
-                    case '?':
-                        regex.append(".");
-                        break;
-                    case '.':
-                    case '\\':
-                    case '[':
-                    case ']':
-                    case '(':
-                    case ')':
-                    case '^':
-                    case '$':
-                    case '{':
-                    case '}':
-                    case '+':
-                    case '|':
-                        regex.append("\\").append(c);
-                        break;
-                    default:
-                        regex.append(c);
+            // Use cached pattern if available, otherwise compile and cache it
+            Pattern compiledPattern = PATTERN_CACHE.computeIfAbsent(pattern, p -> {
+                // Convert pattern to regex
+                StringBuilder regex = new StringBuilder("^");
+                for (int i = 0; i < p.length(); i++) {
+                    char c = p.charAt(i);
+                    switch (c) {
+                        case '*':
+                            regex.append(".*");
+                            break;
+                        case '?':
+                            regex.append(".");
+                            break;
+                        case '.':
+                        case '\\':
+                        case '[':
+                        case ']':
+                        case '(':
+                        case ')':
+                        case '^':
+                        case '$':
+                        case '{':
+                        case '}':
+                        case '+':
+                        case '|':
+                            regex.append("\\").append(c);
+                            break;
+                        default:
+                            regex.append(c);
+                    }
                 }
-            }
-            regex.append("$");
+                regex.append("$");
+                
+                return Pattern.compile(regex.toString());
+            });
             
-            return text.matches(regex.toString());
+            return compiledPattern.matcher(text).matches();
         }
     }
 }
