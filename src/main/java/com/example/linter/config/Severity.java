@@ -18,7 +18,7 @@ public enum Severity {
         if (value == null) return null;
         return switch (value.toLowerCase()) {
             case "error" -> ERROR;
-            case "warn", "warning" -> WARN;
+            case "warn" -> WARN;
             case "info" -> INFO;
             default -> throw new IllegalArgumentException("Unknown severity: " + value);
         };

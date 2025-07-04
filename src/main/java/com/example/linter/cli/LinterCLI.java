@@ -59,8 +59,8 @@ public class LinterCLI {
                     return 2;
                 }
                 
-                DocumentationGeneratorRunner docRunner = new DocumentationGeneratorRunner();
-                return docRunner.run(cmd);
+                DocumentationGenerator docGenerator = new DocumentationGenerator();
+                return docGenerator.run(cmd);
             }
             
             // For normal validation, input is required

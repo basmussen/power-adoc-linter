@@ -30,19 +30,19 @@ document:
         minLength: 5        # Mindestens 5 Zeichen
         maxLength: 50       # Maximal 50 Zeichen
         pattern: "^[A-Z][a-zA-Z\\s\\.]+$"  # Muss mit Großbuchstabe beginnen
-        severity: error     # PFLICHT: error, warning oder info
+        severity: error     # PFLICHT: error, warn oder info
         
       - name: revdate
         order: 3            # Optional: Nach author
         required: true      # Pflichtfeld
         pattern: "^\\d{4}-\\d{2}-\\d{2}$"  # Format: YYYY-MM-DD
-        severity: error     # PFLICHT: error, warning oder info
+        severity: error     # PFLICHT: error, warn oder info
         
       - name: version
         order: 4            # Optional: Nach revdate
         required: true      # Pflichtfeld
         pattern: "^\\d+\\.\\d+(\\.\\d+)?$"  # Format: 1.0 oder 1.0.0
-        severity: error     # PFLICHT: error, warning oder info
+        severity: error     # PFLICHT: error, warn oder info
         
       - name: email
         # Kein order = flexible Position
@@ -55,14 +55,14 @@ document:
         required: false     # Optional
         minLength: 10       # Mindestens 10 Zeichen
         maxLength: 100      # Maximal 100 Zeichen
-        severity: info      # PFLICHT: error, warning oder info
+        severity: info      # PFLICHT: error, warn oder info
         
       - name: keywords
         # Kein order = flexible Position
         required: false     # Optional
         pattern: "^[a-zA-Z0-9,\\s-]+$"  # Komma-separierte Keywords
         maxLength: 200      # Maximal 200 Zeichen
-        severity: info      # PFLICHT: error, warning oder info
+        severity: info      # PFLICHT: error, warn oder info
 
   # === SECTIONS ===
   # Definiert die erlaubte Struktur und Reihenfolge von Dokumentabschnitten
@@ -425,7 +425,7 @@ document:
                     max: 2
                     lines:
                       max: 5         # Kurze Einführung
-                      severity: info # PFLICHT: error, warning oder info
+                      severity: info # PFLICHT: error, warn oder info
                 - listing:
                     min: 1
                     max: 3
