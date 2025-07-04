@@ -1,7 +1,6 @@
 package com.example.linter.validator.block;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -46,14 +45,16 @@ class ExampleBlockValidatorTest {
     }
     
     @Test
-    @DisplayName("should throw exception for invalid block config type")
-    void shouldThrowExceptionForInvalidBlockConfigType() {
+    @DisplayName("should return empty list for invalid block config type")
+    void shouldReturnEmptyListForInvalidBlockConfigType() {
         // Given
         var invalidBlock = mock(com.example.linter.config.blocks.Block.class);
         
-        // When/Then
-        assertThrows(IllegalArgumentException.class, 
-            () -> validator.validate(mockNode, invalidBlock, mockContext));
+        // When
+        var messages = validator.validate(mockNode, invalidBlock, mockContext);
+        
+        // Then
+        assertTrue(messages.isEmpty());
     }
     
     @Nested

@@ -7,7 +7,6 @@ import org.asciidoctor.ast.StructuralNode;
 
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.config.blocks.QuoteBlock;
 import com.example.linter.validator.ValidationMessage;
 
@@ -15,7 +14,7 @@ import com.example.linter.validator.ValidationMessage;
  * Validator for quote blocks.
  * Based on the YAML schema structure for validating AsciiDoc quote blocks.
  */
-public class QuoteBlockValidator implements BlockTypeValidator {
+public final class QuoteBlockValidator extends AbstractBlockValidator<QuoteBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -23,12 +22,15 @@ public class QuoteBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode node, Block blockConfig, BlockValidationContext context) {
+    protected Class<QuoteBlock> getBlockConfigClass() {
+        return QuoteBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode node, 
+                                                               QuoteBlock quoteBlock,
+                                                               BlockValidationContext context) {
         List<ValidationMessage> results = new ArrayList<>();
-        
-        if (!(blockConfig instanceof QuoteBlock quoteBlock)) {
-            return results;
-        }
         
         // Validate author
         if (quoteBlock.getAuthor() != null) {
@@ -270,24 +272,7 @@ public class QuoteBlockValidator implements BlockTypeValidator {
     }
     
     private String extractContent(StructuralNode node) {
-        // Try to get content as string
-        if (node.getContent() instanceof String) {
-            return (String) node.getContent();
-        }
-        
-        // Try to get source (raw content)
-        if (node instanceof org.asciidoctor.ast.Block) {
-            List<String> lines = ((org.asciidoctor.ast.Block) node).getLines();
-            if (lines != null && !lines.isEmpty()) {
-                return String.join("\n", lines);
-            }
-        }
-        
-        // Fallback to content object toString
-        if (node.getContent() != null) {
-            return node.getContent().toString();
-        }
-        
-        return null;
+        // Use inherited getBlockContent method from AbstractBlockValidator
+        return getBlockContent(node);
     }
 }

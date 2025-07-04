@@ -8,7 +8,6 @@ import org.asciidoctor.ast.StructuralNode;
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
 import com.example.linter.config.blocks.AdmonitionBlock;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.validator.ValidationMessage;
 
 /**
@@ -34,7 +33,7 @@ import com.example.linter.validator.ValidationMessage;
  * @see AdmonitionBlock
  * @see BlockTypeValidator
  */
-public final class AdmonitionBlockValidator implements BlockTypeValidator {
+public final class AdmonitionBlockValidator extends AbstractBlockValidator<AdmonitionBlock> {
     
     @Override
     public BlockType getSupportedType() {
@@ -42,11 +41,15 @@ public final class AdmonitionBlockValidator implements BlockTypeValidator {
     }
     
     @Override
-    public List<ValidationMessage> validate(StructuralNode block, 
-                                          Block config,
-                                          BlockValidationContext context) {
+    protected Class<AdmonitionBlock> getBlockConfigClass() {
+        return AdmonitionBlock.class;
+    }
+    
+    @Override
+    protected List<ValidationMessage> performSpecificValidations(StructuralNode block, 
+                                                               AdmonitionBlock admonitionConfig,
+                                                               BlockValidationContext context) {
         
-        AdmonitionBlock admonitionConfig = (AdmonitionBlock) config;
         List<ValidationMessage> messages = new ArrayList<>();
         
         // Get admonition attributes
@@ -95,25 +98,6 @@ public final class AdmonitionBlockValidator implements BlockTypeValidator {
         return null;
     }
     
-    private String getBlockContent(StructuralNode block) {
-        // Try different methods to get content
-        if (block.getContent() != null) {
-            return block.getContent().toString();
-        }
-        
-        // For admonitions, check blocks
-        if (block.getBlocks() != null && !block.getBlocks().isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (StructuralNode child : block.getBlocks()) {
-                if (child.getContent() != null) {
-                    sb.append(child.getContent()).append("\n");
-                }
-            }
-            return sb.toString();
-        }
-        
-        return "";
-    }
     
     private boolean hasIcon(StructuralNode block) {
         // Check if icons are enabled at document level
@@ -359,12 +343,4 @@ public final class AdmonitionBlockValidator implements BlockTypeValidator {
         return icon != null ? icon.toString() : null;
     }
     
-    private int countLines(String content) {
-        if (content == null || content.isEmpty()) {
-            return 0;
-        }
-        
-        String[] lines = content.split("\n");
-        return lines.length;
-    }
 }
