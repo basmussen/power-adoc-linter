@@ -1,9 +1,7 @@
 package com.example.linter.validator.block;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.asciidoctor.ast.StructuralNode;
 

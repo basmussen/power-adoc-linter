@@ -1,15 +1,14 @@
 package com.example.linter.config.blocks;
 
+import java.util.Objects;
+import java.util.regex.Pattern;
+
 import com.example.linter.config.BlockType;
 import com.example.linter.config.Severity;
-import com.example.linter.config.rule.OccurrenceConfig;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import java.util.Objects;
-import java.util.regex.Pattern;
 
 @JsonDeserialize(builder = VideoBlock.Builder.class)
 public class VideoBlock extends AbstractBlock {

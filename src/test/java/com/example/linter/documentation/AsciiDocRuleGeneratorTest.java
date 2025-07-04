@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,10 +19,10 @@ import com.example.linter.config.DocumentConfiguration;
 import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.MetadataConfiguration;
 import com.example.linter.config.Severity;
-import com.example.linter.config.rule.AttributeConfig;
-import com.example.linter.config.rule.SectionConfig;
-import com.example.linter.config.rule.OccurrenceConfig;
 import com.example.linter.config.blocks.ParagraphBlock;
+import com.example.linter.config.rule.AttributeConfig;
+import com.example.linter.config.rule.OccurrenceConfig;
+import com.example.linter.config.rule.SectionConfig;
 
 @DisplayName("AsciiDocRuleGenerator")
 class AsciiDocRuleGeneratorTest {

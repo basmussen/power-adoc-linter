@@ -208,10 +208,10 @@ class BlockValidatorTest {
                 .severity(Severity.ERROR)
                 .build();
             
-            OrderConfig orderConfig = OrderConfig.builder()
-                .fixedOrder(Arrays.asList("header", "data"))
-                .severity(Severity.ERROR)
-                .build();
+//            OrderConfig orderConfig = OrderConfig.builder()
+//                .fixedOrder(Arrays.asList("header", "data"))
+//                .severity(Severity.ERROR)
+//                .build();
             
             SectionConfig config = SectionConfig.builder()
                 .name("Section")

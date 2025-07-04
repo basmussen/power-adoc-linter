@@ -9,7 +9,11 @@ import java.util.stream.Collectors;
 
 import com.example.linter.config.output.OutputConfiguration;
 import com.example.linter.config.output.OutputFormat;
-import com.example.linter.report.console.*;
+import com.example.linter.report.console.GroupingEngine;
+import com.example.linter.report.console.MessageGroup;
+import com.example.linter.report.console.MessageGroups;
+import com.example.linter.report.console.MessageRenderer;
+import com.example.linter.report.console.SummaryRenderer;
 import com.example.linter.validator.ValidationMessage;
 import com.example.linter.validator.ValidationResult;
 

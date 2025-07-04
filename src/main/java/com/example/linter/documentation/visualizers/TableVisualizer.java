@@ -8,9 +8,9 @@ import com.example.linter.config.DocumentConfiguration;
 import com.example.linter.config.LinterConfiguration;
 import com.example.linter.config.MetadataConfiguration;
 import com.example.linter.config.Severity;
+import com.example.linter.config.blocks.Block;
 import com.example.linter.config.rule.AttributeConfig;
 import com.example.linter.config.rule.SectionConfig;
-import com.example.linter.config.blocks.Block;
 import com.example.linter.documentation.HierarchyVisualizer;
 import com.example.linter.documentation.VisualizationStyle;
 
