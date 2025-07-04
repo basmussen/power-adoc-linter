@@ -326,14 +326,14 @@ public class AsciiDocRuleGenerator implements RuleDocumentationGenerator {
             return "Beliebig";
         }
         
-        Integer min = block.getOccurrence().min();
-        Integer max = block.getOccurrence().max();
+        int min = block.getOccurrence().min();
+        int max = block.getOccurrence().max();
         
-        if (min != null && max != null) {
+        if (min > 0 && max < Integer.MAX_VALUE) {
             return min + "-" + max;
-        } else if (min != null) {
+        } else if (min > 0) {
             return "Mindestens " + min;
-        } else if (max != null) {
+        } else if (max < Integer.MAX_VALUE) {
             return "Maximal " + max;
         }
         return "Beliebig";

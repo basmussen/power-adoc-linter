@@ -118,13 +118,13 @@ public class NestedListVisualizer implements HierarchyVisualizer {
         
         if (block.getOccurrence() != null) {
             writer.print(" (");
-            Integer min = block.getOccurrence().min();
-            Integer max = block.getOccurrence().max();
-            if (min != null && max != null) {
+            int min = block.getOccurrence().min();
+            int max = block.getOccurrence().max();
+            if (min > 0 && max < Integer.MAX_VALUE) {
                 writer.print(min + "-" + max + " Stück");
-            } else if (min != null) {
+            } else if (min > 0) {
                 writer.print("min. " + min + " Stück");
-            } else if (max != null) {
+            } else if (max < Integer.MAX_VALUE) {
                 writer.print("max. " + max + " Stück");
             }
             writer.print(")");
