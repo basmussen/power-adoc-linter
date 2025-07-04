@@ -19,11 +19,11 @@ import com.example.linter.documentation.VisualizationStyle;
 /**
  * Runner for generating documentation from linter configuration.
  */
-public class DocumentationGeneratorRunner {
+public class DocumentationGenerator {
     
     private final ConfigurationLoader configLoader;
     
-    public DocumentationGeneratorRunner() {
+    public DocumentationGenerator() {
         this.configLoader = new ConfigurationLoader();
     }
     
