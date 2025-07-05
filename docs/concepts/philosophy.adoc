@@ -218,18 +218,6 @@ class CustomBlockValidator implements BlockValidator {
 }
 ----
 
-=== Custom Rules
-
-Zukünftige Erweiterungen könnten erlauben:
-
-[source,yaml]
-----
-document:
-  customRules:
-    - class: "com.mycompany.SpecialValidator"
-      config:
-        specialParam: "value"
-----
 
 == 🌟 Best Practices
 
@@ -287,28 +275,6 @@ Behandeln Sie Ihre Linter-Konfiguration als lebendiges Dokument:
 * **Changelog** - Dokumentieren Sie Änderungen
 * **Reviews** - Config-Änderungen im Team besprechen
 
-== 🚀 Zukunftsvision
-
-=== Kurzfristig (v1.x)
-
-* ✅ Solide Basis-Validierung
-* ✅ CI/CD Integration
-* 🚧 Watch-Mode für Entwicklung
-* 🚧 Bessere Fehler-Kontexte
-
-=== Mittelfristig (v2.x)
-
-* 📋 Plugin-System
-* 📋 IDE-Integration
-* 📋 Auto-Fix für einfache Probleme
-* 📋 Performance-Optimierungen
-
-=== Langfristig (v3.x)
-
-* 🔮 KI-gestützte Vorschläge
-* 🔮 Cross-Dokument-Validierung
-* 🔮 Stil-Analyse
-* 🔮 Metriken und Trends
 
 == 💭 Philosophische Grundsätze
 

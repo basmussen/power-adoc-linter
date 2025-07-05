@@ -212,8 +212,8 @@ gh pr create
 * ✅ CLI-Interface
 * ✅ JSON-Output
 * ✅ Regel-Dokumentations-Generator
-* 🚧 Watch-Mode (in Entwicklung)
-* 🚧 IDE-Plugins (geplant)
+* ✅ Anpassbare Output-Formate
+* ✅ CI/CD Integration
 
 == 📄 Lizenz
 

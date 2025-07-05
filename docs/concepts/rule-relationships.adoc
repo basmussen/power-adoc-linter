@@ -377,20 +377,6 @@ block -[hidden]-> comb
 @enduml
 ----
 
-== 🔮 Zukünftige Regel-Features
-
-=== Geplante Erweiterungen
-
-1. **Dynamische Regeln**: Regeln die sich zur Laufzeit anpassen
-2. **Regel-Vorlagen**: Wiederverwendbare Regel-Sets
-3. **Bedingte Aktivierung**: Regeln basierend auf Umgebungsvariablen
-4. **Cross-Dokument Validierung**: Regeln über mehrere Dateien
-
-=== Visualisierungs-Ideen
-
-* **Interaktive Regel-Explorer**: Web-basierte Navigation
-* **Regel-Konflikt-Detektor**: Automatische Erkennung von Widersprüchen
-* **Regel-Impact-Analyse**: Welche Dokumente sind betroffen?
 
 == 🔗 Weiterführende Ressourcen
 

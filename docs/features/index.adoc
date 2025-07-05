@@ -120,32 +120,6 @@ Flexible Dateiauswahl mit Ant-Style Patterns:
 -i "chapters/*/content.adoc"
 ----
 
-== 🚀 Geplante Features
-
-[cols="20,60,20", options="header"]
-|===
-| Feature | Beschreibung | Status
-
-| Watch Mode
-| Live-Validierung während der Bearbeitung
-| 🚧 In Arbeit
-
-| Auto-Fix
-| Automatische Korrektur einfacher Fehler
-| 📋 Geplant
-
-| IDE Plugins
-| VS Code, IntelliJ Integration
-| 📋 Geplant
-
-| Web UI
-| Browser-basierte Konfiguration und Validierung
-| 🔮 Zukunft
-
-| Multi-Language
-| Unterstützung für mehrere Sprachen
-| 🔮 Zukunft
-|===
 
 == 💡 Feature-Highlights
 

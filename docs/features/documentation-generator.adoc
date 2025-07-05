@@ -380,14 +380,6 @@ HierarchyVisualizerFactory --> HierarchyVisualizer
 2. **Andere Formate**: Implementieren Sie `RuleDocumentationGenerator`
 3. **Pattern-Beschreibungen**: Erweitern Sie `PatternHumanizer`
 
-== 🚧 Geplante Features
-
-* [ ] PlantUML Diagramm-Generierung
-* [ ] Severity-Flow Visualisierung
-* [ ] Markdown-Ausgabeformat
-* [ ] Mehrsprachige Ausgabe
-* [ ] Interaktive HTML-Dokumentation
-* [ ] Regel-Beispiel-Validierung
 
 == 🔗 Siehe auch
 

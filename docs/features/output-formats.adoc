@@ -566,14 +566,6 @@ output:
 - Deaktivieren Sie Farben für Log-Dateien
 - Reduzieren Sie `contextLines` für bessere Performance
 
-== 🚀 Kommende Features
-
-* [ ] HTML Report Generator
-* [ ] JSON Output für Tools
-* [ ] Interaktiver Modus
-* [ ] Real-time Streaming
-* [ ] Custom Reporter API
-* [ ] IDE-spezifische Formate
 
 == 🔗 Siehe auch
 
