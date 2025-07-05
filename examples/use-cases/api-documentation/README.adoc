@@ -1,0 +1,67 @@
+= API-Dokumentation Use Case
+:toc:
+:icons: font
+
+== Beschreibung
+
+Dieser Use Case zeigt, wie man den Power AsciiDoc Linter für strikte API-Dokumentation konfiguriert. Die Konfiguration erzwingt eine konsistente Struktur für REST API Dokumentation.
+
+== Anforderungen
+
+Die Konfiguration stellt folgende Anforderungen:
+
+=== Metadaten
+* ✅ Titel muss "API" enthalten
+* ✅ Semantic Versioning (z.B. v1.2.0)
+* ✅ API-Version (z.B. v2)
+* ✅ ISO-Datum Format
+* ✅ Gültige E-Mail-Adresse
+
+=== Struktur
+* ✅ Feste Reihenfolge der Hauptsections
+* ✅ HTTP-Methoden als Subsections unter "Endpunkte"
+* ✅ Pflicht-Sections: Übersicht, Authentifizierung, Base URL, Endpunkte, Response Codes, Fehlerbehandlung
+
+=== Inhalt
+* ✅ Code-Beispiele mit korrekter Sprache (json, xml, yaml)
+* ✅ Tabellen mit Header für Parameter
+* ✅ Mindestlängen für Beschreibungen
+
+== Typische Fehler
+
+Das `invalid-example.adoc` zeigt häufige Probleme:
+
+[source]
+----
+ERROR: Attribute 'title' does not match required pattern: actual 'User Management Documentation', expected pattern '^.*API.*$'
+ERROR: Missing required attribute 'email': actual not present, expected non-empty value
+ERROR: Missing required attribute 'version': actual not present, expected non-empty value
+ERROR: Missing required attribute 'api-version': actual not present, expected non-empty value
+ERROR: Missing required attribute 'revdate': actual not present, expected non-empty value
+ERROR: Missing required section 'Authentifizierung': actual not found, expected present
+ERROR: Missing required section 'Base URL': actual not found, expected present
+ERROR: Section 'Overview' should be named 'Übersicht'
+----
+
+== Verwendung
+
+[source,bash]
+----
+# Validierung durchführen
+java -jar power-adoc-linter.jar \
+  -i examples/use-cases/api-documentation/valid-example.adoc \
+  -c examples/use-cases/api-documentation/config.yaml
+
+# Sollte ausgeben:
+# ✓ Validierung erfolgreich
+# Fehler: 0, Warnungen: 0
+----
+
+== Anpassungen
+
+Für Ihre API-Dokumentation können Sie:
+
+1. **Sprache ändern**: Sections von Deutsch auf Englisch
+2. **Weitere Metadaten**: z.B. `api-stability`, `deprecated-since`
+3. **Zusätzliche Sections**: z.B. "SDKs", "Webhooks", "GraphQL Schema"
+4. **Lockerere Regeln**: Severity von `error` auf `warn` ändern

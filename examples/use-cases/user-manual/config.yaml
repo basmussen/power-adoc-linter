@@ -1,0 +1,163 @@
+# Power AsciiDoc Linter Konfiguration für Benutzerhandbücher
+# Flexible Regeln für benutzerfreundliche Dokumentation
+
+document:
+  metadata:
+    attributes:
+      # Basis-Metadaten
+      - name: title
+        required: true
+        minLength: 10
+        maxLength: 80
+        severity: error
+        
+      - name: author
+        required: true
+        severity: warn  # Weniger strikt als API-Docs
+        
+      - name: revdate
+        required: false  # Optional für Handbücher
+        pattern: "\\d{4}-\\d{2}-\\d{2}"
+        severity: info
+        
+      - name: version
+        required: false
+        severity: info
+        
+      # Handbuch-spezifische Metadaten
+      - name: product-name
+        required: true
+        severity: error
+        
+      - name: product-version
+        required: true
+        pattern: "^\\d+\\.\\d+(\\.\\d+)?$"
+        severity: warn
+        
+      - name: target-audience
+        required: false
+        pattern: "^(Anfänger|Fortgeschrittene|Experten|Alle)$"
+        severity: info
+        
+  sections:
+    # Einleitung ist Pflicht
+    - name: "Einleitung"
+      level: 1
+      order: 1
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            minLines: 3  # Kurze Einleitung ok
+            severity: info
+        - admonition:  # Hinweise erlaubt
+            severity: info
+            
+    # Installation/Erste Schritte
+    - pattern: "^(Installation|Erste Schritte|Quick Start)$"
+      level: 1
+      order: 2
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            severity: info
+        - listing:  # Code-Beispiele für Installation
+            severity: info
+        - admonition:
+            type:
+              pattern: "^(NOTE|TIP|WARNING)$"
+            severity: info
+        - image:  # Screenshots willkommen
+            alt:
+              required: true
+            severity: warn
+              
+    # Hauptkapitel flexibel
+    - pattern: "^Kapitel \\d+:.*"
+      level: 1
+      min: 1  # Mindestens ein Hauptkapitel
+      severity: warn
+      subsections:
+        # Beliebige Unterkapitel
+        - pattern: ".*"
+          level: 2
+          severity: info
+          blocks:
+            - paragraph:
+                severity: info
+            - listing:
+                severity: info
+            - table:
+                severity: info
+            - image:
+                alt:
+                  required: true
+                severity: warn
+            - admonition:
+                severity: info
+            - example:  # Beispiel-Blöcke
+                severity: info
+                
+    # Features/Funktionen
+    - pattern: "^(Features|Funktionen|Funktionsübersicht)$"
+      level: 1
+      required: false
+      severity: info
+      blocks:
+        - paragraph:
+            severity: info
+        - table:  # Feature-Vergleichstabellen
+            header:
+              required: true
+            severity: info
+            
+    # Häufige Aufgaben/How-tos
+    - pattern: "^(Häufige Aufgaben|How-to|Anleitungen)$"
+      level: 1
+      required: false
+      severity: info
+      subsections:
+        - pattern: "^(Wie man|So geht's:).*"
+          level: 2
+          severity: info
+          
+    # Troubleshooting
+    - name: "Fehlerbehebung"
+      level: 1
+      required: false
+      severity: warn
+      blocks:
+        - paragraph:
+            severity: info
+        - table:
+            caption:
+              pattern: "^(Problem|Fehler).*"
+            severity: info
+        - admonition:
+            type:
+              pattern: "^(TIP|WARNING|CAUTION)$"
+            severity: info
+            
+    # FAQ optional
+    - pattern: "^(FAQ|Häufig gestellte Fragen)$"
+      level: 1
+      required: false
+      severity: info
+      
+    # Glossar optional
+    - name: "Glossar"
+      level: 1
+      order: 98
+      required: false
+      severity: info
+      blocks:
+        - paragraph:
+            severity: info
+            
+    # Index optional
+    - name: "Index"
+      level: 1
+      order: 99
+      required: false
+      severity: info

@@ -1,0 +1,213 @@
+= Power Editor Benutzerhandbuch
+Maria Dokumentar <maria.dok@example.com>
+:product-name: Power Editor
+:product-version: 3.2.1
+:target-audience: Alle
+:toc:
+:toc-title: Inhaltsverzeichnis
+:icons: font
+:imagesdir: images
+
+== Einleitung
+
+Willkommen beim Power Editor! Diese Software revolutioniert die Art und Weise, wie Sie Texte bearbeiten und formatieren. Egal ob Sie Anfänger oder Profi sind - Power Editor bietet für jeden die richtigen Werkzeuge.
+
+NOTE: Dieses Handbuch bezieht sich auf Version 3.2.1 des Power Editors.
+
+== Installation
+
+Der Power Editor kann auf verschiedenen Betriebssystemen installiert werden. Folgen Sie der Anleitung für Ihr System.
+
+=== Windows
+
+[source,powershell]
+----
+# Download und Installation
+.\PowerEditorSetup.exe /silent
+----
+
+WARNING: Administratorrechte erforderlich!
+
+=== macOS
+
+[source,bash]
+----
+brew install power-editor
+----
+
+TIP: Homebrew muss vorher installiert sein.
+
+.Installation erfolgreich
+image::installation-success.png[Installation erfolgreich, 600]
+
+== Kapitel 1: Die Benutzeroberfläche
+
+Die Benutzeroberfläche des Power Editors ist intuitiv und anpassbar gestaltet.
+
+=== Hauptfenster
+
+Das Hauptfenster besteht aus mehreren Bereichen:
+
+[cols="20,80", options="header"]
+|===
+| Bereich | Beschreibung
+
+| Menüleiste
+| Zugriff auf alle Funktionen
+
+| Werkzeugleiste
+| Schnellzugriff auf häufige Aktionen
+
+| Editor-Bereich
+| Hier bearbeiten Sie Ihre Dokumente
+
+| Seitenleiste
+| Dateinavigation und Projektstruktur
+|===
+
+=== Anpassung der Oberfläche
+
+Sie können die Oberfläche nach Ihren Wünschen anpassen:
+
+1. Öffnen Sie _Einstellungen_ → _Erscheinungsbild_
+2. Wählen Sie ein Theme
+3. Passen Sie die Schriftgröße an
+
+.Angepasste Oberfläche
+image::customized-ui.png[Angepasste Oberfläche mit Dark Theme]
+
+== Kapitel 2: Grundlegende Funktionen
+
+Lernen Sie die wichtigsten Funktionen des Power Editors kennen.
+
+=== Dateien öffnen und speichern
+
+[example]
+====
+So öffnen Sie eine Datei:
+
+1. Klicken Sie auf _Datei_ → _Öffnen_ oder drücken Sie `Strg+O`
+2. Navigieren Sie zur gewünschten Datei
+3. Klicken Sie auf _Öffnen_
+====
+
+=== Textbearbeitung
+
+Der Power Editor bietet umfangreiche Textbearbeitungsfunktionen:
+
+* **Suchen und Ersetzen** mit regulären Ausdrücken
+* **Multi-Cursor** Bearbeitung
+* **Code-Vervollständigung** für über 50 Sprachen
+* **Syntax-Highlighting** anpassbar
+
+== Kapitel 3: Erweiterte Features
+
+Für Power-User bietet der Editor erweiterte Funktionen.
+
+=== Makros
+
+Automatisieren Sie wiederkehrende Aufgaben mit Makros:
+
+[source,javascript]
+----
+// Beispiel-Makro
+editor.macro('cleanup', function() {
+    editor.removeTrailingSpaces();
+    editor.ensureFinalNewline();
+    editor.save();
+});
+----
+
+=== Plugins
+
+Erweitern Sie den Editor mit Plugins aus dem Marketplace.
+
+== Features
+
+Der Power Editor bietet folgende Hauptfunktionen:
+
+[cols="30,50,20", options="header"]
+|===
+| Feature | Beschreibung | Verfügbarkeit
+
+| Syntax Highlighting
+| Über 100 Programmiersprachen
+| Alle Versionen
+
+| Git Integration
+| Versionskontrolle direkt im Editor
+| Pro Version
+
+| Live Preview
+| Echtzeit-Vorschau für Markdown/HTML
+| Alle Versionen
+
+| Remote Editing
+| Dateien auf entfernten Servern bearbeiten
+| Pro Version
+|===
+
+== Häufige Aufgaben
+
+=== Wie man ein neues Projekt anlegt
+
+1. Wählen Sie _Datei_ → _Neues Projekt_
+2. Geben Sie einen Projektnamen ein
+3. Wählen Sie den Speicherort
+4. Klicken Sie auf _Erstellen_
+
+TIP: Verwenden Sie Projektvorlagen für einen schnellen Start!
+
+=== So geht's: Tastenkombinationen anpassen
+
+Sie können alle Tastenkombinationen nach Ihren Wünschen anpassen:
+
+1. Öffnen Sie _Einstellungen_ → _Tastenkombinationen_
+2. Suchen Sie nach der gewünschten Aktion
+3. Klicken Sie auf die aktuelle Kombination
+4. Drücken Sie die neue Tastenkombination
+
+== Fehlerbehebung
+
+Hier finden Sie Lösungen für häufige Probleme.
+
+.Problemlösungen
+[cols="40,60", options="header"]
+|===
+| Problem | Lösung
+
+| Editor startet nicht
+| Prüfen Sie die Systemanforderungen und installieren Sie neu
+
+| Datei kann nicht gespeichert werden
+| Überprüfen Sie die Schreibrechte im Zielverzeichnis
+
+| Syntax-Highlighting funktioniert nicht
+| Installieren Sie das entsprechende Sprachpaket
+|===
+
+CAUTION: Bei anhaltenden Problemen kontaktieren Sie den Support!
+
+== FAQ
+
+**F: Kann ich meine Einstellungen synchronisieren?**
+
+A: Ja, über die Cloud-Sync Funktion in den Einstellungen.
+
+**F: Gibt es eine mobile Version?**
+
+A: Eine mobile Companion-App ist in Entwicklung.
+
+**F: Wie kann ich zur Entwicklung beitragen?**
+
+A: Besuchen Sie unser GitHub Repository!
+
+== Glossar
+
+**Multi-Cursor**:: Gleichzeitige Bearbeitung an mehreren Stellen im Dokument
+
+**Syntax-Highlighting**:: Farbliche Hervorhebung von Code-Elementen
+
+**Makro**:: Automatisierte Abfolge von Befehlen
+
+**Plugin**:: Erweiterung zur Funktionserweiterung des Editors

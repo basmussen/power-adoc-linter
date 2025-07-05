@@ -1,0 +1,684 @@
+= Section-Regeln
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Vollständige Referenz aller Section-Validierungsregeln für AsciiDoc-Dokumente. Diese Dokumentation beschreibt, wie hierarchische Dokumentstrukturen definiert und validiert werden.
+
+== Übersicht
+
+Die Section-Validierung prüft die hierarchische Struktur eines AsciiDoc-Dokuments. Sections definieren die Gliederung und können:
+
+* Verschachtelte Subsections enthalten
+* Spezifische Block-Typen erlauben oder verbieten
+* Vorkommen und Reihenfolge kontrollieren
+* Benennungsmuster vorgeben
+
+.Beispiel einer Section-Hierarchie:
+[source,asciidoc]
+----
+= Dokument-Titel                    <1>
+
+== Einleitung                       <2>
+Einleitungstext...
+
+=== Motivation                      <3>
+Detaillierte Motivation...
+
+== Hauptteil                        <2>
+Hauptinhalt...
+
+=== Implementierung                 <3>
+Code-Beispiele...
+
+==== Technische Details             <4>
+Tiefere Ebene...
+----
+<1> Dokument-Titel (Level 0)
+<2> Hauptsections (Level 1)
+<3> Subsections (Level 2)
+<4> Sub-Subsections (Level 3)
+
+== Konfigurationsstruktur
+
+[source,yaml]
+----
+document:
+  sections:           # Array von Section-Definitionen
+    - name: ...       # Section-Definition
+      ...             # Weitere Felder
+----
+
+== SectionConfiguration - Verfügbare Felder
+
+Jede Section im `sections` Array kann folgende Felder haben:
+
+[cols="20,15,15,50", options="header"]
+|===
+| Feld | Typ | Pflicht | Beschreibung
+
+| `name`
+| String
+| Bedingt*
+| Exakter Name der Section. +
+*Entweder `name` oder `pattern` muss gesetzt sein
+
+| `pattern`
+| String
+| Bedingt*
+| Regulärer Ausdruck für Section-Namen. +
+*Entweder `name` oder `pattern` muss gesetzt sein
+
+| `severity`
+| Enum
+| ✓ Ja
+| Schweregrad für alle Regelverletzungen dieser Section. +
+Werte: `error`, `warn`, `info`
+
+| `level`
+| Integer
+| ✓ Ja
+| Hierarchie-Ebene der Section. +
+1 = `==`, 2 = `===`, 3 = `====`, etc.
+
+| `required`
+| Boolean
+| Nein
+| Ist diese Section erforderlich? +
+Default: `false`
+
+| `min`
+| Integer
+| Nein
+| Minimale Anzahl dieser Section. +
+Default: 0
+
+| `max`
+| Integer
+| Nein
+| Maximale Anzahl dieser Section. +
+Default: unbegrenzt
+
+| `order`
+| Integer
+| Nein
+| Erwartete Position relativ zu anderen Sections gleicher Ebene. +
+Minimum: 1
+
+| `blocks`
+| Array
+| Nein
+| Erlaubte Block-Typen in dieser Section. +
+Siehe link:block-rules.adoc[Block-Regeln]
+
+| `subsections`
+| Array
+| Nein
+| Erlaubte Subsections (eine Ebene tiefer). +
+Rekursive Section-Definitionen
+|===
+
+== Validierungsregeln im Detail
+
+=== Required-Validierung
+
+Prüft, ob erforderliche Sections vorhanden sind.
+
+**Rule ID**: `section.required`
+
+**Aktivierung**: Wenn `required: true` gesetzt ist
+
+**Validierung**:
+- Section mit dem angegebenen Namen/Pattern muss existieren
+- Bei Pattern: Mindestens eine Section muss dem Pattern entsprechen
+
+**Fehlermeldungen**:
+[cols="30,70", options="header"]
+|===
+| Situation | Meldung
+| Section fehlt (name) | `Missing required section 'name': actual not found, expected present`
+| Section fehlt (pattern) | `Missing required section matching 'pattern': actual not found, expected at least one match`
+|===
+
+**Beispiel**:
+[source,yaml]
+----
+sections:
+  - name: "Einleitung"
+    level: 1
+    required: true       # Diese Section ist Pflicht
+    severity: error
+    
+  - name: "Zusammenfassung"
+    level: 1
+    required: false      # Diese Section ist optional
+    severity: info
+----
+
+=== Pattern-Validierung
+
+Validiert Section-Namen gegen reguläre Ausdrücke.
+
+**Rule ID**: `section.pattern`
+
+**Aktivierung**: Wenn `pattern` definiert ist
+
+**Validierung**:
+- Section-Name muss dem Pattern vollständig entsprechen
+- Groß-/Kleinschreibung wird beachtet
+- Pattern wird als Java-Regex kompiliert
+
+**Fehlermeldung**:
+`Section 'name' does not match required pattern: actual 'Section Name', expected pattern 'pattern'`
+
+**Beispiele**:
+[source,yaml]
+----
+sections:
+  # Kapitel-Nummerierung erzwingen
+  - pattern: "^\\d+\\.\\s+.*"        # z.B. "1. Einleitung", "2. Hauptteil"
+    level: 1
+    severity: error
+    
+  # Konsistente Benennung
+  - pattern: "^(Einleitung|Hauptteil|Fazit)$"
+    level: 1
+    severity: error
+    
+  # Technische Sections
+  - pattern: "^(API|GUI|CLI)\\s+.*"  # z.B. "API Referenz", "GUI Design"
+    level: 2
+    severity: warn
+----
+
+=== Min/Max-Validierung
+
+Kontrolliert die Anzahl von Sections mit gleichem Namen/Pattern.
+
+**Rule IDs**:
+- `section.count.min` - Minimale Anzahl
+- `section.count.max` - Maximale Anzahl
+
+**Aktivierung**: 
+- Min: Wenn `min` definiert ist
+- Max: Wenn `max` definiert ist
+
+**Validierung**:
+- Zählt alle Sections, die dem Namen/Pattern entsprechen
+- Prüft gegen min/max Grenzen
+
+**Fehlermeldungen**:
+[cols="20,80", options="header"]
+|===
+| Regel | Meldung
+| min | `Too few sections 'name': actual X found, expected minimum Y`
+| max | `Too many sections 'name': actual X found, expected maximum Y`
+|===
+
+**Beispiel**:
+[source,yaml]
+----
+sections:
+  # Genau eine Einleitung
+  - name: "Einleitung"
+    level: 1
+    min: 1
+    max: 1
+    severity: error
+    
+  # Mehrere Beispiele erlaubt
+  - pattern: "^Beispiel \\d+:"
+    level: 2
+    min: 1         # Mindestens ein Beispiel
+    max: 10        # Maximal 10 Beispiele
+    severity: warn
+----
+
+=== Level-Validierung
+
+Prüft die korrekte Hierarchie-Ebene von Sections.
+
+**Rule ID**: `section.level`
+
+**Aktivierung**: Immer wenn `level` definiert ist
+
+**Validierung**:
+- Section-Level muss exakt dem konfigurierten Wert entsprechen
+- Level 1 = `==`, Level 2 = `===`, etc.
+
+**Fehlermeldung**:
+`Section 'name' has wrong level: actual level X, expected level Y`
+
+**Beispiel**:
+[source,yaml]
+----
+sections:
+  # Hauptsections müssen Level 1 sein
+  - pattern: "^(Einleitung|Hauptteil|Fazit)$"
+    level: 1              # Muss mit == beginnen
+    severity: error
+    
+  # Subsections für Details
+  - name: "Technische Details"
+    level: 2              # Muss mit === beginnen
+    severity: error
+----
+
+=== Order-Validierung
+
+Kontrolliert die Reihenfolge von Sections auf gleicher Ebene.
+
+**Rule ID**: `section.order`
+
+**Aktivierung**: Wenn `order` definiert ist
+
+**Validierung**:
+- Sections mit niedrigerer `order` sollten vor solchen mit höherer `order` erscheinen
+- Nur Sections auf gleicher Ebene werden verglichen
+
+**Fehlermeldung**:
+`Section 'name1' should appear before 'name2': actual position after, expected before`
+
+**Beispiel**:
+[source,yaml]
+----
+sections:
+  - name: "Einleitung"
+    level: 1
+    order: 1          # Muss zuerst kommen
+    required: true
+    severity: error
+    
+  - name: "Hauptteil"
+    level: 1
+    order: 2          # Nach Einleitung
+    required: true
+    severity: error
+    
+  - name: "Fazit"
+    level: 1
+    order: 3          # Am Ende
+    required: true
+    severity: error
+----
+
+=== Subsection-Validierung
+
+Definiert erlaubte Unterstrukturen innerhalb einer Section.
+
+**Rule ID**: `section.subsections`
+
+**Aktivierung**: Wenn `subsections` definiert ist
+
+**Validierung**:
+- Nur definierte Subsections sind erlaubt
+- Subsections müssen genau eine Ebene tiefer sein
+- Rekursive Anwendung aller Regeln
+
+**Fehlermeldung**:
+`Unexpected subsection 'name' in section 'parent': actual found, expected one of [allowed-list]`
+
+**Beispiel**:
+[source,yaml]
+----
+sections:
+  - name: "API Dokumentation"
+    level: 1
+    severity: error
+    subsections:
+      - name: "Endpunkte"
+        level: 2
+        required: true
+        severity: error
+        subsections:
+          - pattern: "^(GET|POST|PUT|DELETE)\\s+.*"
+            level: 3
+            severity: error
+            
+      - name: "Authentifizierung"
+        level: 2
+        required: true
+        severity: error
+        
+      - name: "Fehlerbehandlung"
+        level: 2
+        required: false
+        severity: warn
+----
+
+== Hierarchische Strukturen
+
+=== Verschachtelte Sections
+
+Sections können beliebig tief verschachtelt werden:
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Benutzerhandbuch"         # Level 1
+      level: 1
+      severity: error
+      subsections:
+        - name: "Installation"          # Level 2
+          level: 2
+          severity: error
+          subsections:
+            - name: "Systemanforderungen"  # Level 3
+              level: 3
+              severity: warn
+            - name: "Installationsschritte"
+              level: 3
+              severity: error
+        - name: "Konfiguration"
+          level: 2
+          severity: error
+----
+
+=== Block-Zuordnung
+
+Jede Section kann spezifische Block-Typen erlauben:
+
+[source,yaml]
+----
+sections:
+  - name: "Einleitung"
+    level: 1
+    severity: error
+    blocks:
+      - paragraph:
+          minLines: 5
+          severity: warn
+      # Keine Code-Listings in der Einleitung!
+      
+  - name: "Implementierung"
+    level: 1
+    severity: error
+    blocks:
+      - paragraph:
+          severity: info
+      - listing:           # Code-Beispiele erlaubt
+          language:
+            required: true
+          severity: error
+      - table:            # Vergleichstabellen erlaubt
+          severity: info
+----
+
+== Vollständige Beispiele
+
+=== Technische Dokumentation
+
+[source,yaml]
+----
+document:
+  sections:
+    # Pflicht-Struktur
+    - name: "Übersicht"
+      level: 1
+      order: 1
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            minLines: 10
+            severity: warn
+            
+    - name: "Architektur"
+      level: 1
+      order: 2
+      required: true
+      severity: error
+      subsections:
+        - name: "Komponenten"
+          level: 2
+          required: true
+          severity: error
+        - name: "Datenfluss"
+          level: 2
+          required: true
+          severity: error
+          
+    - name: "API Referenz"
+      level: 1
+      order: 3
+      required: true
+      severity: error
+      subsections:
+        - pattern: "^/api/v\\d+/.*"    # Versionierte APIs
+          level: 2
+          severity: error
+          blocks:
+            - paragraph:
+                severity: info
+            - listing:
+                language:
+                  pattern: "^(json|yaml|xml)$"
+                severity: error
+                
+    # Optionale Sections
+    - name: "Beispiele"
+      level: 1
+      required: false
+      severity: info
+      
+    - name: "FAQ"
+      level: 1
+      required: false
+      severity: info
+----
+
+=== Benutzerhandbuch
+
+[source,yaml]
+----
+document:
+  sections:
+    - pattern: "^\\d+\\.\\s+.*"     # Nummerierte Kapitel
+      level: 1
+      severity: error
+      subsections:
+        - pattern: "^\\d+\\.\\d+\\s+.*"   # Nummerierte Unterkapitel
+          level: 2
+          severity: warn
+          
+    # Spezielle Sections am Ende
+    - name: "Glossar"
+      level: 1
+      order: 98
+      required: false
+      severity: info
+      blocks:
+        - paragraph:
+            severity: info
+            
+    - name: "Index"
+      level: 1
+      order: 99
+      required: false
+      severity: info
+----
+
+=== Modulare Dokumentation
+
+[source,yaml]
+----
+document:
+  sections:
+    # Modul-Pattern
+    - pattern: "^Modul:\\s+.*"
+      level: 1
+      severity: error
+      subsections:
+        - name: "Beschreibung"
+          level: 2
+          required: true
+          severity: error
+        - name: "Schnittstellen"
+          level: 2
+          required: true
+          severity: error
+        - name: "Konfiguration"
+          level: 2
+          required: false
+          severity: warn
+        - name: "Abhängigkeiten"
+          level: 2
+          required: true
+          severity: error
+----
+
+== Best Practices
+
+=== 1. Strukturierte Hierarchie
+
+Definieren Sie klare Ebenen:
+[source,yaml]
+----
+# Gut: Klare Hierarchie
+sections:
+  - name: "Hauptthema"
+    level: 1
+    subsections:
+      - name: "Unterthema"
+        level: 2
+        subsections:
+          - name: "Detail"
+            level: 3
+            
+# Schlecht: Ebenen überspringen
+sections:
+  - name: "Hauptthema"
+    level: 1
+    subsections:
+      - name: "Detail"
+        level: 3    # Ebene 2 übersprungen!
+----
+
+=== 2. Konsistente Patterns
+
+Verwenden Sie einheitliche Benennungsmuster:
+[source,yaml]
+----
+# Konsistente API-Dokumentation
+- pattern: "^(GET|POST|PUT|DELETE)\\s+/api/.*"
+  level: 3
+  severity: error
+  
+# Konsistente Modul-Dokumentation  
+- pattern: "^Modul:\\s+[A-Z][a-zA-Z0-9]+"
+  level: 1
+  severity: error
+----
+
+=== 3. Sinnvolle Gruppierung
+
+Gruppieren Sie verwandte Sections:
+[source,yaml]
+----
+sections:
+  # Technische Sections
+  - name: "Technische Dokumentation"
+    level: 1
+    subsections:
+      - name: "API"
+        level: 2
+      - name: "Datenbank"
+        level: 2
+      - name: "Konfiguration"
+        level: 2
+        
+  # Benutzer-Sections
+  - name: "Benutzerhandbuch"
+    level: 1
+    subsections:
+      - name: "Installation"
+        level: 2
+      - name: "Erste Schritte"
+        level: 2
+----
+
+=== 4. Flexible vs. Strikte Validierung
+
+[cols="50,50", options="header"]
+|===
+| Flexibel | Strikt
+
+a|
+[source,yaml]
+----
+- pattern: ".*"
+  level: 2
+  severity: info
+----
+
+a|
+[source,yaml]
+----
+- name: "Implementierung"
+  level: 2
+  required: true
+  severity: error
+----
+
+| Für kreative Dokumente | Für standardisierte Dokumente
+| Entwicklungsdokumentation | Compliance-Dokumentation
+|===
+
+== Fehlermeldungen und Debugging
+
+=== Beispiel-Validierungsausgabe
+
+Bei diesem Dokument:
+[source,asciidoc]
+----
+= API Handbuch
+
+== Übersicht
+Kurze Übersicht.
+
+=== Installation    <-- Falsche Ebene!
+So installieren Sie...
+
+== Hauptteil        <-- Falsche Reihenfolge!
+Der Hauptinhalt.
+----
+
+Mit dieser Konfiguration:
+[source,yaml]
+----
+sections:
+  - name: "Einleitung"
+    level: 1
+    order: 1
+    required: true
+    severity: error
+    
+  - name: "Übersicht"
+    level: 1
+    order: 2
+    severity: error
+    subsections:
+      - name: "Installation"
+        level: 2    # Erwartet ===
+        severity: error
+----
+
+Entstehen diese Fehler:
+[source]
+----
+ERROR: Missing required section 'Einleitung': actual not found, expected present
+ERROR: Section 'Installation' has wrong level: actual level 3, expected level 2
+ERROR: Section 'Hauptteil' should appear before 'Übersicht': actual position after, expected before
+----
+
+== Siehe auch
+
+* link:document-rules.adoc[Document-Regeln] - Übergeordnete Dokument-Konfiguration
+* link:block-rules.adoc[Block-Regeln] - Validierung von Inhaltsblöcken
+* link:metadata-rules.adoc[Metadata-Regeln] - Kopfdaten-Validierung
+* link:../../concepts/rule-hierarchy-diagram.adoc[Regel-Hierarchie] - Visuelle Übersicht
+* link:../../user-guide/configuration.adoc[Konfiguration] - Allgemeine Anleitung

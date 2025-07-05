@@ -1,0 +1,84 @@
+= Use-Case Basierte Beispiele
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+
+[abstract]
+Diese Sammlung enthält praxisnahe Beispiele für verschiedene Dokumentationsszenarien. Jedes Beispiel besteht aus einer Linter-Konfiguration und einem passenden AsciiDoc-Dokument.
+
+== 🎯 Übersicht der Use Cases
+
+[cols="25,50,25", options="header"]
+|===
+| Use Case | Beschreibung | Dateien
+
+| API-Dokumentation
+| REST API Dokumentation mit strikten Strukturvorgaben
+| `api-documentation/`
+
+| Benutzerhandbuch
+| Technisches Handbuch mit flexibler Struktur
+| `user-manual/`
+
+| Release Notes
+| Versionsdokumentation mit Datumsvalidierung
+| `release-notes/`
+
+| Tutorial
+| Schritt-für-Schritt Anleitungen
+| `tutorial/`
+
+| Technische Spezifikation
+| Formale Spezifikation mit strikten Regeln
+| `technical-spec/`
+|===
+
+== 📁 Struktur
+
+Jeder Use Case enthält:
+
+* `config.yaml` - Linter-Konfiguration für den Use Case
+* `valid-example.adoc` - Beispiel, das alle Regeln erfüllt
+* `invalid-example.adoc` - Beispiel mit typischen Fehlern
+* `README.adoc` - Erklärung des Use Cases
+
+== 🚀 Verwendung
+
+=== Beispiel validieren
+
+[source,bash]
+----
+# Valides Beispiel prüfen (sollte keine Fehler zeigen)
+java -jar power-adoc-linter.jar \
+  -i examples/use-cases/api-documentation/valid-example.adoc \
+  -c examples/use-cases/api-documentation/config.yaml
+
+# Invalides Beispiel prüfen (zeigt typische Fehler)
+java -jar power-adoc-linter.jar \
+  -i examples/use-cases/api-documentation/invalid-example.adoc \
+  -c examples/use-cases/api-documentation/config.yaml
+----
+
+=== Konfiguration übernehmen
+
+Kopieren Sie die passende `config.yaml` in Ihr Projekt und passen Sie sie an:
+
+[source,bash]
+----
+cp examples/use-cases/user-manual/config.yaml .linter-config.yaml
+# Bearbeiten Sie .linter-config.yaml nach Ihren Bedürfnissen
+----
+
+== 💡 Tipps
+
+* Starten Sie mit dem Use Case, der Ihrem Projekt am ähnlichsten ist
+* Passen Sie die Severity-Level an Ihre CI/CD-Anforderungen an
+* Kombinieren Sie Elemente aus verschiedenen Use Cases
+* Nutzen Sie die invaliden Beispiele, um Ihre Regeln zu testen
+
+== 📚 Weiterführende Links
+
+* link:../../docs/user-guide/configuration.adoc[Konfigurations-Guide]
+* link:../../docs/reference/rules/index.adoc[Vollständige Regel-Referenz]
+* link:../../docs/troubleshooting.adoc[Troubleshooting]

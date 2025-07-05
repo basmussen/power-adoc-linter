@@ -1,0 +1,559 @@
+= Troubleshooting Guide
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Dieser Guide hilft Ihnen bei der Lösung häufiger Probleme mit dem Power AsciiDoc Linter. Finden Sie schnell Lösungen für typische Fehlermeldungen und Konfigurationsprobleme.
+
+== 🚨 Häufige Probleme
+
+=== Dateien werden nicht gefunden
+
+[cols="1,3", grid=none]
+|===
+| **Problem**
+| Der Linter findet keine Dateien, obwohl sie existieren
+
+| **Symptom**
+| `No files found matching pattern: **/*.adoc`
+
+| **Lösung**
+a|
+1. Glob-Pattern in Anführungszeichen setzen:
++
+[source,bash]
+----
+# ✅ Richtig
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# ❌ Falsch
+java -jar power-adoc-linter.jar -i **/*.adoc
+----
+
+2. Arbeitsverzeichnis prüfen:
++
+[source,bash]
+----
+pwd  # Aktuelles Verzeichnis anzeigen
+ls -la *.adoc  # Dateien im aktuellen Verzeichnis
+----
+
+3. Explizite Pfade verwenden:
++
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "docs/**/*.adoc,src/**/*.adoc"
+----
+|===
+
+=== Java-Version Probleme
+
+[cols="1,3", grid=none]
+|===
+| **Problem**
+| `UnsupportedClassVersionError` oder ähnliche Fehler
+
+| **Symptom**
+| 
+[source]
+----
+Error: LinkageError occurred while loading main class
+java.lang.UnsupportedClassVersionError: ... compiled with preview features
+----
+
+| **Lösung**
+a|
+1. Java-Version prüfen:
++
+[source,bash]
+----
+java -version
+# Sollte 17 oder höher sein
+----
+
+2. Falls zu alt, Java 17+ installieren:
++
+[tabs]
+====
+Ubuntu/Debian::
++
+[source,bash]
+----
+sudo apt update
+sudo apt install openjdk-17-jdk
+----
+
+macOS::
++
+[source,bash]
+----
+brew install openjdk@17
+----
+
+Windows::
++
+Download von https://adoptium.net/
+====
+
+3. JAVA_HOME setzen:
++
+[source,bash]
+----
+export JAVA_HOME=/pfad/zu/java17
+export PATH=$JAVA_HOME/bin:$PATH
+----
+|===
+
+=== Konfigurationsdatei wird nicht geladen
+
+[cols="1,3", grid=none]
+|===
+| **Problem**
+| Konfiguration wird ignoriert oder Fehler beim Laden
+
+| **Symptom**
+| `Configuration file not found` oder `Invalid configuration`
+
+| **Lösung**
+a|
+1. Dateipfad prüfen:
++
+[source,bash]
+----
+# Relativer Pfad
+java -jar power-adoc-linter.jar -c .linter-config.yaml
+
+# Absoluter Pfad
+java -jar power-adoc-linter.jar -c /home/user/projekt/.linter-config.yaml
+----
+
+2. YAML-Syntax validieren:
++
+[source,bash]
+----
+# Online-Validator nutzen oder:
+python -c "import yaml; yaml.safe_load(open('.linter-config.yaml'))"
+----
+
+3. Minimal-Konfiguration testen:
++
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+----
+|===
+
+== 🔧 Konfigurationsprobleme
+
+=== Schema-Validierungsfehler
+
+[cols="1,3", grid=none]
+|===
+| **Problem**
+| `Schema validation failed for configuration`
+
+| **Symptom**
+| Fehlermeldung mit JSON-Schema Details
+
+| **Lösung**
+a|
+1. Pflichtfelder prüfen:
+   - Jeder Block braucht `severity`
+   - Sections brauchen `level`
+   - Attributes brauchen `name`
+
+2. Typen überprüfen:
++
+[source,yaml]
+----
+# ✅ Richtig
+sections:
+  - name: "Test"
+    level: 1      # Zahl, nicht String!
+    severity: error
+
+# ❌ Falsch
+sections:
+  - name: "Test"
+    level: "1"    # String statt Zahl
+    severity: error
+----
+
+3. Erlaubte Werte:
+   - severity: `error`, `warn`, `info`
+   - level: 1-6 (positive Zahlen)
+|===
+
+=== Severity-Vererbung funktioniert nicht
+
+[cols="1,3", grid=none]
+|===
+| **Problem**
+| Erwartete Severity wird nicht angewendet
+
+| **Symptom**
+| Falsche Severity-Level in der Ausgabe
+
+| **Lösung**
+a|
+1. Hierarchie verstehen:
++
+[source,yaml]
+----
+sections:
+  - name: "Test"
+    severity: warn      # Section-Level
+    blocks:
+      - paragraph:
+          severity: error   # Block-Level (überschreibt Section)
+          lines:
+            min: 5
+            severity: info  # Rule-Level (höchste Priorität)
+----
+
+2. Explizite Severity setzen:
++
+[source,yaml]
+----
+# Wenn unsicher, immer explizit setzen
+- paragraph:
+    severity: error  # Nicht vergessen!
+    minLines: 5
+----
+
+3. Debug-Output nutzen:
++
+[source,bash]
+----
+java -Dlog4j.configurationFile=debug-log4j2.xml -jar power-adoc-linter.jar
+----
+|===
+
+=== Pattern-Matching schlägt fehl
+
+[cols="1,3", grid=none]
+|===
+| **Problem**
+| Reguläre Ausdrücke funktionieren nicht wie erwartet
+
+| **Symptom**
+| `does not match required pattern`
+
+| **Lösung**
+a|
+1. Escaping beachten (doppelte Backslashes in YAML):
++
+[source,yaml]
+----
+# ✅ Richtig
+pattern: "\\d{4}-\\d{2}-\\d{2}"     # Datum-Pattern
+
+# ❌ Falsch
+pattern: "\d{4}-\d{2}-\d{2}"       # Backslashes fehlen
+----
+
+2. Anchors verwenden:
++
+[source,yaml]
+----
+# Ganzer String muss matchen
+pattern: "^[A-Z].*\\.$"   # Beginnt mit Großbuchstabe, endet mit Punkt
+----
+
+3. Pattern testen:
++
+[source,java]
+----
+// Online Regex-Tester verwenden oder kleines Test-Programm
+String pattern = "\\d{4}-\\d{2}-\\d{2}";
+String test = "2024-01-15";
+System.out.println(test.matches(pattern)); // true
+----
+|===
+
+== 📊 Performance-Probleme
+
+=== Linter ist langsam
+
+[cols="1,3", grid=none]
+|===
+| **Problem**
+| Validierung dauert sehr lange
+
+| **Symptom**
+| Mehr als 1 Sekunde pro Datei
+
+| **Lösung**
+a|
+1. Speicher erhöhen:
++
+[source,bash]
+----
+java -Xmx2g -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+2. Dateien begrenzen:
++
+[source,bash]
+----
+# Nur bestimmte Verzeichnisse
+java -jar power-adoc-linter.jar -i "docs/**/*.adoc"
+
+# Excludes nutzen (wenn implementiert)
+java -jar power-adoc-linter.jar -i "**/*.adoc" --exclude "**/build/**"
+----
+
+3. Einfachere Patterns:
++
+[source,yaml]
+----
+# Komplexe Patterns vermeiden
+pattern: "^(?:GET|POST|PUT|DELETE)\\s+/api/v\\d+/[\\w-]+(?:/[\\w-]+)*$"
+
+# Besser: Einfachere Alternative
+pattern: "^(GET|POST|PUT|DELETE)\\s+/api/.*"
+----
+|===
+
+=== OutOfMemoryError
+
+[cols="1,3", grid=none]
+|===
+| **Problem**
+| `java.lang.OutOfMemoryError: Java heap space`
+
+| **Symptom**
+| Linter stürzt bei großen Dateien ab
+
+| **Lösung**
+a|
+1. Heap-Größe erhöhen:
++
+[source,bash]
+----
+# 4GB Heap
+java -Xmx4g -jar power-adoc-linter.jar -i "**/*.adoc"
+----
+
+2. Batch-Verarbeitung:
++
+[source,bash]
+----
+# Verzeichnisse einzeln verarbeiten
+for dir in */; do
+    java -jar power-adoc-linter.jar -i "$dir**/*.adoc"
+done
+----
+
+3. Große Dateien aufteilen oder excludieren
+|===
+
+== 🐛 Validierungsfehler verstehen
+
+=== "Missing required attribute"
+
+**Bedeutung**: Ein Pflicht-Metadatenfeld fehlt
+
+**Beispiel**:
+[source]
+----
+ERROR: Missing required attribute 'author': actual not present, expected non-empty value
+----
+
+**Lösung**:
+[source,asciidoc]
+----
+= Mein Dokument
+Max Mustermann <max@example.com>    // <-- Author hinzufügen
+:revdate: 2024-01-15
+----
+
+=== "Section has wrong level"
+
+**Bedeutung**: Section-Hierarchie stimmt nicht
+
+**Beispiel**:
+[source]
+----
+ERROR: Section 'Details' has wrong level: actual level 3, expected level 2
+----
+
+**Lösung**:
+[source,asciidoc]
+----
+== Hauptkapitel
+
+=== Details        // Richtig: Level 2 (===)
+// statt
+==== Details       // Falsch: Level 3 (====)
+----
+
+=== "Too many sections"
+
+**Bedeutung**: Maximum überschritten
+
+**Beispiel**:
+[source]
+----
+ERROR: Too many sections 'Example': actual 5 found, expected maximum 3
+----
+
+**Lösung**:
+- Sections reduzieren oder
+- Maximum in Konfiguration erhöhen:
++
+[source,yaml]
+----
+- pattern: "^Example \\d+:"
+  max: 10    # Erhöht von 3 auf 10
+----
+
+== 🛠️ Debug-Modus
+
+=== Logging aktivieren
+
+Erstellen Sie `debug-log4j2.xml`:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.example.linter" level="DEBUG"/>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
+----
+
+Verwenden:
+[source,bash]
+----
+java -Dlog4j.configurationFile=debug-log4j2.xml -jar power-adoc-linter.jar -i "test.adoc"
+----
+
+=== Validierungs-Details anzeigen
+
+[source,bash]
+----
+# Verbose-Modus (wenn implementiert)
+java -jar power-adoc-linter.jar -i "test.adoc" -v
+
+# JSON-Output für Details
+java -jar power-adoc-linter.jar -i "test.adoc" -f json
+----
+
+== 💡 Best Practices zur Fehlervermeidung
+
+=== 1. Schrittweise vorgehen
+
+[source,bash]
+----
+# Schritt 1: Ohne Konfiguration testen
+java -jar power-adoc-linter.jar -i "test.adoc"
+
+# Schritt 2: Minimal-Konfiguration
+java -jar power-adoc-linter.jar -i "test.adoc" -c minimal.yaml
+
+# Schritt 3: Volle Konfiguration
+java -jar power-adoc-linter.jar -i "test.adoc" -c full-config.yaml
+----
+
+=== 2. Konfiguration validieren
+
+[source,yaml]
+----
+# test-config.yaml
+document:
+  metadata:
+    attributes:
+      - name: test
+        required: true
+        severity: error
+----
+
+[source,bash]
+----
+# Nur Konfiguration testen
+java -jar power-adoc-linter.jar --validate-config -c test-config.yaml
+----
+
+=== 3. Beispieldateien nutzen
+
+Erstellen Sie Test-Dokumente für Ihre Konfiguration:
+
+[source,asciidoc]
+----
+// valid-example.adoc
+= Gültiges Beispiel
+Max Mustermann
+v1.0, 2024-01-15
+
+== Einleitung
+Dieser Text erfüllt alle Anforderungen.
+----
+
+== 🆘 Hilfe und Support
+
+=== Weitere Ressourcen
+
+[cols="1,3"]
+|===
+| 📚 | link:user-guide/configuration.adoc[Konfigurations-Guide]
+| 📖 | link:reference/rules/index.adoc[Regel-Referenz]
+| 💬 | link:https://github.com/basmussen/power-adoc-linter/discussions[GitHub Discussions]
+| 🐛 | link:https://github.com/basmussen/power-adoc-linter/issues[Issue Tracker]
+|===
+
+=== Issue melden
+
+Wenn Sie ein Problem nicht lösen können:
+
+1. Minimal-Beispiel erstellen
+2. Vollständige Fehlermeldung kopieren
+3. Konfiguration und AsciiDoc-Datei bereitstellen
+4. Issue auf GitHub erstellen:
+
+[source,markdown]
+----
+**Beschreibung**
+Kurze Problembeschreibung
+
+**Reproduktion**
+1. Konfiguration: `config.yaml`
+2. Befehl: `java -jar ...`
+3. Erwartetes Ergebnis
+4. Tatsächliches Ergebnis
+
+**Umgebung**
+- Linter Version: 1.0.0
+- Java Version: 17
+- OS: Linux/Windows/macOS
+----
+
+== 🔍 Checkliste für häufige Fehler
+
+Bevor Sie ein Issue erstellen, prüfen Sie:
+
+☐ Java 17+ installiert? +
+☐ Glob-Pattern in Anführungszeichen? +
+☐ Konfigurationsdatei existiert? +
+☐ YAML-Syntax korrekt? +
+☐ Alle Pflichtfelder gesetzt? +
+☐ Severity-Level korrekt geschrieben? +
+☐ Pattern-Escaping (doppelte Backslashes)? +
+☐ Dateipfade korrekt?

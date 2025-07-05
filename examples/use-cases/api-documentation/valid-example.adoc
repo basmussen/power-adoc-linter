@@ -1,0 +1,364 @@
+= User Management API Reference
+John Developer <john.developer@company.com>
+v1.2.0, 2024-01-15
+:api-version: v2
+:api-base-url: https://api.example.com
+:api-auth-type: Bearer
+:toc:
+:toc-title: Inhalt
+:icons: font
+
+== Übersicht
+
+Die User Management API ermöglicht die Verwaltung von Benutzern in unserem System. Diese RESTful API folgt den Standard-HTTP-Konventionen und verwendet JSON für Request und Response Bodies.
+
+Diese Dokumentation beschreibt Version 2 der API. Für ältere Versionen siehe das Archiv.
+
+Alle API-Endpunkte erfordern Authentifizierung.
+
+== Authentifizierung
+
+Die API verwendet Bearer Token Authentifizierung. Fügen Sie den Token im Authorization Header jeder Anfrage hinzu.
+
+[source,bash]
+----
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://api.example.com/v2/users
+----
+
+Tokens können über den `/auth/token` Endpunkt bezogen werden.
+
+== Base URL
+
+Alle API-Anfragen müssen an die folgende Base URL gesendet werden:
+
+[source,http]
+----
+https://api.example.com/v2
+----
+
+Für Staging-Umgebung verwenden Sie:
+
+[source,http]
+----
+https://staging-api.example.com/v2
+----
+
+== Endpunkte
+
+=== GET /users
+
+Listet alle Benutzer mit Pagination auf.
+
+.Query Parameter
+[cols="20,20,15,45", options="header"]
+|===
+| Parameter | Typ | Pflicht | Beschreibung
+
+| page
+| integer
+| Nein
+| Seitennummer (default: 1)
+
+| limit
+| integer
+| Nein
+| Ergebnisse pro Seite (default: 20, max: 100)
+
+| sort
+| string
+| Nein
+| Sortierung: name, created_at, updated_at
+|===
+
+.Example Request
+[source,json]
+----
+{
+  "page": 1,
+  "limit": 20
+}
+----
+
+.Example Response
+[source,json]
+----
+{
+  "data": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "name": "Max Mustermann",
+      "email": "max@example.com",
+      "created_at": "2024-01-10T10:00:00Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 42
+  }
+}
+----
+
+=== GET /users/{id}
+
+Gibt einen einzelnen Benutzer zurück.
+
+.Path Parameter
+[cols="20,20,15,45", options="header"]
+|===
+| Parameter | Typ | Pflicht | Beschreibung
+
+| id
+| uuid
+| Ja
+| Eindeutige Benutzer-ID
+|===
+
+.Example Response
+[source,json]
+----
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Max Mustermann",
+  "email": "max@example.com",
+  "role": "admin",
+  "created_at": "2024-01-10T10:00:00Z",
+  "updated_at": "2024-01-15T14:30:00Z"
+}
+----
+
+=== POST /users
+
+Erstellt einen neuen Benutzer.
+
+.Request Body
+[cols="20,20,15,45", options="header"]
+|===
+| Feld | Typ | Pflicht | Beschreibung
+
+| name
+| string
+| Ja
+| Vollständiger Name
+
+| email
+| string
+| Ja
+| E-Mail-Adresse (muss eindeutig sein)
+
+| password
+| string
+| Ja
+| Passwort (min. 8 Zeichen)
+
+| role
+| string
+| Nein
+| Benutzerrolle: user, admin (default: user)
+|===
+
+.Example Request
+[source,json]
+----
+{
+  "name": "Max Mustermann",
+  "email": "max@example.com",
+  "password": "SecurePass123!",
+  "role": "user"
+}
+----
+
+.Example Response
+[source,json]
+----
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Max Mustermann",
+  "email": "max@example.com",
+  "role": "user",
+  "created_at": "2024-01-15T15:00:00Z"
+}
+----
+
+=== PUT /users/{id}
+
+Aktualisiert einen bestehenden Benutzer.
+
+.Path Parameter
+[cols="20,20,15,45", options="header"]
+|===
+| Parameter | Typ | Pflicht | Beschreibung
+
+| id
+| uuid
+| Ja
+| Eindeutige Benutzer-ID
+|===
+
+.Request Body
+[cols="20,20,15,45", options="header"]
+|===
+| Feld | Typ | Pflicht | Beschreibung
+
+| name
+| string
+| Nein
+| Vollständiger Name
+
+| email
+| string
+| Nein
+| E-Mail-Adresse
+
+| role
+| string
+| Nein
+| Benutzerrolle
+|===
+
+.Example Request
+[source,json]
+----
+{
+  "name": "Max Mustermann-Schmidt",
+  "role": "admin"
+}
+----
+
+=== DELETE /users/{id}
+
+Löscht einen Benutzer.
+
+.Path Parameter
+[cols="20,20,15,45", options="header"]
+|===
+| Parameter | Typ | Pflicht | Beschreibung
+
+| id
+| uuid
+| Ja
+| Eindeutige Benutzer-ID
+|===
+
+Bei erfolgreichem Löschen wird Status 204 (No Content) zurückgegeben.
+
+== Response Codes
+
+[cols="15,25,60", options="header"]
+|===
+| Code | Status | Beschreibung
+
+| 200
+| OK
+| Anfrage erfolgreich
+
+| 201
+| Created
+| Ressource erfolgreich erstellt
+
+| 204
+| No Content
+| Anfrage erfolgreich, keine Antwort
+
+| 400
+| Bad Request
+| Ungültige Anfrage-Parameter
+
+| 401
+| Unauthorized
+| Authentifizierung fehlt oder ungültig
+
+| 403
+| Forbidden
+| Keine Berechtigung für diese Aktion
+
+| 404
+| Not Found
+| Ressource nicht gefunden
+
+| 409
+| Conflict
+| Konflikt (z.B. E-Mail bereits vergeben)
+
+| 422
+| Unprocessable Entity
+| Validierungsfehler
+
+| 429
+| Too Many Requests
+| Rate Limit überschritten
+
+| 500
+| Internal Server Error
+| Serverfehler
+|===
+
+== Fehlerbehandlung
+
+Alle Fehlerantworten folgen einem einheitlichen Format mit detaillierten Fehlermeldungen.
+
+[source,json]
+----
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Validation failed",
+    "details": [
+      {
+        "field": "email",
+        "message": "Email is already taken"
+      },
+      {
+        "field": "password",
+        "message": "Password must be at least 8 characters"
+      }
+    ]
+  }
+}
+----
+
+== Rate Limiting
+
+Die API implementiert Rate Limiting zum Schutz vor Überlastung.
+
+[cols="30,70", options="header"]
+|===
+| Header | Beschreibung
+
+| X-RateLimit-Limit
+| Maximale Anfragen pro Stunde
+
+| X-RateLimit-Remaining
+| Verbleibende Anfragen
+
+| X-RateLimit-Reset
+| Unix-Timestamp für Reset
+|===
+
+Standard-Limits: 1000 Anfragen pro Stunde für authentifizierte Nutzer.
+
+== Versionierung
+
+Die API-Version wird in der URL angegeben (`/v2/`). Bei Breaking Changes wird eine neue Version eingeführt. Alte Versionen werden mindestens 6 Monate unterstützt.
+
+Header `X-API-Version` zeigt die aktuelle Version an.
+
+== Changelog
+
+=== v1.2.0 - 2024-01-15
+
+* Neuer Endpunkt: PATCH /users/{id} für partielle Updates
+* Verbessertes Error Handling
+* Rate Limiting Header hinzugefügt
+
+=== v1.1.0 - 2023-12-01
+
+* Pagination für GET /users
+* Neue Felder: created_at, updated_at
+* Performance-Optimierungen
+
+=== v1.0.0 - 2023-10-15
+
+* Initiales Release
+* Basis CRUD-Operationen für User Management
