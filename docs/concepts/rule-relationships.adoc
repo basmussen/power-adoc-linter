@@ -1,0 +1,400 @@
+= Regel-Beziehungen und Abhängigkeiten
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: highlight.js
+
+[abstract]
+Dieses Dokument visualisiert die komplexen Beziehungen zwischen verschiedenen Validierungsregeln im Power AsciiDoc Linter. Verstehen Sie, wie Regeln interagieren und sich gegenseitig beeinflussen.
+
+== 🕸️ Regel-Netzwerk
+
+[plantuml, rule-network, svg]
+----
+@startuml
+!theme plain
+skinparam defaultFontSize 12
+skinparam rectangleFontSize 10
+
+' Document Level
+rectangle "Document" as doc #lightblue
+
+' Metadata Branch
+rectangle "Metadata" as meta #lightgreen
+rectangle "Attributes[]" as attrs #palegreen
+
+' Section Branch  
+rectangle "Sections[]" as secs #lightyellow
+rectangle "Subsections[]" as subsecs #palegoldenrod
+rectangle "Blocks[]" as blocks #wheat
+
+' Severity Flow
+rectangle "Section\nSeverity" as secsev #pink
+rectangle "Block\nSeverity" as blocksev #lightpink
+rectangle "Rule\nSeverity" as rulesev #lavenderblush
+
+' Connections
+doc --> meta : contains
+doc --> secs : contains
+meta --> attrs : has
+secs --> subsecs : can have
+secs --> blocks : allows
+subsecs --> blocks : allows
+
+' Severity inheritance
+secsev ..> blocksev : inherits to
+blocksev ..> rulesev : inherits to
+secs --> secsev : defines
+blocks --> blocksev : can override
+blocks --> rulesev : rules can override
+
+' Annotations
+note right of attrs
+  Each attribute has:
+  - name
+  - pattern
+  - min/maxLength
+  - required
+  - severity
+end note
+
+note bottom of blocks
+  Block types:
+  - paragraph
+  - listing
+  - table
+  - image
+  - etc.
+end note
+@enduml
+----
+
+== 🔄 Regel-Interaktionen
+
+=== 1. Hierarchische Abhängigkeiten
+
+[.text-center]
+....
+┌─────────────────────────────────────────────────────────┐
+│                    DOCUMENT LEVEL                        │
+│  ┌─────────────────┐         ┌────────────────────┐    │
+│  │    METADATA     │         │     SECTIONS       │    │
+│  │                 │         │                    │    │
+│  │  Definiert:     │         │  Definiert:        │    │
+│  │  • Kopfdaten    │         │  • Struktur        │    │
+│  │  • Pflichtfelder│         │  • Hierarchie      │    │
+│  │                 │         │  • Erlaubte Inhalte│    │
+│  └────────┬────────┘         └─────────┬──────────┘    │
+│           │                            │                │
+│           ▼                            ▼                │
+│    ┌──────────────────────────────────────┐            │
+│    │          GEGENSEITIGE EINFLÜSSE      │            │
+│    │  • Metadata kann Section-Namen       │            │
+│    │    beeinflussen (z.B. Sprache)       │            │
+│    │  • Sections können spezielle         │            │
+│    │    Metadata erfordern                │            │
+│    └──────────────────────────────────────┘            │
+└─────────────────────────────────────────────────────────┘
+....
+
+=== 2. Konditionale Regeln
+
+Manche Regeln werden nur unter bestimmten Bedingungen aktiv:
+
+[plantuml, conditional-rules, svg]
+----
+@startuml
+start
+:Dokument laden;
+
+if (Metadata: api-version vorhanden?) then (ja)
+  :API-spezifische Sections\nerforderlich;
+  :Endpunkte Section: PFLICHT;
+  :Response Codes Section: PFLICHT;
+else (nein)
+  :Standard Sections;
+  :Flexible Struktur;
+endif
+
+if (Section: "Code Examples" vorhanden?) then (ja)
+  :Listing Blocks müssen\nSprache definieren;
+  :Severity: ERROR;
+else (nein)
+  :Listing Sprache optional;
+  :Severity: INFO;
+endif
+
+stop
+@enduml
+----
+
+=== 3. Kaskadierende Validierung
+
+[.text-center]
+....
+┌─────────────────────────────────────────────────────────────┐
+│                      VALIDIERUNGS-KASKADE                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. STRUKTUR-VALIDIERUNG                                    │
+│     └─► Sind alle Pflicht-Sections vorhanden?              │
+│         └─► Ist die Hierarchie korrekt?                    │
+│                                                             │
+│  2. INHALTS-VALIDIERUNG                                     │
+│     └─► Enthalten Sections erlaubte Blocks?                │
+│         └─► Erfüllen Blocks ihre Anforderungen?            │
+│                                                             │
+│  3. KONSISTENZ-VALIDIERUNG                                  │
+│     └─► Passen Metadaten zur Struktur?                     │
+│         └─► Sind Querverweise gültig?                      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+....
+
+== 🎭 Regel-Szenarien
+
+=== Szenario 1: Dokumenttyp-basierte Regeln
+
+[cols="25,35,40", options="header"]
+|===
+| Dokumenttyp | Aktivierte Regeln | Besonderheiten
+
+| API-Dokumentation
+a| 
+* Strikte Section-Reihenfolge
+* HTTP-Methoden als Subsections
+* Code-Beispiele erforderlich
+| Pattern-Matching für Endpunkte
+
+| Benutzerhandbuch
+a|
+* Flexible Kapitelstruktur
+* Bilder mit Alt-Text
+* Glossar optional
+| Niedrigere Severity-Level
+
+| Release Notes
+a|
+* Versions-Metadaten Pflicht
+* Breaking Changes Section
+* Chronologische Ordnung
+| Datums-Validierung kritisch
+|===
+
+=== Szenario 2: Severity-Überschreibungen
+
+[source,yaml]
+----
+# Basis-Konfiguration
+sections:
+  - name: "Dokumentation"
+    severity: warn          # <1>
+    blocks:
+      - paragraph:
+          severity: warn    # <2>
+          sentences:
+            min: 3
+            severity: error # <3>
+            
+# Resultierende Validierung:
+# - Section fehlt → WARN
+# - Paragraph fehlt → WARN  
+# - Weniger als 3 Sätze → ERROR! (überschreibt)
+----
+
+<1> Section-Level Default
+<2> Erbt von Section
+<3> Überschreibt Block-Level
+
+== 🔍 Komplexe Regel-Muster
+
+=== Pattern 1: Gegenseitige Ausschlüsse
+
+[plantuml, mutual-exclusion, svg]
+----
+@startuml
+!theme plain
+
+state "Dokument Start" as start
+state "Hat FAQ Section?" as faq_check
+state "Hat Q&A Section?" as qa_check
+state "Fehler: Beide\nvorhanden" as error #pink
+state "OK" as ok #lightgreen
+
+start --> faq_check
+faq_check --> qa_check : Ja
+faq_check --> ok : Nein
+
+qa_check --> error : Ja
+qa_check --> ok : Nein
+
+note right of error
+  FAQ und Q&A Sections
+  schließen sich gegenseitig aus
+end note
+@enduml
+----
+
+=== Pattern 2: Abhängige Anforderungen
+
+[.text-center]
+....
+┌─────────────────────────────────────────────────┐
+│           WENN → DANN BEZIEHUNGEN               │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  WENN version > 2.0                             │
+│  DANN migration-guide ERFORDERLICH              │
+│                                                 │
+│  WENN api-version definiert                     │
+│  DANN api-base-url ERFORDERLICH                │
+│                                                 │
+│  WENN images vorhanden                          │
+│  DANN :imagesdir: ERFORDERLICH                 │
+│                                                 │
+└─────────────────────────────────────────────────┘
+....
+
+=== Pattern 3: Kontextabhängige Validierung
+
+[cols="30,35,35", options="header"]
+|===
+| Kontext | Standard-Regel | Kontextabhängige Regel
+
+| Code-Listing in Tutorial
+| Sprache optional
+| Sprache PFLICHT + Zeilennummern
+
+| Tabelle in API-Docs
+| Keine speziellen Anforderungen
+| Header PFLICHT + Caption mit "Parameter"
+
+| Bild in Benutzerhandbuch
+| Alt-Text empfohlen
+| Alt-Text PFLICHT + Bildunterschrift
+|===
+
+== 🎯 Regel-Optimierung
+
+=== Tipps zur Regel-Definition
+
+[IMPORTANT]
+====
+**Regel-Hierarchie beachten**
+
+1. Definieren Sie allgemeine Regeln auf höchster Ebene
+2. Spezialisieren Sie nur wo nötig
+3. Nutzen Sie Vererbung statt Wiederholung
+====
+
+=== Anti-Patterns vermeiden
+
+[cols="50,50", options="header"]
+|===
+| ❌ Anti-Pattern | ✅ Best Practice
+
+a|
+[source,yaml]
+----
+# Redundante Severity
+blocks:
+  - paragraph:
+      severity: error
+      lines:
+        severity: error
+      sentences:
+        severity: error
+----
+
+a|
+[source,yaml]
+----
+# Severity vererben
+blocks:
+  - paragraph:
+      severity: error
+      # Regeln erben error
+      lines:
+        min: 5
+      sentences:
+        min: 3
+----
+
+a|
+[source,yaml]
+----
+# Zu spezifische Patterns
+sections:
+  - name: "Kapitel 1: Einleitung"
+  - name: "Kapitel 2: Installation"
+  - name: "Kapitel 3: Konfiguration"
+----
+
+a|
+[source,yaml]
+----
+# Flexible Patterns
+sections:
+  - pattern: "^Kapitel \\d+:.*"
+    min: 3
+    max: 10
+----
+|===
+
+== 📊 Regel-Metriken
+
+=== Komplexitäts-Analyse
+
+[plantuml, complexity-metrics, svg]
+----
+@startuml
+!theme plain
+
+title Regel-Komplexität nach Komponente
+
+skinparam defaultFontSize 14
+
+rectangle "Metadata\nRegeln" as meta #lightgreen {
+  note right : Komplexität: Niedrig\n- Flache Struktur\n- Klare Attribute
+}
+
+rectangle "Section\nRegeln" as sec #yellow {
+  note right : Komplexität: Mittel\n- Hierarchisch\n- Patterns
+}
+
+rectangle "Block\nRegeln" as block #orange {
+  note right : Komplexität: Hoch\n- Viele Typen\n- Typ-spezifisch
+}
+
+rectangle "Kombinierte\nRegeln" as comb #red {
+  note right : Komplexität: Sehr hoch\n- Abhängigkeiten\n- Konditional
+}
+
+meta -[hidden]-> sec
+sec -[hidden]-> block
+block -[hidden]-> comb
+@enduml
+----
+
+== 🔮 Zukünftige Regel-Features
+
+=== Geplante Erweiterungen
+
+1. **Dynamische Regeln**: Regeln die sich zur Laufzeit anpassen
+2. **Regel-Vorlagen**: Wiederverwendbare Regel-Sets
+3. **Bedingte Aktivierung**: Regeln basierend auf Umgebungsvariablen
+4. **Cross-Dokument Validierung**: Regeln über mehrere Dateien
+
+=== Visualisierungs-Ideen
+
+* **Interaktive Regel-Explorer**: Web-basierte Navigation
+* **Regel-Konflikt-Detektor**: Automatische Erkennung von Widersprüchen
+* **Regel-Impact-Analyse**: Welche Dokumente sind betroffen?
+
+== 🔗 Weiterführende Ressourcen
+
+* link:rule-hierarchy-diagram.adoc[Regel-Hierarchie Übersicht]
+* link:severity-inheritance-diagram.adoc[Severity-Vererbung im Detail]
+* link:../reference/rules/index.adoc[Vollständige Regel-Referenz]
+* link:../troubleshooting.adoc#regel-konflikte[Troubleshooting: Regel-Konflikte]

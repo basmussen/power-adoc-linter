@@ -3,7 +3,7 @@
 :toc-title: Inhalt
 :toclevels: 3
 :icons: font
-:source-highlighter: rouge
+:source-highlighter: highlight.js
 
 [abstract]
 Dieser Guide hilft Ihnen bei der Lösung häufiger Probleme mit dem Power AsciiDoc Linter. Finden Sie schnell Lösungen für typische Fehlermeldungen und Konfigurationsprobleme.

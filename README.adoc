@@ -3,7 +3,7 @@
 :toc-placement: auto
 :toc-title: Inhaltsverzeichnis
 :icons: font
-:source-highlighter: rouge
+:source-highlighter: highlight.js
 :imagesdir: docs/images
 
 ifdef::env-github[]

@@ -3,7 +3,7 @@
 :toc-title: Inhalt
 :toclevels: 3
 :icons: font
-:source-highlighter: rouge
+:source-highlighter: highlight.js
 
 [abstract]
 Detaillierte Erklärung der Severity-Hierarchie im Power AsciiDoc Linter. Verstehen Sie, wie Schweregrade vererbt und überschrieben werden.

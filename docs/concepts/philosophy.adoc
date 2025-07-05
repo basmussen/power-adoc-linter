@@ -3,7 +3,7 @@
 :toc-title: Inhalt
 :toclevels: 3
 :icons: font
-:source-highlighter: rouge
+:source-highlighter: highlight.js
 
 [abstract]
 Verstehen Sie die Grundkonzepte und Designphilosophie hinter dem Power AsciiDoc Linter. Erfahren Sie, warum bestimmte Entscheidungen getroffen wurden und wie Sie den Linter optimal für Ihre Bedürfnisse einsetzen.

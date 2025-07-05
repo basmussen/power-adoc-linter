@@ -1,0 +1,514 @@
+= Tutorial: Ihre erste Linter-Konfiguration
+:toc:
+:toc-title: Lernschritte
+:toclevels: 2
+:icons: font
+:source-highlighter: highlight.js
+:experimental:
+
+[abstract]
+In diesem Schritt-für-Schritt Tutorial lernen Sie, wie Sie Ihre erste Linter-Konfiguration erstellen. Wir beginnen ganz einfach und erweitern die Konfiguration schrittweise.
+
+== 🎯 Lernziele
+
+Nach diesem Tutorial können Sie:
+
+* ✅ Eine minimale Linter-Konfiguration erstellen
+* ✅ Metadaten-Regeln definieren
+* ✅ Section-Strukturen vorgeben
+* ✅ Block-Validierungen hinzufügen
+* ✅ Severity-Level verstehen und anwenden
+
+== 📋 Voraussetzungen
+
+* Power AsciiDoc Linter ist installiert
+* Ein Text-Editor (VS Code, Sublime, etc.)
+* Ein Test-AsciiDoc-Dokument
+
+== 🚀 Schritt 1: Minimal-Konfiguration
+
+Beginnen wir mit der einfachsten möglichen Konfiguration.
+
+=== Erstellen Sie die Datei
+
+Erstellen Sie eine Datei namens `.linter-config.yaml`:
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+----
+
+=== Was bedeutet das?
+
+[cols="20,80", grid=none]
+|===
+| `document:` 
+| Der Haupt-Container für alle Regeln
+
+| `metadata:` 
+| Regeln für Dokument-Kopfdaten
+
+| `attributes:` 
+| Liste der Metadaten-Attribute
+
+| `name: title` 
+| Wir prüfen das "title" Attribut
+
+| `required: true` 
+| Der Titel ist ein Pflichtfeld
+
+| `severity: error` 
+| Fehlt der Titel → Build schlägt fehl
+|===
+
+=== Testen Sie die Konfiguration
+
+Erstellen Sie `test.adoc`:
+
+[source,asciidoc]
+----
+= Mein Test Dokument
+
+Das ist ein Test.
+----
+
+Führen Sie den Linter aus:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i test.adoc -c .linter-config.yaml
+----
+
+✅ **Erfolg!** Das Dokument hat einen Titel.
+
+=== Provozieren Sie einen Fehler
+
+Entfernen Sie den Titel aus `test.adoc`:
+
+[source,asciidoc]
+----
+Das ist ein Test ohne Titel.
+----
+
+Führen Sie den Linter erneut aus:
+
+[source]
+----
+ERROR: Missing required attribute 'title': actual not present, expected non-empty value
+----
+
+== 📝 Schritt 2: Weitere Metadaten
+
+Erweitern wir die Metadaten-Regeln.
+
+=== Fügen Sie Autor und Version hinzu
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+        
+      - name: author       # <1>
+        required: true
+        severity: error
+        
+      - name: version      # <2>
+        required: false
+        pattern: "^v\\d+\\.\\d+\\.\\d+$"
+        severity: info
+----
+<1> Autor ist jetzt auch Pflicht
+<2> Version ist optional, muss aber wenn vorhanden dem Pattern entsprechen
+
+=== Testen mit vollständigen Metadaten
+
+Aktualisieren Sie `test.adoc`:
+
+[source,asciidoc]
+----
+= Mein Test Dokument
+Max Mustermann
+:version: v1.0.0
+
+Das ist ein Test.
+----
+
+=== Pattern verstehen
+
+Das Version-Pattern `^v\\d+\\.\\d+\\.\\d+$` bedeutet:
+
+[cols="15,85", grid=none]
+|===
+| `^` | Anfang des Strings
+| `v` | Buchstabe "v"
+| `\\d+` | Eine oder mehr Ziffern
+| `\\.` | Ein Punkt (escaped)
+| `$` | Ende des Strings
+|===
+
+Gültig: `v1.0.0`, `v2.3.14` +
+Ungültig: `1.0.0`, `v1.0`, `version-1`
+
+== 🏗️ Schritt 3: Dokumentstruktur
+
+Jetzt definieren wir die Section-Struktur.
+
+=== Einfache Section-Regel
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+        
+  sections:              # <1>
+    - name: "Einleitung" # <2>
+      level: 1           # <3>
+      required: true     # <4>
+      severity: error    # <5>
+----
+<1> Neue `sections` Liste
+<2> Section muss "Einleitung" heißen
+<3> Level 1 bedeutet `==` in AsciiDoc
+<4> Diese Section ist Pflicht
+<5> Fehlt sie → ERROR
+
+=== Test-Dokument erweitern
+
+[source,asciidoc]
+----
+= Mein Test Dokument
+Max Mustermann
+
+== Einleitung
+
+Dies ist die Einleitung meines Dokuments.
+----
+
+=== Mehrere Sections
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+        
+  sections:
+    - name: "Einleitung"
+      level: 1
+      required: true
+      severity: error
+      
+    - name: "Hauptteil"    # <1>
+      level: 1
+      required: false      # <2>
+      severity: warn       # <3>
+      
+    - name: "Fazit"
+      level: 1
+      required: false
+      severity: info
+----
+<1> Weitere Section
+<2> Optional
+<3> Warnung wenn fehlt
+
+== 🎨 Schritt 4: Block-Validierung
+
+Definieren wir, welche Inhalte in Sections erlaubt sind.
+
+=== Blocks zu Sections hinzufügen
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+        
+  sections:
+    - name: "Einleitung"
+      level: 1
+      required: true
+      severity: error
+      blocks:                    # <1>
+        - paragraph:             # <2>
+            severity: warn       # <3>
+            minLines: 3          # <4>
+----
+<1> `blocks` definiert erlaubte Inhalte
+<2> Paragraph-Block
+<3> Jeder Block braucht severity!
+<4> Mindestens 3 Zeilen
+
+=== Verschiedene Block-Typen
+
+[source,yaml]
+----
+sections:
+  - name: "Beispiele"
+    level: 1
+    severity: info
+    blocks:
+      - paragraph:
+          severity: info
+          
+      - listing:              # <1>
+          severity: warn
+          language:           # <2>
+            required: true
+            pattern: "^(java|yaml|bash)$"
+            
+      - image:                # <3>
+          severity: error
+          alt:                # <4>
+            required: true
+----
+<1> Code-Listings erlaubt
+<2> Sprache muss angegeben werden
+<3> Bilder erlaubt
+<4> Alt-Text ist Pflicht
+
+== 🎯 Schritt 5: Severity verstehen
+
+=== Die drei Severity-Level
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Kritisch"
+      severity: error      # 🔴 Build bricht ab
+      
+    - name: "Wichtig"  
+      severity: warn       # 🟡 Warnung, Build läuft weiter
+      
+    - name: "Hinweis"
+      severity: info       # 🔵 Nur zur Information
+----
+
+=== Severity-Vererbung
+
+[source,yaml]
+----
+sections:
+  - name: "Test"
+    severity: warn         # <1>
+    blocks:
+      - paragraph:
+          severity: warn   # <2>
+          sentences:
+            min: 3
+            severity: error # <3>
+----
+<1> Section-Default: WARN
+<2> Block erbt WARN
+<3> Regel überschreibt mit ERROR
+
+== 🧩 Schritt 6: Alles zusammen
+
+Hier ist eine vollständige Beispiel-Konfiguration:
+
+[source,yaml]
+----
+# .linter-config.yaml
+document:
+  # Metadaten-Regeln
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        minLength: 10
+        maxLength: 80
+        severity: error
+        
+      - name: author
+        required: true
+        severity: error
+        
+      - name: email
+        required: false
+        pattern: "^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$"
+        severity: info
+        
+      - name: version
+        required: false
+        pattern: "^v\\d+\\.\\d+\\.\\d+$"
+        severity: info
+        
+  # Struktur-Regeln
+  sections:
+    # Pflicht-Section
+    - name: "Einleitung"
+      level: 1
+      order: 1
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            minLines: 5
+            severity: warn
+            
+    # Flexible Kapitel
+    - pattern: "^Kapitel \\d+:.*"
+      level: 1
+      min: 1
+      max: 5
+      severity: warn
+      blocks:
+        - paragraph:
+            severity: info
+        - listing:
+            severity: info
+            language:
+              required: true
+        - image:
+            severity: warn
+            alt:
+              required: true
+              
+    # Optionale Section
+    - name: "Anhang"
+      level: 1
+      required: false
+      severity: info
+----
+
+== ✅ Schritt 7: Testen und Verfeinern
+
+=== Erstellen Sie ein vollständiges Test-Dokument
+
+[source,asciidoc]
+----
+= Power AsciiDoc Linter Tutorial Dokument
+Maria Muster <maria@example.com>
+:version: v1.0.0
+
+== Einleitung
+
+Dies ist ein Tutorial-Dokument für den Power AsciiDoc Linter.
+Es demonstriert verschiedene Validierungsregeln.
+Der Linter prüft Struktur, Metadaten und Inhalte.
+Alle Regeln sind in der YAML-Konfiguration definiert.
+Diese Einleitung erfüllt die Mindestanforderung von 5 Zeilen.
+
+== Kapitel 1: Grundlagen
+
+Hier beginnt der Hauptteil des Dokuments.
+
+[source,java]
+----
+public class Hello {
+    public static void main(String[] args) {
+        System.out.println("Hello Linter!");
+    }
+}
+----
+
+.Logo des Projekts
+image::logo.png[Projekt Logo, 200]
+
+== Kapitel 2: Erweiterte Themen
+
+Weitere Inhalte folgen hier.
+
+== Anhang
+
+Zusätzliche Informationen.
+----
+
+=== Führen Sie die Validierung aus
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i test-complete.adoc -c .linter-config.yaml
+----
+
+== 💡 Tipps für Fortgeschrittene
+
+=== 1. Nutzen Sie Patterns statt fester Namen
+
+[cols="50,50", options="header"]
+|===
+| ❌ Unflexibel | ✅ Flexibel
+
+a|
+[source,yaml]
+----
+- name: "Kapitel 1"
+- name: "Kapitel 2"  
+- name: "Kapitel 3"
+----
+
+a|
+[source,yaml]
+----
+- pattern: "^Kapitel \\d+.*"
+  min: 1
+  max: 10
+----
+|===
+
+=== 2. Beginnen Sie strikt, lockern Sie später
+
+1. Starten Sie mit `severity: error` für alles
+2. Testen Sie mit echten Dokumenten
+3. Reduzieren Sie auf `warn` oder `info` wo sinnvoll
+
+=== 3. Dokumentieren Sie Ihre Regeln
+
+[source,bash]
+----
+# Generieren Sie automatisch eine Dokumentation
+java -jar power-adoc-linter.jar --generate-docs \
+  -c .linter-config.yaml \
+  -o regeln.adoc
+----
+
+== 🎉 Geschafft!
+
+Sie haben erfolgreich:
+
+* ✅ Eine Linter-Konfiguration erstellt
+* ✅ Metadaten-Regeln definiert
+* ✅ Dokumentstruktur vorgegeben
+* ✅ Block-Validierungen hinzugefügt
+* ✅ Severity-Level angewendet
+
+=== Nächste Schritte
+
+1. **Erweitern**: Fügen Sie weitere Regeln hinzu
+2. **Anpassen**: Passen Sie die Regeln an Ihr Projekt an
+3. **Automatisieren**: Integrieren Sie den Linter in CI/CD
+4. **Teilen**: Teilen Sie Ihre Konfiguration im Team
+
+== 📚 Weitere Ressourcen
+
+* link:../user-guide/configuration.adoc[Detaillierter Konfigurations-Guide]
+* link:../reference/rules/index.adoc[Vollständige Regel-Referenz]
+* link:../examples/[Beispiel-Konfigurationen]
+* link:../troubleshooting.adoc[Problemlösungen]
+
+[TIP]
+====
+**Haben Sie Fragen?**
+
+Schauen Sie in die link:../troubleshooting.adoc[Troubleshooting-Dokumentation] oder erstellen Sie ein Issue auf GitHub!
+====

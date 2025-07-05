@@ -3,7 +3,7 @@
 :toc-title: Inhalt
 :toclevels: 3
 :icons: font
-:source-highlighter: rouge
+:source-highlighter: highlight.js
 
 [abstract]
 Vollständige Referenz aller Section-Validierungsregeln für AsciiDoc-Dokumente. Diese Dokumentation beschreibt, wie hierarchische Dokumentstrukturen definiert und validiert werden.

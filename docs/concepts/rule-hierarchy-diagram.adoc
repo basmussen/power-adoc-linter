@@ -3,7 +3,7 @@
 :toc-title: Inhalt
 :toclevels: 3
 :icons: font
-:source-highlighter: rouge
+:source-highlighter: highlight.js
 
 [abstract]
 Visuelle Darstellung der hierarchischen Regelstruktur des Power AsciiDoc Linters. Diese interaktive Übersicht zeigt, wie Regeln aufgebaut sind und zusammenwirken.
