@@ -1,0 +1,175 @@
+= Features
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+
+[abstract]
+Der Power AsciiDoc Linter bietet leistungsstarke Features, die über die Basis-Validierung hinausgehen. Entdecken Sie die erweiterten Möglichkeiten.
+
+== 🎨 Output-Formate und Styles
+
+Der Linter bietet hochgradig anpassbare Ausgabeformate für verschiedene Anwendungsfälle.
+
+[cols="30,70", options="header"]
+|===
+| Feature | Beschreibung
+
+| link:output-formats.adoc[Output-Formate]
+| Enhanced, Simple und Compact Formate für verschiedene Umgebungen
+
+| link:../reference/output-configuration.adoc[Output-Konfiguration]
+| Detaillierte Referenz aller Konfigurationsoptionen
+
+| Farb-Unterstützung
+| ANSI-Farbcodes für bessere Lesbarkeit
+
+| Error-Gruppierung
+| Intelligente Gruppierung ähnlicher Fehler
+
+| Kontext-Anzeige
+| Zeigt umgebende Zeilen für besseres Verständnis
+|===
+
+**Beispiel:**
+[source,bash]
+----
+# Enhanced Format mit vollem Kontext
+java -jar power-adoc-linter.jar -i "**/*.adoc" \
+  --output-config examples/output-configs/enhanced-output.yaml
+
+# Compact Format für CI/CD
+java -jar power-adoc-linter.jar -i "**/*.adoc" \
+  --output-config examples/output-configs/ci-output.yaml
+----
+
+== 📚 Documentation Generator
+
+Generieren Sie automatisch menschenlesbare Dokumentation aus Ihrer Linter-Konfiguration.
+
+[cols="30,70", options="header"]
+|===
+| Feature | Beschreibung
+
+| link:documentation-generator.adoc[Documentation Generator]
+| Erstellt AsciiDoc-Dokumentation aus YAML-Konfigurationen
+
+| Visualisierungsstile
+| Tree, Nested, Table, Breadcrumb und mehr
+
+| Pattern-Humanisierung
+| Wandelt technische Regex in verständliche Beschreibungen
+
+| CI/CD Integration
+| Automatische Dokumentations-Updates
+|===
+
+**Beispiel:**
+[source,bash]
+----
+# Dokumentation generieren
+java -jar power-adoc-linter.jar --generate-docs \
+  -c .linter-config.yaml \
+  -o documentation/rules.adoc \
+  --viz-style tree,table
+----
+
+== 🔄 Weitere Features
+
+=== JSON Output
+
+Für Tool-Integration und automatisierte Verarbeitung:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json -o report.json
+----
+
+**Features:**
+- Strukturierte Fehlerinformationen
+- Maschinenlesbar
+- Einfache Integration in CI/CD
+- Statistiken und Metriken
+
+=== Fail-Level Konfiguration
+
+Steuern Sie, bei welcher Severity der Build fehlschlägt:
+
+[source,bash]
+----
+# Nur bei Errors fehlschlagen (default)
+java -jar power-adoc-linter.jar -i "**/*.adoc" -l error
+
+# Auch bei Warnings fehlschlagen
+java -jar power-adoc-linter.jar -i "**/*.adoc" -l warn
+----
+
+=== Glob-Pattern Support
+
+Flexible Dateiauswahl mit Ant-Style Patterns:
+
+[source,bash]
+----
+# Alle AsciiDoc-Dateien rekursiv
+-i "**/*.adoc"
+
+# Mehrere Patterns
+-i "docs/**/*.adoc,src/**/*.asciidoc,README.adoc"
+
+# Spezifische Verzeichnisse
+-i "chapters/*/content.adoc"
+----
+
+== 🚀 Geplante Features
+
+[cols="20,60,20", options="header"]
+|===
+| Feature | Beschreibung | Status
+
+| Watch Mode
+| Live-Validierung während der Bearbeitung
+| 🚧 In Arbeit
+
+| Auto-Fix
+| Automatische Korrektur einfacher Fehler
+| 📋 Geplant
+
+| IDE Plugins
+| VS Code, IntelliJ Integration
+| 📋 Geplant
+
+| Web UI
+| Browser-basierte Konfiguration und Validierung
+| 🔮 Zukunft
+
+| Multi-Language
+| Unterstützung für mehrere Sprachen
+| 🔮 Zukunft
+|===
+
+== 💡 Feature-Highlights
+
+=== 1. Intelligente Fehlerbehandlung
+
+- **Kontext-sensitive Meldungen**: Zeigt nur relevante Informationen
+- **Gruppierung**: Reduziert Rauschen bei vielen ähnlichen Fehlern
+- **Vorschläge**: Bietet konkrete Lösungsansätze
+
+=== 2. Flexible Konfiguration
+
+- **YAML-basiert**: Einfach zu lesen und schreiben
+- **Hierarchisch**: Natürliche Abbildung der Dokumentstruktur
+- **Validiert**: Schema-Validierung verhindert Konfigurationsfehler
+
+=== 3. Performance
+
+- **Schnell**: Optimiert für große Dokumentensammlungen
+- **Parallel**: Nutzt mehrere CPU-Kerne
+- **Caching**: Wiederverwendung von kompilierten Patterns
+
+== 🔗 Weiterführende Links
+
+* link:../user-guide/[Benutzerhandbuch] - Grundlegende Verwendung
+* link:../reference/[Referenz] - Detaillierte Dokumentation
+* link:../examples/[Beispiele] - Praktische Konfigurationen
+* link:../troubleshooting.adoc[Troubleshooting] - Problemlösungen

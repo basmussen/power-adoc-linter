@@ -1,0 +1,665 @@
+= Output-Konfiguration Referenz
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: highlight.js
+
+[abstract]
+Vollständige Referenz aller Output-Konfigurationsoptionen des Power AsciiDoc Linters. Diese Dokumentation beschreibt jede verfügbare Option im Detail.
+
+== 📋 Schema-Übersicht
+
+Die Output-Konfiguration folgt diesem Schema:
+
+[source,yaml]
+----
+output:                    # Root-Element (erforderlich)
+  format: <string>         # Output-Format
+  display: <object>        # Anzeige-Einstellungen
+  suggestions: <object>    # Vorschlags-Konfiguration
+  errorGrouping: <object>  # Fehler-Gruppierung
+  summary: <object>        # Zusammenfassungs-Optionen
+----
+
+== 🎨 Format-Option
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Typ | Beschreibung
+
+| `format`
+| String
+| Output-Format-Stil
+
+3+| **Erlaubte Werte:**
+
+| `enhanced`
+| -
+| Vollständige Details mit Farben, Kontext und Vorschlägen
+
+| `simple`
+| -
+| Einfache Ausgabe ohne visuelle Extras
+
+| `compact`
+| -
+| Einzeilige, maschinenlesbare Ausgabe
+|===
+
+**Beispiel:**
+[source,yaml]
+----
+output:
+  format: enhanced  # Default
+----
+
+== 🖥️ Display-Einstellungen
+
+=== useColors
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `useColors`
+| Typ: `boolean`
+| ANSI-Farbcodes für Terminal-Ausgabe
+
+| Default
+| `true`
+| Farben sind standardmäßig aktiviert
+
+| Deaktivieren für
+| -
+| Log-Dateien, CI/CD ohne Farbunterstützung, monochrome Terminals
+|===
+
+**Beispiel:**
+[source,yaml]
+----
+display:
+  useColors: false  # Keine Farben
+----
+
+=== contextLines
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `contextLines`
+| Typ: `integer`
+| Anzahl der Kontext-Zeilen vor/nach Fehler
+
+| Bereich
+| `0-5`
+| Minimum 0 (kein Kontext), Maximum 5
+
+| Default
+| `2`
+| 2 Zeilen vor und nach dem Fehler
+|===
+
+**Visualisierung:**
+[source]
+----
+contextLines: 0          contextLines: 2         contextLines: 5
+                         
+>> 15 │ Error line       13 │ Before before      11 │ More context
+                         14 │ Before             12 │ Context
+                      >> 15 │ Error line         13 │ Before before
+                         16 │ After              14 │ Before
+                         17 │ After after     >> 15 │ Error line
+                                                16 │ After
+                                                17 │ After after
+                                                18 │ More context
+                                                19 │ Even more
+----
+
+=== highlightStyle
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `highlightStyle`
+| Typ: `enum`
+| Stil für Fehler-Hervorhebung
+
+| Werte
+| -
+| `underline`, `box`, `arrow`, `none`
+
+| Default
+| `underline`
+| Unterstreichen der problematischen Stelle
+|===
+
+**Beispiele:**
+
+[cols="50,50", frame=none, grid=none]
+|===
+a|
+.underline
+[source]
+----
+15 │ This has an error
+     ^^^^^^^^^^^^^^^^
+----
+
+a|
+.box
+[source]
+----
+15 │ ┌────────────────┐
+   │ │This has error  │
+   │ └────────────────┘
+----
+
+a|
+.arrow
+[source]
+----
+>> 15 │ This has an error
+----
+
+a|
+.none
+[source]
+----
+15 │ This has an error
+----
+|===
+
+=== showLineNumbers
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `showLineNumbers`
+| Typ: `boolean`
+| Zeilennummern in Kontext anzeigen
+
+| Default
+| `true`
+| Zeilennummern werden angezeigt
+
+| Format
+| -
+| Rechtsbündig mit Pipe-Separator
+|===
+
+**Mit vs. Ohne:**
+[cols="50,50", frame=none, grid=none]
+|===
+a|
+.showLineNumbers: true
+[source]
+----
+  13 │ Line before
+  14 │ Another line
+> 15 │ Error line
+----
+
+a|
+.showLineNumbers: false
+[source]
+----
+  Line before
+  Another line
+> Error line
+----
+|===
+
+=== maxLineWidth
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `maxLineWidth`
+| Typ: `integer`
+| Maximale Breite für Zeilenanzeige
+
+| Bereich
+| `40-200`
+| Minimum 40, Maximum 200 Zeichen
+
+| Default
+| `120`
+| 120 Zeichen Breite
+|===
+
+**Beispiel bei Überlänge:**
+[source]
+----
+15 │ Dies ist eine sehr lange Zeile die über die maximale Breite hinausgeht und daher abge...
+----
+
+=== showHeader
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `showHeader`
+| Typ: `boolean`
+| Validierungs-Report Header anzeigen
+
+| Default
+| `true`
+| Header wird angezeigt
+
+| Header enthält
+| -
+| Tool-Name, Version, Zeitstempel
+|===
+
+== 💡 Suggestions-Konfiguration
+
+=== enabled
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `enabled`
+| Typ: `boolean`
+| Fix-Vorschläge aktivieren
+
+| Default
+| `true`
+| Vorschläge sind aktiviert
+
+| Deaktivieren für
+| -
+| CI/CD, minimale Ausgabe
+|===
+
+=== maxPerError
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `maxPerError`
+| Typ: `integer`
+| Maximale Vorschläge pro Fehler
+
+| Bereich
+| `1-10`
+| Minimum 1, Maximum 10
+
+| Default
+| `3`
+| Bis zu 3 Vorschläge
+|===
+
+**Beispiel-Ausgabe:**
+[source]
+----
+💡 Suggestions:
+  1. Add 'author' attribute after title
+  2. Use format: "Name <email@example.com>"
+  3. Example: "Max Mustermann <max@example.com>"
+----
+
+=== showExamples
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `showExamples`
+| Typ: `boolean`
+| Beispiele in Vorschlägen zeigen
+
+| Default
+| `true`
+| Beispiele werden gezeigt
+
+| Format
+| -
+| Code-Blöcke mit korrekter Syntax
+|===
+
+=== showAutoFixHint
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `showAutoFixHint`
+| Typ: `boolean`
+| Hinweis für auto-fixbare Fehler
+
+| Default
+| `true`
+| Auto-Fix Hinweise anzeigen
+
+| Hinweis-Text
+| -
+| "🔧 This error can be auto-fixed"
+|===
+
+== 🔄 Error Grouping
+
+=== enabled
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `enabled`
+| Typ: `boolean`
+| Fehler-Gruppierung aktivieren
+
+| Default
+| `true`
+| Gruppierung ist aktiviert
+
+| Nutzen
+| -
+| Reduziert Ausgabe bei vielen ähnlichen Fehlern
+|===
+
+=== threshold
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `threshold`
+| Typ: `integer`
+| Minimum für Gruppierung
+
+| Bereich
+| `≥ 2`
+| Ab 2 gleichen Fehlern
+
+| Default
+| `3`
+| Ab 3 Fehlern gruppieren
+|===
+
+=== groupBySeverity
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `groupBySeverity`
+| Typ: `boolean`
+| Nach Severity gruppieren
+
+| Default
+| `true`
+| ERROR, WARN, INFO getrennt
+
+| Reihenfolge
+| -
+| ERROR → WARN → INFO
+|===
+
+=== groupByRule
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `groupByRule`
+| Typ: `boolean`
+| Nach Regel-ID gruppieren
+
+| Default
+| `true`
+| z.B. alle "metadata.required"
+
+| Format
+| -
+| `rule.id: Beschreibung (N times)`
+|===
+
+=== maxGroupSize
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `maxGroupSize`
+| Typ: `integer`
+| Max. Fehler pro Gruppe
+
+| Default
+| `10`
+| Maximal 10 in einer Gruppe
+
+| Bei Überschreitung
+| -
+| "... and X more"
+|===
+
+=== showSampleErrors
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `showSampleErrors`
+| Typ: `integer`
+| Beispiele pro Gruppe
+
+| Default
+| `3`
+| 3 Beispiel-Fehler zeigen
+
+| Format
+| -
+| Datei:Zeile - Details
+|===
+
+**Gruppierungs-Beispiel:**
+[source]
+----
+┌─ ERROR GROUP ────────────────────────────────────┐
+│ metadata.required (12 occurrences)               │
+├──────────────────────────────────────────────────┤
+│ Sample errors:                                   │
+│ • doc1.adoc:1 - Missing 'author'                │
+│ • doc2.adoc:1 - Missing 'author'                │
+│ • doc3.adoc:1 - Missing 'author'                │
+│ ... and 9 more                                  │
+└──────────────────────────────────────────────────┘
+----
+
+== 📊 Summary-Konfiguration
+
+=== enabled
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `enabled`
+| Typ: `boolean`
+| Zusammenfassung anzeigen
+
+| Default
+| `true`
+| Zusammenfassung wird gezeigt
+
+| Position
+| -
+| Am Ende der Ausgabe
+|===
+
+=== showStatistics
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `showStatistics`
+| Typ: `boolean`
+| Fehler-Statistiken mit Balken
+
+| Default
+| `true`
+| Visuelle Statistiken
+
+| Format
+| -
+| ASCII-Balkendiagramme
+|===
+
+**Beispiel:**
+[source]
+----
+Error Distribution:
+ERROR : ████████████████ 45 (60%)
+WARN  : ████████ 22 (29%)
+INFO  : ███ 8 (11%)
+----
+
+=== showMostCommon
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `showMostCommon`
+| Typ: `boolean`
+| Häufigste Probleme listen
+
+| Default
+| `true`
+| Top-Probleme anzeigen
+
+| Anzahl
+| -
+| Top 5 häufigste Fehler
+|===
+
+=== showFileList
+
+[cols="20,20,60", options="header"]
+|===
+| Option | Details | Beschreibung
+
+| `showFileList`
+| Typ: `boolean`
+| Liste der Dateien mit Fehlern
+
+| Default
+| `false`
+| Keine Dateiliste
+
+| Format
+| -
+| Dateiname (Fehleranzahl)
+|===
+
+**Beispiel:**
+[source]
+----
+Files with errors:
+• chapter1.adoc (5 errors, 2 warnings)
+• chapter2.adoc (3 errors)
+• appendix.adoc (1 warning, 3 infos)
+----
+
+== 🎯 Komplette Beispiel-Konfigurationen
+
+=== Maximale Details
+
+[source,yaml]
+----
+output:
+  format: enhanced
+  
+  display:
+    useColors: true
+    contextLines: 5
+    showLineNumbers: true
+    highlightStyle: underline
+    maxLineWidth: 150
+    showHeader: true
+    
+  suggestions:
+    enabled: true
+    maxPerError: 5
+    showExamples: true
+    showAutoFixHint: true
+    
+  errorGrouping:
+    enabled: true
+    threshold: 2
+    groupBySeverity: true
+    groupByRule: true
+    maxGroupSize: 20
+    showSampleErrors: 5
+    
+  summary:
+    enabled: true
+    showStatistics: true
+    showMostCommon: true
+    showFileList: true
+----
+
+=== Minimal für CI/CD
+
+[source,yaml]
+----
+output:
+  format: compact
+  
+  display:
+    useColors: false
+    contextLines: 0
+    showLineNumbers: false
+    showHeader: false
+    
+  suggestions:
+    enabled: false
+    
+  errorGrouping:
+    enabled: false
+    
+  summary:
+    enabled: false
+----
+
+=== Balanciert für Development
+
+[source,yaml]
+----
+output:
+  format: enhanced
+  
+  display:
+    useColors: true
+    contextLines: 2
+    showLineNumbers: true
+    highlightStyle: underline
+    
+  suggestions:
+    enabled: true
+    maxPerError: 3
+    
+  errorGrouping:
+    enabled: true
+    threshold: 5
+    
+  summary:
+    enabled: true
+    showStatistics: true
+----
+
+== 🔗 Siehe auch
+
+* link:../features/output-formats.adoc[Output-Formate Guide]
+* link:../../examples/output-configs/[Beispiel-Konfigurationen]
+* link:../user-guide/configuration.adoc[Linter-Konfiguration]
+* link:cli-options.adoc[CLI-Optionen]
