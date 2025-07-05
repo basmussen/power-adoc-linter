@@ -1,0 +1,332 @@
+= Power AsciiDoc Linter Cheat Sheet
+:toc:
+:toc-placement: preamble
+:icons: font
+
+Schnellreferenz für die wichtigsten Befehle und Konfigurationsoptionen.
+
+== 🚀 CLI-Befehle
+
+=== Basis-Validierung
+[source,bash]
+----
+# Einzelne Datei
+java -jar power-adoc-linter.jar -i document.adoc
+
+# Mehrere Dateien (Glob-Pattern)
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Mit Konfiguration
+java -jar power-adoc-linter.jar -i "**/*.adoc" -c config.yaml
+----
+
+=== Output-Formate
+[source,bash]
+----
+# Konsole (default)
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# JSON
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json
+
+# JSON Compact (einzeilig)
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json-compact
+
+# In Datei speichern
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json -o report.json
+----
+
+=== Fail-Level
+[source,bash]
+----
+# Nur bei Errors fehlschlagen (default)
+java -jar power-adoc-linter.jar -i "**/*.adoc" -l error
+
+# Bei Warnings fehlschlagen
+java -jar power-adoc-linter.jar -i "**/*.adoc" -l warn
+
+# Bei Info fehlschlagen
+java -jar power-adoc-linter.jar -i "**/*.adoc" -l info
+----
+
+=== Weitere Optionen
+[source,bash]
+----
+# Hilfe anzeigen
+java -jar power-adoc-linter.jar --help
+
+# Dokumentation generieren
+java -jar power-adoc-linter.jar --generate-docs -c config.yaml -o rules.adoc
+
+# Konfiguration validieren (zukünftig)
+java -jar power-adoc-linter.jar --validate-config -c config.yaml
+----
+
+== ⚙️ Konfiguration Quick Reference
+
+=== Minimal-Konfiguration
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+----
+
+=== Metadata-Validierung
+[source,yaml]
+----
+attributes:
+  - name: author
+    required: true          # Pflichtfeld
+    pattern: "^[A-Z].*"     # Regex-Pattern
+    minLength: 5            # Min. Zeichen
+    maxLength: 50           # Max. Zeichen
+    order: 2                # Position
+    severity: error         # error/warn/info
+----
+
+=== Section-Validierung
+[source,yaml]
+----
+sections:
+  - name: "Einleitung"      # Exakter Name
+    # ODER
+    pattern: "^Kapitel.*"   # Regex-Pattern
+    
+    level: 1                # 1=##, 2=###, etc.
+    required: true          # Pflicht-Section
+    min: 1                  # Min. Anzahl
+    max: 3                  # Max. Anzahl
+    order: 1                # Reihenfolge
+    severity: error
+    
+    subsections: [...]      # Verschachtelung
+    blocks: [...]           # Erlaubte Blocks
+----
+
+=== Block-Validierung
+[source,yaml]
+----
+blocks:
+  - paragraph:
+      severity: warn        # Pflicht für jeden Block!
+      minLines: 5
+      maxLines: 20
+      sentences:
+        min: 3
+        max: 10
+      words:
+        min: 50
+        max: 500
+        
+  - listing:
+      severity: error
+      language:
+        required: true
+        pattern: "^(java|yaml|bash)$"
+      title:
+        required: false
+        pattern: "^Listing.*"
+      callouts:
+        min: 1
+        
+  - table:
+      severity: info
+      header:
+        required: true
+      caption:
+        required: true
+        pattern: "^Tabelle \\d+:"
+      columns:
+        min: 2
+        max: 10
+      rows:
+        min: 1
+        max: 100
+----
+
+== 📊 Severity-Hierarchie
+
+[source]
+----
+Section-Level (niedrigste Priorität)
+    └─► Block-Level
+        └─► Rule-Level
+            └─► Nested Rule-Level (höchste Priorität)
+----
+
+**Beispiel:**
+[source,yaml]
+----
+sections:
+  - name: "Test"
+    severity: warn          # Default für alle
+    blocks:
+      - paragraph:
+          severity: error   # Überschreibt Section
+          lines:
+            min: 5
+            severity: info  # Überschreibt Block
+----
+
+== 🎯 Pattern-Beispiele
+
+=== Häufige Patterns
+[cols="40,60", options="header"]
+|===
+| Pattern | Matches
+
+| `^[A-Z].*`
+| Beginnt mit Großbuchstabe
+
+| `\\d{4}-\\d{2}-\\d{2}`
+| ISO-Datum (2024-01-15)
+
+| `^v\\d+\\.\\d+\\.\\d+$`
+| Semantic Version (v1.2.3)
+
+| `^(GET\|POST\|PUT\|DELETE)\\s+.*`
+| HTTP-Methoden
+
+| `^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$`
+| E-Mail-Adresse
+|===
+
+=== Pattern in YAML
+[source,yaml]
+----
+# WICHTIG: Doppelte Backslashes in YAML!
+pattern: "\\d+"          # Eine oder mehr Ziffern
+pattern: "\\w{3,}"       # Mind. 3 Wort-Zeichen
+pattern: "^ABC.*XYZ$"    # Beginnt mit ABC, endet mit XYZ
+----
+
+== 🐛 Fehler-Codes
+
+[cols="30,70", options="header"]
+|===
+| Code | Bedeutung
+
+| `metadata.required`
+| Pflicht-Metadatenfeld fehlt
+
+| `metadata.pattern`
+| Wert entspricht nicht dem Pattern
+
+| `metadata.length.min/max`
+| Länge außerhalb der Grenzen
+
+| `section.required`
+| Pflicht-Section fehlt
+
+| `section.level`
+| Falsche Hierarchie-Ebene
+
+| `section.order`
+| Falsche Reihenfolge
+
+| `block.occurrence`
+| Zu viele/wenige Blocks
+
+| `block.order`
+| Falsche Block-Reihenfolge
+|===
+
+== 💡 Tipps & Tricks
+
+=== Performance
+[source,bash]
+----
+# Mehr Speicher zuweisen
+java -Xmx2g -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Nur bestimmte Verzeichnisse
+java -jar power-adoc-linter.jar -i "docs/**/*.adoc,api/**/*.adoc"
+----
+
+=== Debugging
+[source,bash]
+----
+# Mit Debug-Logging
+java -Dlog4j.configurationFile=debug-log4j2.xml -jar power-adoc-linter.jar
+
+# JSON für Details
+java -jar power-adoc-linter.jar -i test.adoc -f json | jq '.'
+----
+
+=== CI/CD Integration
+[source,yaml]
+----
+# GitHub Actions
+- name: Lint AsciiDoc
+  run: |
+    java -jar power-adoc-linter.jar \
+      -i "**/*.adoc" \
+      -c .linter-config.yaml \
+      -f json-compact \
+      -l warn
+----
+
+== 📋 Komplettes Beispiel
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        minLength: 10
+        maxLength: 100
+        pattern: "^[A-Z].*"
+        severity: error
+        
+      - name: author
+        required: true
+        severity: error
+        
+      - name: version
+        required: false
+        pattern: "^v\\d+\\.\\d+\\.\\d+$"
+        severity: info
+        
+  sections:
+    - name: "Einleitung"
+      level: 1
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            minLines: 5
+            severity: warn
+            
+    - pattern: "^Kapitel \\d+:.*"
+      level: 1
+      min: 1
+      severity: warn
+      subsections:
+        - pattern: ".*"
+          level: 2
+          severity: info
+          blocks:
+            - paragraph:
+                severity: info
+            - listing:
+                language:
+                  required: true
+                severity: error
+            - table:
+                header:
+                  required: true
+                severity: warn
+----
+
+== 🔗 Weiterführende Hilfe
+
+* `java -jar power-adoc-linter.jar --help` - Alle CLI-Optionen
+* link:../user-guide/configuration.adoc[Konfigurations-Guide] - Detaillierte Anleitung
+* link:../troubleshooting.adoc[Troubleshooting] - Problemlösungen
+* link:rules/[Regel-Referenz] - Alle Validierungsregeln

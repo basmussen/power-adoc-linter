@@ -3,36 +3,227 @@
 :toc-placement: auto
 :toc-title: Inhaltsverzeichnis
 :icons: font
-:source-highlighter: rouge
+:source-highlighter: highlight.js
+:imagesdir: docs/images
 
-== Übersicht
+ifdef::env-github[]
+image:https://img.shields.io/badge/Java-17+-blue.svg[Java 17+]
+image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[Apache 2.0]
+image:https://img.shields.io/badge/Version-1.0--SNAPSHOT-orange.svg[Version]
+endif::[]
 
-Power AsciiDoc Linter ist ein Tool zur Überprüfung und Validierung von AsciiDoc-Dokumenten.
+[.lead]
+**Power AsciiDoc Linter** ist ein konfigurierbares Validierungs-Tool für AsciiDoc-Dokumente, das Ihnen hilft, konsistente und qualitativ hochwertige technische Dokumentation zu erstellen.
 
-== Voraussetzungen
+== 🎯 Warum Power AsciiDoc Linter?
+
+Technische Dokumentation ist oft genauso wichtig wie der Code selbst. Der Power AsciiDoc Linter stellt sicher, dass Ihre Dokumentation:
+
+* ✅ **Konsistent** strukturiert ist
+* ✅ **Vollständig** mit allen erforderlichen Metadaten
+* ✅ **Standardkonform** nach Ihren Unternehmensrichtlinien
+* ✅ **Automatisch validiert** in CI/CD-Pipelines
+
+== 🚀 Schnellstart
+
+[source,bash]
+----
+# JAR herunterladen
+wget https://github.com/basmussen/power-adoc-linter/releases/latest/download/power-adoc-linter.jar
+
+# Alle AsciiDoc-Dateien validieren
+java -jar power-adoc-linter.jar -i "**/*.adoc"
+
+# Mit eigener Konfiguration
+java -jar power-adoc-linter.jar -i "docs/**/*.adoc" -c .linter-config.yaml
+----
+
+== 📋 Features
+
+=== Flexible Validierungsregeln
+
+* **Metadaten-Validierung**: Titel, Autor, Version, Datum etc.
+* **Struktur-Validierung**: Sections, Subsections, Hierarchien
+* **Block-Validierung**: Paragraphs, Code-Listings, Tabellen, Bilder
+* **Inhalts-Validierung**: Mindest-/Maximal-Längen, Patterns, erlaubte Werte
+
+=== Konfigurierbare Severity-Level
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error    # Kritisch: Build schlägt fehl
+      - name: keywords
+        required: false
+        severity: info     # Optional: Nur zur Information
+----
+
+=== CI/CD Integration
+
+* JSON-Output für Pipeline-Integration
+* Anpassbare Exit-Codes
+* Fail-Level Konfiguration
+* GitHub Actions ready
+
+== 🛠️ Installation
+
+=== Voraussetzungen
 
 * Java 17 oder höher
-* Maven 3.6 oder höher
+* Optional: Maven 3.6+ (für Build aus Source)
 
-== Installation
+=== Option 1: Vorkompilierte JAR
+
+[source,bash]
+----
+# Neueste Version herunterladen
+wget https://github.com/basmussen/power-adoc-linter/releases/latest/download/power-adoc-linter.jar
+
+# Ausführbar machen (optional)
+chmod +x power-adoc-linter.jar
+----
+
+=== Option 2: Aus Source Code
 
 [source,bash]
 ----
 git clone https://github.com/basmussen/power-adoc-linter.git
 cd power-adoc-linter
-mvn clean install
+mvn clean package
+# JAR liegt in target/power-adoc-linter.jar
 ----
 
-== Verwendung
+== 📖 Dokumentation
 
-TBD
+[cols="1,3"]
+|===
+| 🚀 | link:docs/user-guide/getting-started.adoc[Schnellstart-Guide] - In 5 Minuten startklar
+| ⚙️ | link:docs/user-guide/configuration.adoc[Konfiguration] - Alle Optionen im Detail
+| 📚 | link:docs/reference/rules/index.adoc[Regel-Referenz] - Vollständige Regel-Dokumentation
+| 💡 | link:docs/examples/[Beispiele] - Fertige Konfigurationen für verschiedene Use Cases
+|===
 
-== Technologien
+== 💻 Verwendung
 
-* Java 17
-* Maven
-* AsciidoctorJ 2.5.13
+=== Basis-Validierung
 
-== Lizenz
+[source,bash]
+----
+# Einzelne Datei
+java -jar power-adoc-linter.jar -i README.adoc
 
-TBD
+# Mehrere Dateien
+java -jar power-adoc-linter.jar -i "docs/**/*.adoc,examples/**/*.adoc"
+
+# Mit Konfiguration
+java -jar power-adoc-linter.jar -i "**/*.adoc" -c .linter-config.yaml
+----
+
+=== Erweiterte Optionen
+
+[source,bash]
+----
+# JSON-Output für CI/CD
+java -jar power-adoc-linter.jar -i "**/*.adoc" -f json -o report.json
+
+# Nur Warnungen und Fehler
+java -jar power-adoc-linter.jar -i "**/*.adoc" -l warn
+
+# Regel-Dokumentation generieren
+java -jar power-adoc-linter.jar --generate-docs -c config.yaml -o rules.adoc
+----
+
+== 🔧 Konfiguration
+
+Der Linter verwendet YAML-Konfigurationsdateien mit hierarchischer Struktur:
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        minLength: 10
+        maxLength: 100
+        severity: error
+  
+  sections:
+    - name: "Einleitung"
+      required: true
+      blocks:
+        - paragraph:
+            minLines: 5
+            severity: warn
+        - image:
+            alt:
+              required: true
+              severity: error
+----
+
+Siehe link:docs/user-guide/configuration.adoc[Konfigurations-Guide] für alle Möglichkeiten.
+
+== 🏗️ Architektur
+
+Der Linter basiert auf einer modularen Architektur:
+
+```
+┌─────────────┐     ┌──────────────┐     ┌────────────┐
+│   CLI/API   │────▶│ Linter Core  │────▶│ AsciidoctorJ│
+└─────────────┘     └──────┬───────┘     └────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │  Validators  │
+                    ├──────────────┤
+                    │ • Metadata   │
+                    │ • Sections   │
+                    │ • Blocks     │
+                    └──────────────┘
+```
+
+== 🤝 Mitwirken
+
+Wir freuen uns über Beiträge! Siehe link:CONTRIBUTING.adoc[Contributing Guide] für Details.
+
+[source,bash]
+----
+# Fork erstellen und klonen
+git clone https://github.com/IhrUsername/power-adoc-linter.git
+
+# Feature-Branch erstellen
+git checkout -b feature/mein-feature
+
+# Änderungen committen
+git commit -m "#42 Mein tolles Feature"
+
+# Pull Request erstellen
+gh pr create
+----
+
+== 📊 Projekt-Status
+
+* ✅ Core-Validierung implementiert
+* ✅ YAML-Konfiguration
+* ✅ CLI-Interface
+* ✅ JSON-Output
+* ✅ Regel-Dokumentations-Generator
+* ✅ Anpassbare Output-Formate
+* ✅ CI/CD Integration
+
+== 📄 Lizenz
+
+Dieses Projekt ist lizenziert unter der Apache License 2.0 - siehe link:LICENSE[LICENSE] für Details.
+
+== 🙏 Danksagung
+
+* link:https://asciidoctor.org/[Asciidoctor] für die großartige AsciiDoc-Implementierung
+* Alle link:https://github.com/basmussen/power-adoc-linter/graphs/contributors[Contributors]
+
+---
+
+Entwickelt mit ❤️ für bessere Dokumentation

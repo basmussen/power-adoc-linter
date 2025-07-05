@@ -1,0 +1,528 @@
+= Metadaten-Regeln
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: rouge
+
+[abstract]
+Vollständige Referenz aller Metadaten-Validierungsregeln für AsciiDoc-Dokumente. Diese Dokumentation entspricht 100% der tatsächlichen Implementierung.
+
+== Übersicht
+
+Die Metadaten-Validierung prüft die Dokumentattribute im Header eines AsciiDoc-Dokuments. Alle Metadaten werden über ein `attributes` Array konfiguriert, wobei jedes Attribut individuell definiert wird.
+
+.Beispiel eines AsciiDoc-Headers:
+[source,asciidoc]
+----
+= Mein Dokument                    <1>
+Max Mustermann <max@example.com>   <2>
+v1.0, 2024-01-15                   <3>
+:keywords: AsciiDoc, Linter        <4>
+:lang: de                          <5>
+:toc:                              <6>
+----
+<1> Dokumenttitel (wird als `title` Attribut behandelt)
+<2> Autor-Information 
+<3> Version und Revisionsdatum
+<4> Benutzerdefinierte Metadaten
+<5> Weitere Metadaten
+<6> System-Attribute (werden ignoriert)
+
+== Konfigurationsstruktur
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:      # Array von Attribut-Definitionen
+      - name: ...    # Attribut-Definition
+        ...          # Weitere Felder
+----
+
+== AttributeConfig - Verfügbare Felder
+
+Jedes Attribut im `attributes` Array kann folgende Felder haben:
+
+[cols="20,15,15,50", options="header"]
+|===
+| Feld | Typ | Pflicht | Beschreibung
+
+| `name`
+| String
+| ✓ Ja
+| Name des Metadaten-Attributs. +
+Pattern: `^[a-zA-Z][a-zA-Z0-9_-]*$` +
+Länge: 1-50 Zeichen
+
+| `severity`
+| Enum
+| ✓ Ja
+| Schweregrad für alle Regelverletzungen dieses Attributs. +
+Werte: `error`, `warn`, `info`
+
+| `required`
+| Boolean
+| Nein
+| Ist das Attribut erforderlich? +
+Default: `false`
+
+| `order`
+| Integer
+| Nein
+| Erwartete Position relativ zu anderen Attributen. +
+Minimum: 1 +
+⚠️ Hinweis: AsciidoctorJ erhält ggf. nicht die Original-Reihenfolge
+
+| `minLength`
+| Integer
+| Nein
+| Minimale Länge des Attributwerts in Zeichen. +
+Minimum: 0
+
+| `maxLength`
+| Integer
+| Nein
+| Maximale Länge des Attributwerts in Zeichen. +
+Minimum: 1
+
+| `pattern`
+| String
+| Nein
+| Regulärer Ausdruck zur Validierung des Werts. +
+Muss gültiger Java-Regex sein
+|===
+
+[WARNING]
+====
+Das im Schema definierte Feld `allowedValues` ist in der aktuellen Implementierung NICHT verfügbar und kann nicht verwendet werden!
+====
+
+== Validierungsregeln im Detail
+
+=== Required-Validierung
+
+Prüft, ob erforderliche Attribute vorhanden und nicht leer sind.
+
+**Rule ID**: `metadata.required`
+
+**Aktivierung**: Wenn `required: true` gesetzt ist
+
+**Validierung**:
+- Attribut muss im Dokument vorhanden sein
+- Wert darf nicht leer oder nur Whitespace sein
+
+**Fehlermeldungen**:
+[cols="30,70", options="header"]
+|===
+| Situation | Meldung
+| Attribut fehlt | `Missing required attribute 'name': actual not present, expected non-empty value`
+| Wert ist leer | `Missing required attribute 'name': actual "", expected non-empty value`
+|===
+
+**Beispiel**:
+[source,yaml]
+----
+- name: title
+  required: true       # Titel ist Pflichtfeld
+  severity: error
+  
+- name: author
+  required: true       # Autor ist Pflichtfeld
+  severity: error
+  
+- name: keywords
+  required: false      # Keywords sind optional
+  severity: info
+----
+
+=== Pattern-Validierung
+
+Validiert Attributwerte gegen reguläre Ausdrücke.
+
+**Rule ID**: `metadata.pattern`
+
+**Aktivierung**: Wenn `pattern` definiert ist
+
+**Validierung**:
+- Gesamter Wert muss dem Pattern entsprechen
+- Pattern wird als Java-Regex kompiliert
+- Ungültige Patterns führen zu Fehler beim Laden der Konfiguration
+
+**Fehlermeldung**:
+`Attribute 'name' does not match required pattern: actual 'wert', expected pattern 'pattern'`
+
+**Beispiele**:
+[source,yaml]
+----
+- name: revdate
+  pattern: "\\d{4}-\\d{2}-\\d{2}"        # YYYY-MM-DD
+  severity: error
+  
+- name: version
+  pattern: "v?\\d+\\.\\d+\\.\\d+(-\\w+)?" # Semantic Versioning
+  severity: error
+  
+- name: email
+  pattern: "^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$"
+  severity: warn
+  
+- name: project-id
+  pattern: "^[A-Z]{2,5}-\\d{3,5}$"       # z.B. PROJ-1234
+  severity: error
+----
+
+**Häufige Patterns**:
+[cols="20,40,40", options="header"]
+|===
+| Verwendung | Pattern | Beispiele
+
+| ISO-Datum
+| `\\d{4}-\\d{2}-\\d{2}`
+| 2024-01-15, 2023-12-31
+
+| Semantic Version
+| `v?\\d+\\.\\d+\\.\\d+(-\\w+)?`
+| 1.0.0, v2.3.1, 1.0.0-beta
+
+| E-Mail
+| `^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$`
+| user@example.com
+
+| Telefon (DE)
+| `^\\+49\\s?\\d{3,4}\\s?\\d{6,8}$`
+| +49 30 12345678
+
+| URL
+| `^https?://[\\w.-]+\\.[A-Za-z]{2,}(/.*)?$`
+| https://example.com
+
+| Sprach-Code
+| `^(de|en|fr|es|it)$`
+| de, en
+|===
+
+=== Längen-Validierung
+
+Prüft die Zeichenlänge von Attributwerten.
+
+**Rule IDs**:
+- `metadata.length.min` - Minimale Länge
+- `metadata.length.max` - Maximale Länge
+
+**Aktivierung**: 
+- Min: Wenn `minLength` definiert ist
+- Max: Wenn `maxLength` definiert ist
+
+**Validierung**:
+- Zählt alle Zeichen im Wert (inkl. Whitespace)
+- Min und Max können unabhängig verwendet werden
+
+**Fehlermeldungen**:
+[cols="20,80", options="header"]
+|===
+| Regel | Meldung
+| minLength | `Attribute 'name' is too short: actual 'wert' (X characters), expected minimum Y characters`
+| maxLength | `Attribute 'name' is too long: actual 'wert' (X characters), expected maximum Y characters`
+|===
+
+**Beispiel**:
+[source,yaml]
+----
+- name: title
+  required: true
+  minLength: 5        # Mindestens 5 Zeichen
+  maxLength: 100      # Maximal 100 Zeichen
+  severity: error
+  
+- name: description
+  minLength: 20       # Aussagekräftige Beschreibung
+  maxLength: 500      # Nicht zu lang
+  severity: warn
+  
+- name: keywords
+  maxLength: 200      # Nur Maximum, kein Minimum
+  severity: info
+----
+
+=== Reihenfolgen-Validierung
+
+Prüft die relative Position von Attributen zueinander.
+
+**Rule ID**: `metadata.order`
+
+**Aktivierung**: Wenn `order` definiert ist
+
+**Validierung**:
+- Attribute mit niedrigerer `order` sollten vor solchen mit höherer `order` erscheinen
+- Gleiche `order` Werte sind erlaubt (keine Prüfung untereinander)
+- Titel erhält immer Position 1
+
+**Fehlermeldung**:
+`Attribute 'name1' should appear before 'name2': actual position line X, expected before line Y`
+
+**Beispiel**:
+[source,yaml]
+----
+- name: title
+  order: 1            # Sollte zuerst kommen
+  required: true
+  severity: error
+  
+- name: author  
+  order: 2            # Nach Titel
+  required: true
+  severity: error
+  
+- name: revdate
+  order: 3            # Nach Autor
+  required: true
+  severity: error
+  
+- name: keywords
+  # Kein order = flexible Position
+  severity: info
+----
+
+[WARNING]
+====
+Die Order-Validierung ist eingeschränkt, da AsciidoctorJ die Original-Reihenfolge der Attribute möglicherweise nicht beibehält. Die Validierung funktioniert am besten mit direktem Datei-Parsing.
+====
+
+== Spezielle Attribute
+
+=== Titel-Behandlung
+
+Der Dokumenttitel wird speziell behandelt:
+
+[source,asciidoc]
+----
+= Mein Dokumenttitel     <-- Wird zu Attribut 'title'
+:author: Max Mustermann
+----
+
+- Titel wird automatisch als Attribut `title` extrahiert
+- Erhält immer Zeilennummer 1
+- Kann wie jedes andere Attribut validiert werden
+
+**Beispiel**:
+[source,yaml]
+----
+- name: title
+  required: true
+  minLength: 10
+  maxLength: 80
+  pattern: "^[A-Z].*"     # Muss mit Großbuchstabe beginnen
+  severity: error
+----
+
+=== System-Attribute
+
+Folgende Attribute werden automatisch ignoriert und NICHT validiert:
+
+- Alle `asciidoctor-*` Attribute
+- `doctype`
+- `backend`
+- `docfile`
+- `docdir`
+- `docdatetime`
+- Andere interne AsciidoctorJ-Attribute
+
+== Vollständige Beispiele
+
+=== Minimale Konfiguration
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+      
+      - name: author
+        required: true
+        severity: error
+----
+
+=== Technische Dokumentation
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      # Pflicht-Metadaten mit Patterns
+      - name: title
+        order: 1
+        required: true
+        minLength: 10
+        maxLength: 100
+        pattern: "^[A-Z].*\\s+v\\d+\\.\\d+"  # z.B. "API Guide v2.0"
+        severity: error
+        
+      - name: author
+        order: 2
+        required: true
+        minLength: 5
+        maxLength: 50
+        pattern: "^[A-Z][a-zA-Z\\s\\.]+$"
+        severity: error
+        
+      - name: email
+        order: 3
+        required: true
+        pattern: "^[\\w._%+-]+@company\\.com$"  # Nur Firmen-Email
+        severity: error
+        
+      - name: revdate
+        order: 4
+        required: true
+        pattern: "\\d{4}-\\d{2}-\\d{2}"
+        severity: error
+        
+      - name: version
+        order: 5
+        required: true
+        pattern: "\\d+\\.\\d+\\.\\d+"
+        severity: error
+        
+      # Optionale Metadaten
+      - name: keywords
+        required: false
+        maxLength: 200
+        pattern: "^[a-zA-Z0-9,\\s-]+$"
+        severity: info
+        
+      - name: copyright
+        required: false
+        minLength: 20
+        maxLength: 100
+        severity: info
+----
+
+=== Projekt-spezifische Metadaten
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      # Standard-Metadaten
+      - name: title
+        required: true
+        severity: error
+        
+      - name: author
+        required: true
+        severity: error
+        
+      # Projekt-spezifisch
+      - name: project-id
+        required: true
+        pattern: "^PROJ-\\d{4}$"    # PROJ-1234
+        severity: error
+        
+      - name: component
+        required: true
+        pattern: "^(api|web|mobile|backend)$"
+        severity: error
+        
+      - name: api-version
+        required: false
+        pattern: "^v\\d+(\\.\\d+)?$"  # v1 oder v1.2
+        severity: warn
+        
+      - name: deprecation-date
+        required: false
+        pattern: "\\d{4}-\\d{2}-\\d{2}"
+        severity: info
+----
+
+== Fehlermeldungen und Debugging
+
+=== Beispiel-Validierungsausgabe
+
+Bei diesem Dokument:
+[source,asciidoc]
+----
+= API Guide
+:revdate: 15.01.2024
+:version: 1.0
+----
+
+Mit dieser Konfiguration:
+[source,yaml]
+----
+- name: title
+  minLength: 15
+  severity: error
+  
+- name: author
+  required: true
+  severity: error
+  
+- name: revdate
+  pattern: "\\d{4}-\\d{2}-\\d{2}"
+  severity: error
+----
+
+Entstehen diese Fehler:
+[source]
+----
+ERROR: Attribute 'title' is too short: actual 'API Guide' (9 characters), expected minimum 15 characters
+ERROR: Missing required attribute 'author': actual not present, expected non-empty value  
+ERROR: Attribute 'revdate' does not match required pattern: actual '15.01.2024', expected pattern '\d{4}-\d{2}-\d{2}'
+----
+
+=== Positions-Hinweise
+
+Die gemeldeten Zeilennummern sind Schätzungen:
+- Titel: Immer Zeile 1
+- Attribute: Zeile 2 und folgende
+- AsciidoctorJ liefert keine exakten Positionen für Metadaten
+
+== Best Practices
+
+=== 1. Schrittweise Validierung
+
+Beginnen Sie mit wenigen Pflichtfeldern:
+[source,yaml]
+----
+# Phase 1: Nur Basics
+attributes:
+  - name: title
+    required: true
+    severity: error
+    
+# Phase 2: Patterns hinzufügen
+# Phase 3: Längen-Validierung ergänzen
+----
+
+=== 2. Sinnvolle Severity-Level
+
+- `error`: Kritische Metadaten (title, author, revdate)
+- `warn`: Wichtige aber nicht kritische (version, keywords)
+- `info`: Nice-to-have (description, copyright)
+
+=== 3. Pattern-Design
+
+- Testen Sie Patterns gründlich
+- Verwenden Sie Online-Regex-Tester
+- Denken Sie an Edge-Cases
+- Dokumentieren Sie komplexe Patterns
+
+=== 4. Längen-Grenzen
+
+- Titel: 10-100 Zeichen (aussagekräftig aber nicht zu lang)
+- Autor: 5-50 Zeichen (vollständiger Name)
+- Beschreibung: 20-500 Zeichen (informativ)
+- Keywords: max. 200 Zeichen (nicht überladen)
+
+== Siehe auch
+
+* link:document-rules.adoc[Document-Regeln] - Übergeordnete Dokument-Konfiguration
+* link:../user-guide/configuration.adoc[Konfiguration] - Allgemeine Konfigurationsanleitung
+* link:../../examples/basic-config.yaml[Basis-Konfiguration] - Einfaches Beispiel
+* link:../../examples/advanced-config.yaml[Erweiterte Konfiguration] - Komplexes Beispiel

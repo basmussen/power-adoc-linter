@@ -1,0 +1,310 @@
+= Severity-Vererbung und Überschreibung
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: highlight.js
+
+[abstract]
+Detaillierte Erklärung der Severity-Hierarchie im Power AsciiDoc Linter. Verstehen Sie, wie Schweregrade vererbt und überschrieben werden.
+
+== 🎯 Was ist Severity?
+
+Severity (Schweregrad) bestimmt, wie kritisch eine Regelverletzung ist:
+
+[cols="15,15,20,50", options="header"]
+|===
+| Level | Symbol | Exit Code | Verwendung
+
+| `ERROR`
+| 🔴
+| 1
+| Kritische Fehler, die korrigiert werden **müssen**
+
+| `WARN`
+| 🟡
+| 0*
+| Wichtige Hinweise, die beachtet werden **sollten**
+
+| `INFO`
+| 🔵
+| 0
+| Empfehlungen zur Verbesserung
+
+|===
+
+*_Exit Code bei WARN hängt vom fail-level ab_
+
+== 🔄 Das Vererbungsprinzip
+
+=== Grundregel
+
+[.lead]
+**Spezifischere Regeln überschreiben allgemeinere Regeln**
+
+[.text-center]
+....
+┌─────────────────────────────────────────────────┐
+│              Niedrigste Priorität               │
+│                                                 │
+│  SECTION-LEVEL SEVERITY                         │
+│  └─► BLOCK-LEVEL SEVERITY                       │
+│      └─► RULE-LEVEL SEVERITY                    │
+│          └─► NESTED RULE SEVERITY               │
+│                                                 │
+│              Höchste Priorität                  │
+└─────────────────────────────────────────────────┘
+....
+
+=== Visuelles Beispiel
+
+[plantuml, severity-flow, svg]
+----
+@startuml
+!theme plain
+skinparam defaultFontSize 14
+skinparam rectangle {
+    BackgroundColor<<error>> #FFCCCC
+    BackgroundColor<<warn>> #FFFFCC
+    BackgroundColor<<info>> #CCCCFF
+    BorderColor #333333
+}
+
+rectangle "Section\nseverity: warn" <<warn>> as section
+rectangle "Block (paragraph)\nseverity: error" <<error>> as block
+rectangle "Rule (lines)\nseverity: info" <<info>> as rule
+rectangle "Final Severity:\nINFO" <<info>> as final
+
+section -down-> block : "überschrieben von"
+block -down-> rule : "überschrieben von"
+rule -down-> final : "Endgültiger Wert"
+
+note right of section
+  Basis-Severity für
+  alle Kinder
+end note
+
+note right of block
+  Überschreibt Section
+  für diesen Block
+end note
+
+note right of rule
+  Höchste Priorität
+  gewinnt immer
+end note
+@enduml
+----
+
+== 📋 Praktische Beispiele
+
+=== Beispiel 1: Einfache Vererbung
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "API-Dokumentation"
+      severity: error         # <1>
+      blocks:
+        - paragraph:          # <2>
+            minLines: 5       # <3>
+----
+
+<1> Alle Regeln in dieser Section haben standardmäßig `ERROR`
+<2> Kein eigenes severity → erbt `ERROR` von Section
+<3> Diese Regel hat Severity `ERROR` (geerbt)
+
+=== Beispiel 2: Block überschreibt Section
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Beispiele"
+      severity: error         # <1>
+      blocks:
+        - paragraph:
+            severity: warn    # <2>
+            minLines: 3       # <3>
+        - listing:            # <4>
+            language:
+              required: true  # <5>
+----
+
+<1> Section-Default ist `ERROR`
+<2> Paragraph-Block überschreibt mit `WARN`
+<3> Diese Regel hat Severity `WARN` (vom Block geerbt)
+<4> Listing-Block hat kein severity → erbt `ERROR` von Section
+<5> Diese Regel hat Severity `ERROR` (von Section geerbt)
+
+=== Beispiel 3: Vollständige Hierarchie
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Konfiguration"
+      severity: warn                    # <1>
+      blocks:
+        - table:
+            severity: error             # <2>
+            header:
+              required: true            # <3>
+            caption:
+              required: true
+              pattern: "^Tabelle \\d+:"
+              severity: info            # <4>
+----
+
+<1> Section-Level: `WARN`
+<2> Block-Level: `ERROR` (überschreibt Section)
+<3> Erbt `ERROR` vom Block
+<4> Regel-Level: `INFO` (überschreibt Block)
+
+== 🎨 Visualisierung der Beispiele
+
+=== Vererbungs-Baum
+
+[.text-center]
+....
+Konfiguration (Section) [WARN]
+│
+└─ table (Block) [ERROR] ← überschreibt
+   │
+   ├─ header.required [ERROR] ← erbt von Block
+   │
+   └─ caption
+      ├─ caption.required [ERROR] ← erbt von Block  
+      └─ caption.pattern [INFO] ← überschreibt mit eigenem Wert
+....
+
+=== Flussdiagramm
+
+[plantuml, example-flow, svg]
+----
+@startuml
+start
+:Section: severity = WARN;
+if (Block hat eigene severity?) then (ja)
+  :Block: severity = ERROR;
+  if (Regel hat eigene severity?) then (ja)
+    :Regel: severity = INFO;
+    :Finale Severity = **INFO**;
+  else (nein)
+    :Finale Severity = **ERROR**;
+  endif
+else (nein)
+  :Finale Severity = **WARN**;
+endif
+stop
+@enduml
+----
+
+== 🚀 Best Practices
+
+[cols="1,3", options="header"]
+|===
+| Empfehlung | Begründung
+
+| **Globale Standards setzen**
+| Definieren Sie Section-Level Severity für konsistente Basis
+
+| **Gezielt überschreiben**
+| Nur wenn ein Block/Regel spezielle Behandlung braucht
+
+| **INFO für optionale Verbesserungen**
+| Verwenden Sie INFO für Stilrichtlinien, die optional sind
+
+| **WARN für wichtige Konventionen**
+| Team-Standards, die eingehalten werden sollten
+
+| **ERROR für kritische Strukturen**
+| Pflichtfelder, kritische Formate, Sicherheitsaspekte
+|===
+
+== ⚠️ Häufige Fallstricke
+
+=== Fallstrick 1: Severity vergessen
+
+[source,yaml]
+----
+# FALSCH - Block-Severity fehlt
+blocks:
+  - paragraph:      # ❌ Kein severity!
+      lines:
+        min: 5
+        severity: error
+----
+
+[source,yaml]
+----
+# RICHTIG - Block hat Pflicht-Severity
+blocks:
+  - paragraph:
+      severity: warn     # ✅ Block-Severity gesetzt
+      lines:
+        min: 5
+        severity: error  # Optional: Überschreibt Block-Severity
+----
+
+=== Fallstrick 2: Vererbung missverstehen
+
+[source,yaml]
+----
+sections:
+  - name: "Test"
+    severity: error
+    blocks:
+      - paragraph:
+          severity: info      # ← Dieser Block ist jetzt INFO
+      - listing:              # ← Dieser Block ist immer noch ERROR!
+          language:
+            required: true
+----
+
+== 📊 Severity-Matrix
+
+Diese Matrix zeigt alle möglichen Kombinationen:
+
+[cols="20,20,20,20,20", options="header"]
+|===
+| Section | Block | Rule | Nested | **Resultat**
+
+| WARN
+| -
+| -
+| -
+| **WARN**
+
+| WARN
+| ERROR
+| -
+| -
+| **ERROR**
+
+| WARN
+| ERROR
+| INFO
+| -
+| **INFO**
+
+| ERROR
+| -
+| -
+| INFO
+| **INFO**
+
+| ERROR
+| WARN
+| -
+| ERROR
+| **ERROR**
+|===
+
+== 🔗 Weiterführende Themen
+
+* link:rule-hierarchy-diagram.adoc[Regel-Hierarchie verstehen]
+* link:../user-guide/configuration.adoc#severity-hierarchie[Severity in der Konfiguration]
+* link:../reference/cli-options.adoc#fail-level[Fail-Level und Exit-Codes]
+* link:../troubleshooting.adoc#severity-probleme[Troubleshooting Severity]

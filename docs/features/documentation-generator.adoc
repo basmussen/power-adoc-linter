@@ -1,0 +1,388 @@
+= Documentation Generator
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: highlight.js
+
+[abstract]
+Der Documentation Generator erstellt automatisch menschenlesbare Dokumentation aus Ihrer Linter-Konfiguration. Dies hilft Content-Autoren, die Validierungsregeln zu verstehen, ohne YAML-Dateien lesen zu müssen.
+
+== 🎯 Überblick
+
+Der Documentation Generator transformiert technische YAML-Konfigurationen in verständliche Dokumentation:
+
+[plantuml, doc-gen-flow, svg]
+----
+@startuml
+!theme plain
+skinparam defaultFontSize 14
+
+file "config.yaml" as config #lightblue
+rectangle "Documentation\nGenerator" as gen #lightgreen
+file "rules.adoc" as output #lightyellow
+
+config --> gen : Liest Regeln
+gen --> output : Generiert Doku
+
+note right of gen
+  Verschiedene
+  Visualisierungsstile
+  verfügbar
+end note
+
+note bottom of output
+  AsciiDoc Format
+  für Autoren
+end note
+@enduml
+----
+
+== 🚀 Verwendung
+
+=== Basis-Befehl
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar --generate-docs \
+  -c .linter-config.yaml \
+  -o documentation/rules.adoc
+----
+
+=== Mit Visualisierungsstilen
+
+[source,bash]
+----
+# Mehrere Visualisierungen kombinieren
+java -jar power-adoc-linter.jar --generate-docs \
+  -c .linter-config.yaml \
+  -o rules.adoc \
+  --viz-style tree,table,nested
+----
+
+=== Ausgabe auf Konsole
+
+[source,bash]
+----
+# Ohne -o wird auf stdout ausgegeben
+java -jar power-adoc-linter.jar --generate-docs \
+  -c .linter-config.yaml
+----
+
+== 📊 Visualisierungsstile
+
+Der Generator unterstützt verschiedene Darstellungsformen:
+
+[cols="20,30,50", options="header"]
+|===
+| Stil | Beschreibung | Verwendung
+
+| `tree`
+| ASCII-Art Baumstruktur
+| Hierarchie-Übersicht, Standard-Ansicht
+
+| `nested`
+| Verschachtelte Listen mit Severity
+| Detaillierte Regel-Übersicht
+
+| `breadcrumb`
+| Pfad-Darstellung
+| Navigation und Kontext
+
+| `table`
+| Hierarchische Tabelle
+| Übersichtliche Referenz
+
+| `plantuml`
+| PlantUML Diagramme
+| Visuelle Dokumentation (geplant)
+
+| `severity-flow`
+| Severity-Vererbung
+| Verständnis der Regel-Hierarchie (geplant)
+|===
+
+== 🎨 Beispiel-Ausgaben
+
+=== Tree-Visualisierung
+
+[source]
+----
+Document
+├─ Metadata
+│  ├─ title (required, ERROR)
+│  ├─ author (required, ERROR)
+│  └─ version (optional, INFO)
+└─ Sections
+   ├─ Einleitung (Level 1, required)
+   │  └─ Blocks
+   │     ├─ paragraph (min: 5 lines)
+   │     └─ image (alt text required)
+   └─ Hauptteil (Level 1, required)
+      └─ Blocks
+         └─ listing (language required)
+----
+
+=== Nested-List Visualisierung
+
+[source,asciidoc]
+----
+* Document
+** Metadata [ERROR]
+*** `title` - Pflichtfeld (min: 10, max: 100 Zeichen)
+*** `author` - Pflichtfeld
+*** `version` - Optional, Format: v\d+\.\d+\.\d+
+** Sections [WARN]
+*** Einleitung (Level 1) [ERROR]
+**** paragraph: Mindestens 5 Zeilen
+**** image: Alt-Text erforderlich
+----
+
+=== Table-Visualisierung
+
+[cols="30,20,20,30", options="header"]
+|===
+| Element | Typ | Severity | Anforderungen
+
+| Document
+| Root
+| -
+| Container für alle Regeln
+
+| └─ Metadata
+| Container
+| ERROR
+| Dokument-Kopfdaten
+
+| └─ title
+| Attribut
+| ERROR
+| Pflicht, 10-100 Zeichen
+
+| └─ author
+| Attribut
+| ERROR
+| Pflichtfeld
+
+| └─ Sections
+| Container
+| WARN
+| Dokumentstruktur
+
+| └─ Einleitung
+| Section
+| ERROR
+| Level 1, Pflicht
+|===
+
+== 🔧 Erweiterte Features
+
+=== Pattern-Humanisierung
+
+Der Generator wandelt technische Regex-Patterns in verständliche Beschreibungen um:
+
+[cols="40,60", options="header"]
+|===
+| Pattern | Menschenlesbare Beschreibung
+
+| `^\d{4}-\d{2}-\d{2}$`
+| Datum im Format YYYY-MM-DD (z.B. 2024-01-15)
+
+| `^v\d+\.\d+\.\d+$`
+| Versionsnummer (z.B. v1.2.3)
+
+| `^[A-Z].*`
+| Beginnt mit einem Großbuchstaben
+
+| `^.{10,50}$`
+| Zwischen 10 und 50 Zeichen lang
+|===
+
+=== Beispiel-Generierung
+
+Für jede Regel werden passende Beispiele generiert:
+
+[source,asciidoc]
+----
+=== Metadaten-Attribute
+
+==== title
+* **Pflichtfeld**: Ja
+* **Länge**: 10-100 Zeichen
+* **Format**: Beliebiger Text
+* **Beispiel**: `:title: Benutzerhandbuch für Power AsciiDoc Linter`
+
+==== version
+* **Pflichtfeld**: Nein
+* **Format**: Semantic Versioning (v1.2.3)
+* **Beispiel**: `:version: v1.0.0`
+----
+
+== 📋 Generierte Dokumentstruktur
+
+Die generierte Dokumentation folgt dieser Struktur:
+
+[source,asciidoc]
+----
+= AsciiDoc Dokument-Richtlinien
+:toc: left
+:toclevels: 3
+
+== Einführung
+// Projektspezifische Einleitung
+
+== Dokument-Metadaten
+=== Pflichtattribute
+// Tabelle mit allen Pflichtfeldern
+
+=== Optionale Attribute
+// Tabelle mit optionalen Feldern
+
+== Dokumentstruktur
+=== Hierarchie-Übersicht
+// Gewählte Visualisierungen
+
+=== Abschnitt-Details
+// Detaillierte Beschreibung jeder Section
+
+== Block-Referenz
+// Alle verfügbaren Block-Typen
+
+== Validierungsstufen
+// ERROR, WARN, INFO Erklärung
+
+== Tipps für Autoren
+// Best Practices
+----
+
+== 🛠️ Integration in CI/CD
+
+=== GitHub Actions
+
+[source,yaml]
+----
+name: Generate Documentation
+
+on:
+  push:
+    paths:
+      - '.linter-config.yaml'
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          
+      - name: Generate Documentation
+        run: |
+          java -jar power-adoc-linter.jar --generate-docs \
+            -c .linter-config.yaml \
+            -o docs/validation-rules.adoc \
+            --viz-style tree,table
+            
+      - name: Commit Documentation
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'docs/validation-rules.adoc'
+          message: 'Update validation rules documentation'
+----
+
+=== Pre-Commit Hook
+
+[source,bash]
+----
+#!/bin/bash
+# .git/hooks/pre-commit
+
+# Regenerate documentation if config changed
+if git diff --cached --name-only | grep -q ".linter-config.yaml"; then
+    echo "Regenerating documentation..."
+    java -jar power-adoc-linter.jar --generate-docs \
+      -c .linter-config.yaml \
+      -o docs/rules.adoc
+    git add docs/rules.adoc
+fi
+----
+
+== 💡 Best Practices
+
+[cols="1,3", grid=none]
+|===
+| ✅ | **Automatisieren Sie die Generierung** +
+Integrieren Sie den Generator in Ihren Build-Prozess
+
+| ✅ | **Versionieren Sie die Ausgabe** +
+Committen Sie die generierte Dokumentation für Änderungsverfolgung
+
+| ✅ | **Kombinieren Sie Visualisierungen** +
+Verschiedene Stile sprechen verschiedene Nutzer an
+
+| ✅ | **Passen Sie die Einleitung an** +
+Ergänzen Sie projektspezifische Informationen manuell
+
+| ✅ | **Aktualisieren Sie regelmäßig** +
+Bei jeder Config-Änderung neu generieren
+|===
+
+== 🔍 Technische Details
+
+=== Architektur
+
+[plantuml, architecture, svg]
+----
+@startuml
+interface RuleDocumentationGenerator {
+  + generate(config, writer)
+  + getFormat()
+  + getName()
+}
+
+class AsciiDocRuleGenerator {
+  - visualizationStyles: Set<VisualizationStyle>
+  - patternHumanizer: PatternHumanizer
+  - visualizerFactory: HierarchyVisualizerFactory
+}
+
+class DocumentationGenerator {
+  - configLoader: ConfigurationLoader
+  + run(cmd): int
+}
+
+enum VisualizationStyle {
+  TREE
+  NESTED
+  BREADCRUMB
+  TABLE
+  PLANTUML
+  SEVERITY_FLOW
+}
+
+interface HierarchyVisualizer {
+  + visualize(config, writer)
+}
+
+RuleDocumentationGenerator <|.. AsciiDocRuleGenerator
+DocumentationGenerator --> RuleDocumentationGenerator
+AsciiDocRuleGenerator --> HierarchyVisualizerFactory
+HierarchyVisualizerFactory --> HierarchyVisualizer
+@enduml
+----
+
+=== Erweiterungspunkte
+
+1. **Neue Visualisierer**: Implementieren Sie `HierarchyVisualizer`
+2. **Andere Formate**: Implementieren Sie `RuleDocumentationGenerator`
+3. **Pattern-Beschreibungen**: Erweitern Sie `PatternHumanizer`
+
+
+== 🔗 Siehe auch
+
+* link:../user-guide/configuration.adoc[Konfiguration] - Linter-Konfiguration erstellen
+* link:../reference/cli-options.adoc[CLI-Referenz] - Alle Kommandozeilen-Optionen
+* link:../concepts/rule-hierarchy-diagram.adoc[Regel-Hierarchie] - Verständnis der Regelstruktur

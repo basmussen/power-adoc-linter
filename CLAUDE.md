@@ -314,8 +314,8 @@ This is a **prototype** AsciiDoc linter built with Java 17 and Maven. The linter
 - ✅ Context rendering for error messages (#65)
 - ✅ Documentation generation from configuration
 - ✅ GitHub Actions CI/CD pipeline
-- ⏳ Additional report formats
-- ⏳ Watch mode for continuous validation
+- ✅ Multiple output formats (enhanced, simple, compact)
+- ✅ Configurable output styles
 
 ## Important Files
 

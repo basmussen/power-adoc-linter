@@ -1,0 +1,131 @@
+= Power AsciiDoc Linter Release Notes
+:version: v1.2.0
+:release-date: 2024-01-15
+:product: Power AsciiDoc Linter
+:release-type: minor
+:compatibility: Backwards compatible with v1.x
+:toc:
+:icons: font
+
+== Highlights
+
+Diese Version bringt signifikante Performance-Verbesserungen und neue Validierungsregeln. Die Linter-Performance wurde um 40% gesteigert, und es wurden mehrere lang erwartete Features hinzugefügt. Alle Änderungen sind rückwärtskompatibel mit Version 1.x.
+
+== Neue Features
+
+* **Pattern-basierte Section-Validierung**: Sections können jetzt mit regulären Ausdrücken validiert werden
+* **Severity-Vererbung**: Feinere Kontrolle über Schweregrade auf verschiedenen Ebenen
+* **JSON-Compact Format**: Neues kompaktes JSON-Format für CI/CD-Pipelines
+* **Context-Rendering**: Fehler werden jetzt mit umgebenden Zeilen angezeigt
+
+[source,yaml]
+----
+# Neue Pattern-basierte Validierung
+sections:
+  - pattern: "^\\d+\\.\\s+.*"
+    level: 1
+    severity: error
+----
+
+== Verbesserungen
+
+* Performance-Optimierung: 40% schnellere Validierung großer Dokumente
+* Bessere Fehlermeldungen mit "actual vs expected" Format
+* Reduzierter Speicherverbrauch durch Pattern-Caching
+* Verbesserte YAML-Parser-Fehlerbehandlung
+* Erweiterte Logging-Optionen mit Log4j2
+
+== Fehlerbehebungen
+
+* Fixed: Schema-Validierung schlug bei optionalen Arrays fehl (#234)
+* Fixed: Order-Validierung funktionierte nicht bei Sections mit gleichem Namen (#245)
+* Fixed: Memory Leak bei der Verarbeitung sehr großer Dateien (#256)
+* Fixed: Falsche Zeilennummern in Fehlerberichten (#267)
+* Fixed: Pattern-Escaping in YAML-Konfigurationen (#278)
+
+== Breaking Changes
+
+Keine Breaking Changes in dieser Version. Alle Konfigurationen aus v1.1.x funktionieren weiterhin.
+
+== Bekannte Probleme
+
+[cols="20,60,20", options="header"]
+|===
+| Issue | Beschreibung | Workaround
+
+| #289
+| Order-Validierung bei AsciidoctorJ nicht zuverlässig
+| Direktes Datei-Parsing verwenden
+
+| #291
+| Performance-Probleme bei Dateien > 10MB
+| Heap-Size erhöhen mit -Xmx4g
+|===
+
+== Deprecations
+
+.Veraltete Features
+[cols="30,20,30,20", options="header"]
+|===
+| Feature | Deprecated Since | Removal Date | Alternative
+
+| `allowedValues` in Metadata
+| v1.2.0
+| v2.0.0
+| Verwenden Sie `pattern` stattdessen
+
+| SnakeYAML Parser
+| v1.2.0
+| v2.0.0
+| Jackson YAML Parser
+|===
+
+WARNING: Die oben genannten Features werden in Version 2.0.0 entfernt. Bitte migrieren Sie rechtzeitig!
+
+== Upgrade-Anleitung
+
+=== Von Version 1.1.x
+
+Der Upgrade von 1.1.x ist unkompliziert:
+
+[source,bash]
+----
+# JAR herunterladen
+wget https://github.com/basmussen/power-adoc-linter/releases/download/v1.2.0/power-adoc-linter.jar
+
+# Alte Version ersetzen
+mv power-adoc-linter.jar power-adoc-linter-old.jar
+mv power-adoc-linter-v1.2.0.jar power-adoc-linter.jar
+
+# Konfiguration testen
+java -jar power-adoc-linter.jar --validate-config -c .linter-config.yaml
+----
+
+Falls Sie `allowedValues` verwenden, migrieren Sie zu `pattern`:
+
+[source,yaml]
+----
+# Alt (deprecated)
+- name: status
+  allowedValues: ["draft", "review", "final"]
+
+# Neu
+- name: status
+  pattern: "^(draft|review|final)$"
+----
+
+=== Von Version 1.0.x
+
+Zusätzlich zu den Schritten für 1.1.x:
+
+1. Prüfen Sie Ihre Severity-Definitionen (neue Vererbungsregeln)
+2. Testen Sie Ihre Pattern-basierten Regeln gründlich
+
+== Credits
+
+Besonderer Dank geht an:
+
+* @contributor1 - Performance-Optimierungen
+* @contributor2 - JSON-Compact Format
+* @contributor3 - Verbesserte Fehlermeldungen
+* Die gesamte Community für Feedback und Bug-Reports!

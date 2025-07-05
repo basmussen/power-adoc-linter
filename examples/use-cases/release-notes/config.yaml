@@ -1,0 +1,154 @@
+# Power AsciiDoc Linter Konfiguration für Release Notes
+# Strikte Regeln für konsistente Versionsdokumentation
+
+document:
+  metadata:
+    attributes:
+      # Versions-Metadaten
+      - name: title
+        required: true
+        pattern: "^.*Release Notes.*$"
+        severity: error
+        
+      - name: version
+        required: true
+        pattern: "^v\\d+\\.\\d+\\.\\d+(-.*)?$"  # Semantic Versioning mit optionalem Suffix
+        severity: error
+        
+      - name: release-date
+        required: true
+        pattern: "\\d{4}-\\d{2}-\\d{2}"  # ISO-Datum
+        severity: error
+        
+      - name: product
+        required: true
+        minLength: 3
+        severity: error
+        
+      # Optionale Release-Metadaten
+      - name: release-type
+        required: false
+        pattern: "^(major|minor|patch|hotfix)$"
+        severity: info
+        
+      - name: compatibility
+        required: false
+        severity: warn
+        
+  sections:
+    # Übersicht/Highlights
+    - pattern: "^(Übersicht|Highlights|Overview)$"
+      level: 1
+      order: 1
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            minLines: 3
+            maxLines: 10  # Kurz und prägnant
+            severity: warn
+            
+    # Neue Features
+    - pattern: "^(Neue Features|New Features|Neue Funktionen)$"
+      level: 1
+      order: 2
+      required: false  # Nicht jedes Release hat neue Features
+      severity: info
+      blocks:
+        - paragraph:
+            severity: info
+        - listing:  # Code-Beispiele für neue APIs
+            severity: info
+            
+    # Verbesserungen
+    - pattern: "^(Verbesserungen|Improvements|Enhancements)$"
+      level: 1
+      order: 3
+      required: false
+      severity: info
+      blocks:
+        - paragraph:
+            severity: info
+            
+    # Fehlerbehebungen
+    - pattern: "^(Fehlerbehebungen|Bug Fixes|Bugfixes)$"
+      level: 1
+      order: 4
+      required: false
+      severity: warn  # Wichtiger als Features
+      blocks:
+        - paragraph:
+            severity: info
+        - listing:
+            severity: info
+            
+    # Breaking Changes
+    - pattern: "^(Breaking Changes|Inkompatible Änderungen)$"
+      level: 1
+      order: 5
+      required: false
+      severity: error  # Kritisch für Major Releases
+      blocks:
+        - paragraph:
+            severity: error
+        - admonition:
+            type:
+              pattern: "^(WARNING|CAUTION)$"
+            severity: error
+        - table:  # Migration-Tabelle
+            header:
+              required: true
+            caption:
+              pattern: "^Migration.*"
+            severity: warn
+            
+    # Bekannte Probleme
+    - pattern: "^(Bekannte Probleme|Known Issues)$"
+      level: 1
+      order: 6
+      required: false
+      severity: warn
+      blocks:
+        - paragraph:
+            severity: warn
+        - table:
+            severity: info
+            
+    # Deprecations
+    - pattern: "^(Deprecations|Veraltete Features)$"
+      level: 1
+      order: 7
+      required: false
+      severity: warn
+      blocks:
+        - paragraph:
+            severity: warn
+        - table:
+            columns:
+              min: 3  # Feature, Deprecated Since, Removal Date
+            severity: warn
+            
+    # Upgrade-Anleitung
+    - pattern: "^(Upgrade-Anleitung|Upgrade Guide|Migration)$"
+      level: 1
+      order: 8
+      required: false
+      severity: warn
+      subsections:
+        - pattern: "^Von Version.*"
+          level: 2
+          severity: info
+          blocks:
+            - paragraph:
+                severity: info
+            - listing:
+                language:
+                  pattern: "^(bash|shell|powershell)$"
+                severity: info
+                
+    # Credits/Danksagung
+    - pattern: "^(Credits|Danksagung|Contributors)$"
+      level: 1
+      order: 99
+      required: false
+      severity: info

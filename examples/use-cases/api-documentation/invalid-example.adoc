@@ -1,0 +1,37 @@
+= User Management Documentation
+John Developer
+:toc:
+
+== Overview
+
+This is an API for managing users.
+
+== Authentication
+
+Use Bearer tokens.
+
+== Endpoints
+
+=== Getting Users
+
+Use GET request to /users endpoint.
+
+Response:
+[source,javascript]
+----
+{
+  users: []
+}
+----
+
+=== Create User
+
+Send POST to /users.
+
+=== Update User  
+
+PUT request to /users/id
+
+== Errors
+
+Sometimes errors happen. Check the status code.

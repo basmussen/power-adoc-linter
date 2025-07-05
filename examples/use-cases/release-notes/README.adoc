@@ -1,0 +1,77 @@
+= Release Notes Use Case
+:toc:
+:icons: font
+
+== Beschreibung
+
+Dieser Use Case demonstriert eine Konfiguration für strukturierte Release Notes. Die Regeln stellen sicher, dass alle wichtigen Informationen konsistent dokumentiert werden.
+
+== Besonderheiten
+
+=== Strikte Metadaten
+* ✅ Semantic Versioning erzwungen
+* ✅ ISO-Datum für Release-Datum
+* ✅ Produkt-Name erforderlich
+* ✅ Optional: Release-Type und Kompatibilität
+
+=== Strukturierte Sections
+* ✅ Highlights/Übersicht ist Pflicht
+* ✅ Standardisierte Section-Namen mit Patterns
+* ✅ Logische Reihenfolge (Features → Fixes → Breaking Changes)
+* ✅ Breaking Changes mit höchster Severity
+
+=== Spezielle Inhalte
+* ✅ Deprecation-Tabellen mit Mindeststruktur
+* ✅ Known Issues Tabellen
+* ✅ Upgrade-Anleitungen mit Code-Beispielen
+* ✅ Credits-Section für Contributors
+
+== Section-Prioritäten
+
+[cols="40,20,40", options="header"]
+|===
+| Section | Severity | Grund
+
+| Highlights
+| `error`
+| Jedes Release braucht eine Zusammenfassung
+
+| Breaking Changes
+| `error`
+| Kritisch für Nutzer-Kommunikation
+
+| Bug Fixes
+| `warn`
+| Wichtig aber nicht kritisch
+
+| New Features
+| `info`
+| Optional, nicht jedes Release hat neue Features
+
+| Credits
+| `info`
+| Nice-to-have für Community
+|===
+
+== Validierung
+
+[source,bash]
+----
+# Release Notes validieren
+java -jar power-adoc-linter.jar \
+  -i examples/use-cases/release-notes/valid-example.adoc \
+  -c examples/use-cases/release-notes/config.yaml
+
+# Bei Major Release mit Breaking Changes
+java -jar power-adoc-linter.jar \
+  -i major-release-notes.adoc \
+  -c examples/use-cases/release-notes/config.yaml \
+  -l error  # Fail bei jeder Verletzung
+----
+
+== Anpassungen
+
+1. **Versionsmuster**: Anpassen für andere Versionsschemas
+2. **Section-Namen**: Englisch/Deutsch je nach Zielgruppe
+3. **Zusätzliche Sections**: z.B. "Security Updates", "Performance"
+4. **Metadaten erweitern**: z.B. `milestone`, `code-name`

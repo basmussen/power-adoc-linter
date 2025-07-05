@@ -1,0 +1,68 @@
+# Basis-Konfiguration für den Power AsciiDoc Linter
+# Diese Konfiguration eignet sich für allgemeine Dokumentationsprojekte
+
+document:
+  # Metadaten-Validierung gemäß Schema
+  metadata:
+    attributes:
+      # Pflicht-Attribute
+      - name: title
+        required: true      # Dokumenttitel ist Pflicht
+        minLength: 5
+        maxLength: 100
+        severity: error
+        
+      - name: author
+        required: true      # Autor ist Pflicht
+        minLength: 3
+        maxLength: 50
+        severity: error
+        
+      - name: revdate
+        required: true      # Datum ist Pflicht
+        pattern: "\\d{4}-\\d{2}-\\d{2}"  # Format: YYYY-MM-DD
+        severity: error
+        
+      # Optionale Attribute
+      - name: keywords
+        required: false     # Schlüsselwörter optional
+        maxLength: 200
+        severity: info
+        
+      - name: description
+        required: false     # Beschreibung optional
+        minLength: 10
+        maxLength: 300
+        severity: info
+        
+      - name: version
+        required: false     # Version optional
+        pattern: "\\d+\\.\\d+(\\.\\d+)?"
+        severity: warn
+  
+  # Abschnitts-Struktur
+  sections:
+    # Einleitung sollte vorhanden sein
+    - name: "Einleitung"
+      level: 1
+      required: false
+      severity: warn
+      blocks:
+        # Einleitung sollte mindestens einen Absatz haben
+        - paragraph:
+            minLines: 3
+            minSentences: 2
+    
+    # Hauptinhalt ist flexibel
+    - name: ".*"  # Beliebige weitere Abschnitte
+      level: 1
+      required: false
+      blocks:
+        # Erlaubte Block-Typen ohne spezielle Regeln
+        - paragraph
+        - listing
+        - table
+        - image
+        - admonition
+  
+            - admonition

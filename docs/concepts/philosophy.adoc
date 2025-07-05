@@ -1,0 +1,341 @@
+= Konzepte und Philosophie
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: highlight.js
+
+[abstract]
+Verstehen Sie die Grundkonzepte und Designphilosophie hinter dem Power AsciiDoc Linter. Erfahren Sie, warum bestimmte Entscheidungen getroffen wurden und wie Sie den Linter optimal für Ihre Bedürfnisse einsetzen.
+
+== 🎯 Vision
+
+[quote, Power AsciiDoc Linter Team]
+____
+Technische Dokumentation sollte genauso rigoros validiert werden wie Code. Konsistenz, Vollständigkeit und Qualität sind keine optionalen Features – sie sind essentiell für wartbare Dokumentation.
+____
+
+Der Power AsciiDoc Linter wurde entwickelt, um:
+
+* **Qualität zu automatisieren** - Manuelle Reviews sind wichtig, aber fehleranfällig
+* **Standards durchzusetzen** - Einheitliche Dokumentation im gesamten Projekt
+* **Früh zu validieren** - Probleme in der CI/CD Pipeline erkennen, nicht erst beim Release
+* **Flexibel zu bleiben** - Anpassbar an verschiedene Dokumentationsstandards
+
+== 🏗️ Kernkonzepte
+
+=== 1. Hierarchische Validierung
+
+Die Dokumentstruktur wird als Baum betrachtet:
+
+[.text-center]
+....
+                    Document
+                   /        \
+              Metadata      Sections
+                            /   |   \
+                      Section₁  ...  Sectionₙ
+                         |
+                      Blocks
+                     /  |  \
+              Paragraph Table Listing
+....
+
+**Warum hierarchisch?**
+
+* **Natürliche Abbildung** - AsciiDoc ist selbst hierarchisch
+* **Flexible Regeln** - Verschiedene Regeln für verschiedene Kontexte
+* **Vererbung** - Einstellungen können vererbt werden
+* **Skalierbarkeit** - Große Dokumente bleiben handhabbar
+
+=== 2. Konfiguration als Code
+
+YAML-basierte Konfiguration behandeln wir wie Code:
+
+[source,yaml]
+----
+document:                    # Root-Objekt
+  metadata:                  # Klar strukturiert
+    attributes:              # Arrays für Listen
+      - name: title          # Objekte für Komplexität
+        required: true       # Explizite Werte
+        severity: error      # Keine Magie
+----
+
+**Prinzipien:**
+
+* **Versionierbar** - Konfiguration im Git Repository
+* **Reviewbar** - Änderungen in Pull Requests
+* **Testbar** - Verschiedene Configs für verschiedene Docs
+* **Dokumentierbar** - YAML ist selbstdokumentierend
+
+=== 3. Severity-System
+
+Drei Stufen für unterschiedliche Bedürfnisse:
+
+[plantuml, severity-flow, svg]
+----
+@startuml
+!theme plain
+skinparam defaultFontSize 14
+
+rectangle "ERROR 🔴" #FFCCCC {
+  note right : Build bricht ab\nMUSS behoben werden
+}
+
+rectangle "WARN 🟡" #FFFFCC {
+  note right : Wichtiger Hinweis\nSOLLTE behoben werden
+}
+
+rectangle "INFO 🔵" #CCCCFF {
+  note right : Verbesserungsvorschlag\nKANN behoben werden
+}
+
+ERROR --> WARN : Weniger kritisch
+WARN --> INFO : Noch weniger kritisch
+@enduml
+----
+
+**Anwendung:**
+
+* **ERROR** - Verletzt harte Anforderungen (z.B. fehlende Pflichtfelder)
+* **WARN** - Verletzt Konventionen (z.B. Namenskonventionen)
+* **INFO** - Optimierungsvorschläge (z.B. fehlende optionale Metadaten)
+
+=== 4. Pattern-basierte Flexibilität
+
+Statt starrer Listen nutzen wir Patterns:
+
+[cols="40,60", options="header"]
+|===
+| Starr | Flexibel
+
+a|
+[source,yaml]
+----
+sections:
+  - name: "Einleitung"
+  - name: "Hauptteil"
+  - name: "Fazit"
+----
+
+a|
+[source,yaml]
+----
+sections:
+  - pattern: "^\\d+\\.\\s+.*"
+  # Erlaubt: 1. Einleitung,
+  #          2. Hauptteil,
+  #          3. Fazit, etc.
+----
+|===
+
+**Vorteile:**
+
+* **Evolutionsfähig** - Neue Sections ohne Config-Änderung
+* **Kontext-sensitiv** - Verschiedene Patterns für verschiedene Dokumente
+* **Wartbar** - Ein Pattern statt 20 Namen
+
+== 📐 Design-Entscheidungen
+
+=== Warum YAML?
+
+Wir haben uns für YAML entschieden, weil:
+
+1. **Menschenlesbar** - Entwickler können Config ohne Doku verstehen
+2. **Hierarchisch** - Passt perfekt zur Dokumentstruktur
+3. **Etabliert** - Bekannt aus CI/CD, Kubernetes, etc.
+4. **Tooling** - Gute Editor-Unterstützung
+
+Alternative Überlegungen:
+- ❌ JSON - Zu verbose, keine Kommentare
+- ❌ XML - Zu komplex für einfache Configs
+- ❌ TOML - Weniger verbreitet, schlechtere Hierarchie-Darstellung
+
+=== Warum keine GUI?
+
+Der Linter ist CLI-first, weil:
+
+1. **Automatisierung** - CI/CD Integration ist primäres Ziel
+2. **Versionskontrolle** - Text-basierte Configs sind Git-freundlich
+3. **Skalierung** - Batch-Verarbeitung von hunderten Dateien
+4. **Unix-Philosophie** - Ein Tool, eine Aufgabe, gut gemacht
+
+=== Warum Java?
+
+Java wurde gewählt für:
+
+1. **AsciidoctorJ** - Beste AsciiDoc-Implementation
+2. **Performance** - JVM-Optimierungen für große Dokumente
+3. **Portabilität** - Läuft überall wo Java läuft
+4. **Ökosystem** - Reiche Auswahl an Libraries
+
+== 🔄 Validierungs-Workflow
+
+Der Linter folgt diesem Ablauf:
+
+[plantuml, validation-flow, svg]
+----
+@startuml
+start
+:Konfiguration laden;
+:Schema validieren;
+:AsciiDoc parsen;
+fork
+  :Metadata validieren;
+fork again
+  :Sections validieren;
+fork again
+  :Blocks validieren;
+end fork
+:Ergebnisse sammeln;
+:Report generieren;
+stop
+@enduml
+----
+
+**Wichtige Aspekte:**
+
+* **Fail-Fast** - Bei kritischen Fehlern früh abbrechen
+* **Parallel** - Unabhängige Validierungen parallel
+* **Vollständig** - Alle Fehler sammeln, nicht nur ersten
+
+== 🎨 Erweiterbarkeit
+
+=== Plugin-Architektur
+
+Obwohl noch nicht vollständig implementiert, ist die Architektur darauf vorbereitet:
+
+[source,java]
+----
+interface BlockValidator {
+    List<ValidationResult> validate(Block block, Config config);
+}
+
+// Neue Validatoren einfach hinzufügen
+class CustomBlockValidator implements BlockValidator {
+    // Implementation
+}
+----
+
+
+== 🌟 Best Practices
+
+=== 1. Inkrementelle Adoption
+
+[.lead]
+Starten Sie klein und wachsen Sie mit Ihren Anforderungen.
+
+**Phase 1: Basis**
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        severity: error
+----
+
+**Phase 2: Struktur**
+[source,yaml]
+----
+# ... Metadata von Phase 1 ...
+  sections:
+    - name: "Einleitung"
+      required: true
+      severity: warn
+----
+
+**Phase 3: Details**
+[source,yaml]
+----
+# ... Phase 1 & 2 ...
+      blocks:
+        - paragraph:
+            minLines: 5
+            severity: info
+----
+
+=== 2. Team-Standards
+
+Entwickeln Sie Standards im Team:
+
+1. **Workshop** - Gemeinsam Anforderungen definieren
+2. **Pilot** - Mit einem Projekt starten
+3. **Feedback** - Regeln basierend auf Erfahrung anpassen
+4. **Rollout** - Auf alle Projekte ausweiten
+
+=== 3. Living Documentation
+
+Behandeln Sie Ihre Linter-Konfiguration als lebendiges Dokument:
+
+* **Kommentare** - Erklären Sie komplexe Patterns
+* **Versionierung** - Nutzen Sie Git-Tags für Config-Versionen
+* **Changelog** - Dokumentieren Sie Änderungen
+* **Reviews** - Config-Änderungen im Team besprechen
+
+
+== 💭 Philosophische Grundsätze
+
+[quote, Unix-Philosophie]
+____
+Do one thing and do it well.
+____
+
+Der Power AsciiDoc Linter:
+
+1. **Validiert** - Das ist seine einzige Aufgabe
+2. **Integriert** - Passt in bestehende Workflows
+3. **Respektiert** - Zwingt keinen Stil auf
+4. **Hilft** - Gibt konstruktives Feedback
+
+[quote, Zen of Python (angepasst)]
+____
+Explizit ist besser als implizit.
+Einfach ist besser als komplex.
+Komplex ist besser als kompliziert.
+Flach ist besser als verschachtelt.
+Lesbarkeit zählt.
+Spezialfälle sind nicht speziell genug, um die Regeln zu brechen.
+Praktikabilität schlägt Purismus.
+____
+
+== 🤝 Community-Philosophie
+
+=== Open Source First
+
+* **Transparenz** - Entwicklung öffentlich auf GitHub
+* **Kollaboration** - Pull Requests willkommen
+* **Dokumentation** - Umfassend und aktuell
+* **Support** - Community-getrieben
+
+=== Inklusivität
+
+* **Mehrsprachig** - Dokumentation in mehreren Sprachen
+* **Anfängerfreundlich** - Klare Beispiele und Guides
+* **Barrierefreiheit** - Ausgaben screen-reader-freundlich
+* **Diverses Feedback** - Alle Perspektiven willkommen
+
+== 🎓 Lernen aus der Praxis
+
+=== Was funktioniert
+
+✅ **Klare Fehlermeldungen** - "actual X, expected Y"
+✅ **Flexible Patterns** - Nicht zu restriktiv
+✅ **Hierarchische Config** - Natürliche Struktur
+✅ **Exit-Codes** - CI/CD-freundlich
+
+=== Was wir gelernt haben
+
+📚 **Balance** - Zwischen Striktheit und Flexibilität
+📚 **Kontext** - Fehler mit umgebendem Code zeigen
+📚 **Performance** - Caching für große Projekte wichtig
+📚 **Rückwärtskompatibilität** - Config-Migrationen planen
+
+== 🔗 Weiterführende Konzepte
+
+* link:rule-hierarchy-diagram.adoc[Regel-Hierarchie im Detail]
+* link:severity-inheritance-diagram.adoc[Severity-Vererbung verstehen]
+* link:../user-guide/configuration.adoc[Praktische Konfiguration]
+* link:../architecture/design-patterns.adoc[Technische Design-Patterns]

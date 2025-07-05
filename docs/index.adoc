@@ -1,0 +1,152 @@
+= Power AsciiDoc Linter
+:toc: left
+:toc-title: Inhaltsverzeichnis
+:toclevels: 3
+:icons: font
+:source-highlighter: rouge
+:lang: de
+:imagesdir: images
+:sectnums:
+:sectanchors:
+
+image::https://img.shields.io/badge/Java-17+-blue.svg[Java 17+]
+image::https://img.shields.io/badge/License-Apache%202.0-blue.svg[Apache 2.0]
+
+== Willkommen
+
+Der Power AsciiDoc Linter ist ein leistungsstarkes Werkzeug zur automatisierten Überprüfung und Validierung von AsciiDoc-Dokumenten. Er hilft Ihnen dabei, konsistente und qualitativ hochwertige Dokumentation zu erstellen, indem er Ihre Dokumente gegen konfigurierbare Regeln prüft.
+
+=== Was macht der Power AsciiDoc Linter?
+
+* ✓ *Strukturvalidierung*: Überprüft die korrekte Hierarchie und Struktur Ihrer Dokumente
+* ✓ *Metadaten-Prüfung*: Stellt sicher, dass wichtige Dokumentinformationen vorhanden sind
+* ✓ *Block-Validierung*: Prüft spezifische Regeln für verschiedene AsciiDoc-Blocktypen
+* ✓ *Anpassbare Regeln*: Definieren Sie eigene Validierungsregeln für Ihre Anforderungen
+* ✓ *CI/CD-Integration*: Nahtlose Integration in Ihre Build-Pipeline
+
+=== Für wen ist dieses Tool?
+
+Der Power AsciiDoc Linter eignet sich besonders für:
+
+* **Technische Redakteure**: Die konsistente Dokumentation sicherstellen möchten
+* **Entwicklungsteams**: Die ihre API- und Projektdokumentation standardisieren wollen
+* **DevOps-Engineers**: Die Dokumentationsprüfungen in CI/CD-Pipelines integrieren
+* **Qualitätssicherung**: Die Dokumentationsstandards durchsetzen müssen
+
+== Schnellstart
+
+Um sofort loszulegen, benötigen Sie nur drei Schritte:
+
+[source,bash]
+----
+# 1. Repository klonen
+git clone https://github.com/basmussen/power-adoc-linter.git
+cd power-adoc-linter
+
+# 2. Mit Maven bauen
+mvn clean package
+
+# 3. Erste Validierung durchführen
+java -jar target/power-adoc-linter.jar -i "**/*.adoc"
+----
+
+Weitere Details finden Sie im link:user-guide/getting-started.adoc[Schnellstart-Guide].
+
+== Hauptfunktionen
+
+=== Flexible Konfiguration
+
+Erstellen Sie maßgeschneiderte Validierungsregeln für Ihre spezifischen Anforderungen:
+
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        minLength: 5
+        severity: error
+      - name: author
+        required: true
+        severity: error
+      - name: revdate
+        required: true
+        pattern: "\\d{4}-\\d{2}-\\d{2}"
+        severity: error
+  sections:
+    - name: "Einleitung"
+      required: true
+      blocks:
+        - paragraph:
+            minLines: 3
+            severity: warn
+----
+
+=== Vielfältige Block-Typen
+
+Der Linter unterstützt alle gängigen AsciiDoc-Blocktypen:
+
+* Paragraph-Blöcke
+* Code-Listings
+* Tabellen
+* Bilder
+* Zitate
+* Und viele mehr...
+
+=== Aussagekräftige Fehlerberichte
+
+Erhalten Sie detaillierte Informationen über gefundene Probleme:
+
+[source]
+----
+ERROR: document.adoc:15 - Fehlender erforderlicher Metadaten-Eintrag: author
+WARN: document.adoc:42 - Paragraph hat nur 2 Zeilen (minimum: 3)
+----
+
+== Dokumentation
+
+[cols="1,3"]
+|===
+| Bereich | Beschreibung
+
+| link:user-guide/getting-started.adoc[Benutzerhandbuch]
+| Schritt-für-Schritt-Anleitungen für die tägliche Arbeit
+
+| link:reference/cli-options.adoc[Referenz]
+| Detaillierte Beschreibung aller Funktionen und Optionen
+
+| link:features/output-formats.adoc[Features]
+| Spezielle Funktionen wie Output-Formate und Documentation Generator
+
+| Integration
+| Anleitungen zur Integration in CI/CD-Pipelines
+
+| link:examples/basic-config.yaml[Beispiele]
+| Praxisnahe Beispielkonfigurationen
+|===
+
+== Schnelle Links
+
+* link:user-guide/getting-started.adoc[🚀 Schnellstart] - In 5 Minuten einsatzbereit
+* link:user-guide/configuration.adoc[⚙️ Konfiguration] - Regeln anpassen
+* link:reference/cli-options.adoc[📋 CLI-Referenz] - Alle Kommandozeilenoptionen
+
+== Beispiel-Workflow
+
+. AsciiDoc-Dokumente vorbereiten
+. Linter-Konfiguration erstellen (optional)
+. Power AsciiDoc Linter ausführen
+. Validierungsergebnisse prüfen
+.. Bei Fehlern: Dokumente korrigieren
+.. Ohne Fehler: ✓ Validierung erfolgreich
+
+== Community und Support
+
+* 🐛 link:https://github.com/basmussen/power-adoc-linter/issues[Issues melden]
+* 💬 link:https://github.com/basmussen/power-adoc-linter/discussions[Diskussionen]
+* 📖 link:https://github.com/basmussen/power-adoc-linter[GitHub Repository]
+
+== Lizenz
+
+Der Power AsciiDoc Linter steht unter der Apache License 2.0. Details finden Sie in der link:https://github.com/basmussen/power-adoc-linter/blob/master/LICENSE[LICENSE] Datei.

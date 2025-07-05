@@ -1,0 +1,121 @@
+= Regel-Referenz
+:toc:
+:toc-title: Inhalt
+:toclevels: 2
+:icons: font
+
+[abstract]
+Vollständige Referenz aller Validierungsregeln des Power AsciiDoc Linters, organisiert nach Validierungsebenen.
+
+== Übersicht
+
+Der Power AsciiDoc Linter validiert Dokumente auf verschiedenen Ebenen:
+
+[cols="1,3,1", options="header"]
+|===
+| Ebene | Beschreibung | Status
+
+| link:document-rules.adoc[Document]
+| Oberste Konfigurationsebene für Metadaten und Sections
+| ✅ Vollständig
+
+| link:metadata-rules.adoc[Metadata]
+| Validierung von Dokumentattributen im Header
+| ✅ Vollständig
+
+| link:section-rules.adoc[Sections]
+| Struktur und Hierarchie von Dokumentabschnitten
+| ✅ Dokumentiert
+
+| link:block-rules/index.adoc[Blocks]
+| Spezifische Regeln für verschiedene Block-Typen
+| ✅ Dokumentiert
+|===
+
+== Konfigurationshierarchie
+
+[source]
+----
+document
+├── metadata
+│   └── attributes[]
+│       ├── name
+│       ├── required
+│       ├── severity
+│       └── ... (weitere Felder)
+└── sections[]
+    ├── name
+    ├── level
+    ├── required
+    ├── blocks[]
+    │   ├── paragraph
+    │   ├── listing
+    │   ├── table
+    │   └── ... (weitere Block-Typen)
+    └── subsections[]
+----
+
+== Verfügbare Block-Typen
+
+=== Text-Blöcke
+* **paragraph** - Standard-Textabsätze
+* **verse** - Verse und Gedichte
+* **quote** - Zitate mit Autor
+* **literal** - Vorformatierter Text
+* **pass** - Durchreichung von Rohinhalt
+
+=== Code und Beispiele
+* **listing** - Code-Blöcke mit Syntax-Highlighting
+* **example** - Nummerierte Beispiele
+
+=== Strukturelemente
+* **table** - Tabellen mit Zeilen und Spalten
+* **image** - Bilder und Grafiken
+* **video** - Videoeinbettungen
+* **audio** - Audioeinbettungen
+
+=== Spezielle Blöcke
+* **admonition** - Hinweise (NOTE, TIP, WARNING, etc.)
+* **sidebar** - Seitenleisten-Inhalte
+
+== Severity-Level
+
+Alle Regeln verwenden eines der drei Severity-Level:
+
+[cols="1,3,1", options="header"]
+|===
+| Level | Bedeutung | Exit-Code
+
+| `error`
+| Kritischer Fehler, muss behoben werden
+| 1
+
+| `warn`
+| Warnung, sollte beachtet werden
+| 0 (außer mit --fail-level warn)
+
+| `info`
+| Hinweis zur Verbesserung
+| 0
+|===
+
+== Navigation
+
+=== Nach Funktion
+* link:metadata-rules.adoc[Metadaten validieren]
+* link:section-rules.adoc[Dokumentstruktur prüfen]
+* link:block-rules/paragraph.adoc[Textqualität sicherstellen]
+* link:block-rules/listing.adoc[Code-Beispiele validieren]
+* link:block-rules/table.adoc[Tabellen prüfen]
+
+=== Schnellzugriff
+* link:document-rules.adoc[🏠 Document-Level] - Gesamtstruktur
+* link:metadata-rules.adoc[📋 Metadaten] - Header-Attribute
+* link:section-rules.adoc[📑 Sections] - Abschnitte
+* link:block-rules/index.adoc[🧱 Blocks] - Inhaltsblöcke
+
+== Siehe auch
+
+* link:../../user-guide/configuration.adoc[Konfigurationsanleitung]
+* link:../../examples/basic-config.yaml[Basis-Beispiel]
+* link:../../examples/advanced-config.yaml[Erweiterte Beispiel]

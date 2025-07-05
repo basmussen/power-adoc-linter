@@ -1,0 +1,172 @@
+# Power AsciiDoc Linter Konfiguration für API-Dokumentation
+# Strikte Regeln für konsistente REST API Dokumentation
+
+document:
+  metadata:
+    attributes:
+      # Pflichtfelder für API-Docs
+      - name: title
+        required: true
+        pattern: "^.*API.*$"  # Muss "API" enthalten
+        minLength: 10
+        maxLength: 100
+        severity: error
+        
+      - name: author
+        required: true
+        severity: error
+        
+      - name: email
+        required: true
+        pattern: "^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$"
+        severity: error
+        
+      - name: version
+        required: true
+        pattern: "^v\\d+\\.\\d+\\.\\d+$"  # Semantic Versioning
+        severity: error
+        
+      - name: api-version
+        required: true
+        pattern: "^v\\d+$"  # API Version (v1, v2, etc.)
+        severity: error
+        
+      - name: revdate
+        required: true
+        pattern: "\\d{4}-\\d{2}-\\d{2}"  # ISO-Datum
+        severity: error
+        
+      # Optionale API-spezifische Metadaten
+      - name: api-base-url
+        required: false
+        pattern: "^https?://.*"
+        severity: info
+        
+      - name: api-auth-type
+        required: false
+        pattern: "^(Bearer|Basic|OAuth2|API-Key)$"
+        severity: warn
+        
+  sections:
+    # Übersicht ist Pflicht
+    - name: "Übersicht"
+      level: 1
+      order: 1
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            minLines: 5
+            severity: warn
+            
+    # Authentifizierung ist Pflicht
+    - name: "Authentifizierung"
+      level: 1
+      order: 2
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            severity: error
+        - listing:
+            language:
+              pattern: "^(bash|curl|http)$"
+            severity: warn
+            
+    # Base URL Pflicht
+    - name: "Base URL"
+      level: 1
+      order: 3
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            severity: error
+        - listing:
+            severity: info
+            
+    # Endpunkte sind der Hauptteil
+    - name: "Endpunkte"
+      level: 1
+      order: 4
+      required: true
+      severity: error
+      subsections:
+        # HTTP-Methoden als Subsections
+        - pattern: "^(GET|POST|PUT|PATCH|DELETE)\\s+.*"
+          level: 2
+          severity: error
+          blocks:
+            - paragraph:
+                minLines: 2
+                severity: warn
+            - table:  # Parameter-Tabelle
+                header:
+                  required: true
+                caption:
+                  pattern: "^(Parameter|Request Body|Query Parameter|Path Parameter)"
+                severity: error
+            - listing:  # Request/Response Beispiele
+                language:
+                  pattern: "^(json|xml|yaml)$"
+                title:
+                  pattern: "^(Request|Response|Example).*"
+                severity: error
+                
+    # Response Codes Referenz
+    - name: "Response Codes"
+      level: 1
+      order: 5
+      required: true
+      severity: error
+      blocks:
+        - table:
+            header:
+              required: true
+            columns:
+              min: 3  # Code, Bedeutung, Beschreibung
+            severity: error
+            
+    # Fehlerbehandlung
+    - name: "Fehlerbehandlung"
+      level: 1
+      order: 6
+      required: true
+      severity: error
+      blocks:
+        - paragraph:
+            severity: error
+        - listing:
+            language:
+              pattern: "^json$"
+            severity: error
+            
+    # Rate Limiting
+    - name: "Rate Limiting"
+      level: 1
+      order: 7
+      required: false
+      severity: warn
+      blocks:
+        - paragraph:
+            severity: warn
+        - table:
+            severity: info
+            
+    # Versionierung
+    - name: "Versionierung"
+      level: 1
+      order: 8
+      required: false
+      severity: warn
+      
+    # Changelog optional
+    - name: "Changelog"
+      level: 1
+      order: 99
+      required: false
+      severity: info
+      subsections:
+        - pattern: "^v\\d+\\.\\d+\\.\\d+.*"
+          level: 2
+          severity: info

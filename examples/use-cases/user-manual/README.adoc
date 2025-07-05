@@ -1,0 +1,74 @@
+= Benutzerhandbuch Use Case
+:toc:
+:icons: font
+
+== Beschreibung
+
+Dieser Use Case zeigt eine flexible Konfiguration für Benutzerhandbücher. Im Gegensatz zur strikten API-Dokumentation erlaubt diese Konfiguration mehr Freiheiten bei der Strukturierung.
+
+== Merkmale
+
+=== Flexibilität
+* ✅ Freie Kapitelstruktur mit Pattern "Kapitel X:"
+* ✅ Optionale Metadaten (Version, Datum)
+* ✅ Verschiedene Block-Typen erlaubt (Admonitions, Examples, Images)
+* ✅ Niedrigere Severity-Level (mehr `warn` und `info`)
+
+=== Benutzerfreundlichkeit
+* ✅ Screenshots mit Alt-Text Pflicht
+* ✅ Admonitions für Tipps und Warnungen
+* ✅ Beispiel-Blöcke für Anleitungen
+* ✅ FAQ und Troubleshooting Sections
+
+=== Struktur
+* ✅ Pflicht: Einleitung und Installation/Erste Schritte
+* ✅ Flexible Hauptkapitel
+* ✅ Optionale Sections: FAQ, Glossar, Index
+
+== Unterschiede zur API-Dokumentation
+
+[cols="30,35,35", options="header"]
+|===
+| Aspekt | API-Dokumentation | Benutzerhandbuch
+
+| Struktur
+| Strikt vorgegeben
+| Flexibel mit Patterns
+
+| Metadaten
+| Alle Pflicht
+| Viele optional
+
+| Severity
+| Meist `error`
+| Meist `warn`/`info`
+
+| Block-Typen
+| Code-fokussiert
+| Vielfältig (Bilder, Tipps)
+
+| Sprache
+| Technisch präzise
+| Benutzerfreundlich
+|===
+
+== Anpassungsmöglichkeiten
+
+1. **Kapitelstruktur**: Pattern anpassen für andere Benennungen
+2. **Severity erhöhen**: Für formellere Handbücher
+3. **Zusätzliche Sections**: z.B. "Systemanforderungen", "Lizenz"
+4. **Metadaten erweitern**: z.B. `target-platform`, `language`
+
+== Verwendung
+
+[source,bash]
+----
+# Validierung mit flexiblen Regeln
+java -jar power-adoc-linter.jar \
+  -i examples/use-cases/user-manual/valid-example.adoc \
+  -c examples/use-cases/user-manual/config.yaml
+
+# Erwartete Ausgabe:
+# ✓ Validierung erfolgreich
+# Fehler: 0, Warnungen: 0, Infos: X
+----

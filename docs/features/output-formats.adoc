@@ -1,0 +1,575 @@
+= Output-Formate und Styles
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: highlight.js
+:experimental:
+
+[abstract]
+Der Power AsciiDoc Linter bietet hochgradig anpassbare Output-Formate für verschiedene Anwendungsfälle. Von detaillierten, farbigen Entwickler-Ausgaben bis zu kompakten CI/CD-Formaten - passen Sie die Ausgabe perfekt an Ihre Bedürfnisse an.
+
+== 🎨 Überblick
+
+Die Output-Konfiguration steuert, **wie** Validierungsergebnisse dargestellt werden, nicht **was** validiert wird:
+
+[plantuml, output-flow, svg]
+----
+@startuml
+!theme plain
+skinparam defaultFontSize 14
+
+file "document.adoc" as doc #lightblue
+rectangle "Linter\nValidation" as linter #lightgreen
+rectangle "Output\nFormatter" as formatter #yellow
+file "console output" as output #lightyellow
+
+doc --> linter : validiert
+linter --> formatter : Ergebnisse
+formatter --> output : formatiert
+
+note right of formatter
+  Format: enhanced/simple/compact
+  Colors: on/off
+  Context: 0-5 lines
+  Grouping: on/off
+end note
+@enduml
+----
+
+== 📋 Verfügbare Output-Formate
+
+=== Enhanced Format
+
+Das **Enhanced Format** bietet maximale Details und visuelle Unterstützung:
+
+[cols="25,75", options="header"]
+|===
+| Feature | Beschreibung
+
+| 🎨 Farben
+| Farbcodierte Severity-Level (🔴 ERROR, 🟡 WARN, 🔵 INFO)
+
+| 📍 Kontext
+| Zeigt umgebende Zeilen mit Zeilennummern
+
+| 💡 Vorschläge
+| Automatische Fix-Vorschläge wenn möglich
+
+| 📊 Statistiken
+| Visuelle Balkendiagramme für Fehlerverteilung
+
+| 🔍 Highlighting
+| Unterstreicht problematische Stellen
+|===
+
+**Beispiel-Ausgabe:**
+
+[source]
+----
+┌─ ERROR ─────────────────────────────────────────────────────┐
+│ example.adoc:15                                             │
+│ Missing required attribute 'author'                         │
+├─────────────────────────────────────────────────────────────┤
+│    13 │ = My Document Title                                │
+│    14 │ :version: 1.0.0                                     │
+│ >> 15 │                                                     │
+│    16 │ == Introduction                                     │
+│    17 │ This is the introduction.                           │
+├─────────────────────────────────────────────────────────────┤
+│ 💡 Add author information after the title:                  │
+│    Max Mustermann <max@example.com>                        │
+└─────────────────────────────────────────────────────────────┘
+----
+
+=== Simple Format
+
+Das **Simple Format** ist klar und übersichtlich ohne visuelle Extras:
+
+**Beispiel-Ausgabe:**
+
+[source]
+----
+ERROR: example.adoc:15 - Missing required attribute 'author'
+WARN: example.adoc:42 - Paragraph has only 2 lines (minimum: 3)
+INFO: example.adoc:67 - Consider adding alt text to image
+----
+
+**Ideal für:**
+- Umgebungen ohne Farbunterstützung
+- Log-Dateien
+- Minimalistische Präferenzen
+
+=== Compact Format
+
+Das **Compact Format** ist für CI/CD-Pipelines optimiert:
+
+**Beispiel-Ausgabe:**
+
+[source]
+----
+example.adoc:15:1:ERROR:metadata.required:Missing required attribute 'author'
+example.adoc:42:3:WARN:paragraph.lines:Paragraph has only 2 lines (minimum: 3)
+----
+
+**Format:** `file:line:column:severity:rule:message`
+
+**Vorteile:**
+- Maschinenlesbar
+- Eine Zeile pro Fehler
+- Einfach zu parsen
+- Minimal Output
+
+== ⚙️ Konfiguration
+
+=== Basis-Konfiguration
+
+Erstellen Sie eine Output-Konfigurationsdatei:
+
+[source,yaml]
+----
+# my-output-config.yaml
+output:
+  format: enhanced  # enhanced, simple, oder compact
+  
+  display:
+    useColors: true
+    contextLines: 3
+    showLineNumbers: true
+    highlightStyle: underline  # underline, box, arrow, none
+----
+
+Verwenden Sie sie mit:
+
+[source,bash]
+----
+java -jar power-adoc-linter.jar \
+  -i "**/*.adoc" \
+  --output-config my-output-config.yaml
+----
+
+=== Vollständige Konfigurationsoptionen
+
+==== Display-Einstellungen
+
+[cols="30,20,20,30", options="header"]
+|===
+| Option | Typ | Default | Beschreibung
+
+| `useColors`
+| boolean
+| true
+| ANSI-Farbcodes aktivieren
+
+| `contextLines`
+| integer
+| 2
+| Kontext-Zeilen (0-5)
+
+| `showLineNumbers`
+| boolean
+| true
+| Zeilennummern anzeigen
+
+| `highlightStyle`
+| enum
+| underline
+| Fehler-Highlighting
+
+| `maxLineWidth`
+| integer
+| 120
+| Maximale Zeilenbreite
+
+| `showHeader`
+| boolean
+| true
+| Report-Header anzeigen
+|===
+
+==== Error-Gruppierung
+
+[source,yaml]
+----
+output:
+  errorGrouping:
+    enabled: true          # Ähnliche Fehler gruppieren
+    threshold: 3           # Ab 3 gleichen Fehlern gruppieren
+    groupBySeverity: true  # Nach Severity gruppieren
+    groupByRule: true      # Nach Regel-ID gruppieren
+    maxGroupSize: 10       # Max. Fehler pro Gruppe
+    showSampleErrors: 3    # Beispiele pro Gruppe
+----
+
+**Gruppierte Ausgabe:**
+
+[source]
+----
+┌─ ERROR GROUP ───────────────────────────────────────────────┐
+│ metadata.required: Missing required attribute (15 times)    │
+├─────────────────────────────────────────────────────────────┤
+│ Samples:                                                    │
+│ • doc1.adoc:1 - Missing 'author'                           │
+│ • doc2.adoc:1 - Missing 'author'                           │
+│ • doc3.adoc:1 - Missing 'author'                           │
+│ ... and 12 more                                            │
+└─────────────────────────────────────────────────────────────┘
+----
+
+==== Vorschläge
+
+[source,yaml]
+----
+output:
+  suggestions:
+    enabled: true         # Fix-Vorschläge anzeigen
+    maxPerError: 3        # Max. Vorschläge pro Fehler
+    showExamples: true    # Beispiele zeigen
+    showAutoFixHint: true # Auto-Fix Hinweis
+----
+
+==== Zusammenfassung
+
+[source,yaml]
+----
+output:
+  summary:
+    enabled: true
+    showStatistics: true   # Fehler-Statistiken
+    showMostCommon: true   # Häufigste Probleme
+    showFileList: true     # Dateiliste mit Fehlern
+----
+
+**Beispiel-Zusammenfassung:**
+
+[source]
+----
+╔════════════════════════════════════════════════════════════╗
+║                   VALIDATION SUMMARY                        ║
+╠════════════════════════════════════════════════════════════╣
+║ Files validated: 42                                         ║
+║ Files with errors: 8                                        ║
+║                                                            ║
+║ Error Distribution:                                        ║
+║ ERROR : ████████████████████ 15                          ║
+║ WARN  : ████████ 7                                        ║
+║ INFO  : ████ 3                                            ║
+║                                                            ║
+║ Most Common Issues:                                        ║
+║ 1. Missing required attribute 'author' (12 times)         ║
+║ 2. Paragraph too short (5 times)                          ║
+║ 3. Image without alt text (3 times)                       ║
+╚════════════════════════════════════════════════════════════╝
+----
+
+== 🎯 Use Cases und Beispiele
+
+=== Entwicklung: Maximum Detail
+
+[source,yaml]
+----
+# development-output.yaml
+output:
+  format: enhanced
+  
+  display:
+    useColors: true
+    contextLines: 3
+    showLineNumbers: true
+    highlightStyle: underline
+    
+  suggestions:
+    enabled: true
+    maxPerError: 5
+    showExamples: true
+    
+  summary:
+    enabled: true
+    showStatistics: true
+    showMostCommon: true
+----
+
+=== CI/CD: Minimal und Parseable
+
+[source,yaml]
+----
+# ci-output.yaml
+output:
+  format: compact
+  
+  display:
+    useColors: false      # Keine Farben in Logs
+    contextLines: 0       # Kein Kontext
+    showHeader: false     # Kein Header
+    
+  suggestions:
+    enabled: false        # Keine Vorschläge
+    
+  summary:
+    enabled: false        # Keine Zusammenfassung
+----
+
+=== Code Review: Gruppierte Fehler
+
+[source,yaml]
+----
+# review-output.yaml
+output:
+  format: enhanced
+  
+  errorGrouping:
+    enabled: true
+    threshold: 2          # Schon ab 2 gruppieren
+    showSampleErrors: 5   # Mehr Beispiele
+    
+  display:
+    contextLines: 1       # Weniger Kontext
+    
+  summary:
+    enabled: true
+    showFileList: true    # Dateiliste wichtig
+----
+
+=== Terminal mit begrenzter Breite
+
+[source,yaml]
+----
+# narrow-output.yaml
+output:
+  format: simple
+  
+  display:
+    maxLineWidth: 80      # Schmale Terminals
+    useColors: true
+    contextLines: 1
+----
+
+== 🔄 Output-Format Vergleich
+
+[cols="20,20,20,20,20", options="header"]
+|===
+| Feature | Enhanced | Simple | Compact | Custom
+
+| Farben
+| ✅ Ja
+| ⚠️ Optional
+| ❌ Nein
+| ✅ Konfigurierbar
+
+| Kontext
+| ✅ 3 Zeilen
+| ❌ Nein
+| ❌ Nein
+| ✅ 0-5 Zeilen
+
+| Vorschläge
+| ✅ Ja
+| ❌ Nein
+| ❌ Nein
+| ✅ Optional
+
+| Gruppierung
+| ✅ Ja
+| ❌ Nein
+| ❌ Nein
+| ✅ Optional
+
+| Zusammenfassung
+| ✅ Ja
+| ⚠️ Minimal
+| ❌ Nein
+| ✅ Konfigurierbar
+
+| Zeilenlänge
+| ~120
+| ~80
+| Variabel
+| ✅ 40-200
+
+| Für CI/CD
+| ❌ Zu verbose
+| ⚠️ Möglich
+| ✅ Ideal
+| ✅ Anpassbar
+|===
+
+== 🎨 Visuelle Elemente
+
+=== Severity-Farbcodes
+
+[cols="20,20,20,40", options="header"]
+|===
+| Level | Symbol | ANSI Code | Verwendung
+
+| ERROR
+| 🔴
+| `\033[31m`
+| Kritische Fehler
+
+| WARN
+| 🟡
+| `\033[33m`
+| Warnungen
+
+| INFO
+| 🔵
+| `\033[34m`
+| Hinweise
+
+| SUCCESS
+| 🟢
+| `\033[32m`
+| Erfolg
+|===
+
+=== Highlight-Styles
+
+==== Underline
+[source]
+----
+    15 │ This is an error message
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----
+
+==== Box
+[source]
+----
+    15 │ ┌─────────────────────────┐
+       │ │This is an error message │
+       │ └─────────────────────────┘
+----
+
+==== Arrow
+[source]
+----
+ >> 15 │ This is an error message
+----
+
+==== None
+[source]
+----
+    15 │ This is an error message
+----
+
+== 💡 Best Practices
+
+=== 1. Umgebungs-spezifische Konfiguration
+
+[source,bash]
+----
+# Entwicklung
+export LINTER_OUTPUT_CONFIG=dev-output.yaml
+
+# CI/CD
+export LINTER_OUTPUT_CONFIG=ci-output.yaml
+
+# Nutzen
+java -jar power-adoc-linter.jar \
+  -i "**/*.adoc" \
+  --output-config $LINTER_OUTPUT_CONFIG
+----
+
+=== 2. Severity-basierte Ausgabe
+
+Kombinieren Sie Output-Format mit Fail-Level:
+
+[source,bash]
+----
+# Nur Errors in CI
+java -jar power-adoc-linter.jar \
+  -i "**/*.adoc" \
+  -l error \
+  --output-config ci-output.yaml
+  
+# Alle Level in Entwicklung
+java -jar power-adoc-linter.jar \
+  -i "**/*.adoc" \
+  -l info \
+  --output-config dev-output.yaml
+----
+
+=== 3. Progressive Enhancement
+
+Starten Sie einfach und erweitern Sie bei Bedarf:
+
+1. **Start**: Simple Format
+2. **Bei vielen Fehlern**: Gruppierung aktivieren
+3. **Für Debugging**: Enhanced mit vollem Kontext
+4. **Für CI/CD**: Compact Format
+
+== 🔧 Erweiterte Konfiguration
+
+=== Bedingte Formatierung
+
+[source,yaml]
+----
+# smart-output.yaml
+output:
+  format: enhanced
+  
+  # Farben nur wenn Terminal sie unterstützt
+  display:
+    useColors: ${env.TERM_SUPPORTS_COLOR:true}
+    
+  # Mehr Kontext in Debug-Modus
+  display:
+    contextLines: ${env.DEBUG:false ? 5 : 2}
+    
+  # Gruppierung nur bei vielen Dateien
+  errorGrouping:
+    enabled: ${env.FILE_COUNT > 10:true}
+----
+
+=== Custom Reporter (Zukünftig)
+
+[source,yaml]
+----
+output:
+  format: custom
+  customReporter: com.mycompany.MyCustomReporter
+  
+  customOptions:
+    slack:
+      webhook: ${env.SLACK_WEBHOOK}
+      channel: "#documentation"
+----
+
+== 📊 Performance-Überlegungen
+
+[cols="25,25,25,25", options="header"]
+|===
+| Format | CPU | Memory | I/O
+
+| Enhanced
+| Hoch
+| Mittel
+| Hoch
+
+| Simple
+| Niedrig
+| Niedrig
+| Mittel
+
+| Compact
+| Minimal
+| Minimal
+| Niedrig
+
+| Grouped
+| Mittel
+| Hoch
+| Niedrig
+|===
+
+**Tipps:**
+- Verwenden Sie `compact` für große Projekte
+- Deaktivieren Sie Farben für Log-Dateien
+- Reduzieren Sie `contextLines` für bessere Performance
+
+
+== 🔗 Siehe auch
+
+* link:../user-guide/configuration.adoc[Linter-Konfiguration] - Was validiert wird
+* link:../reference/cli-options.adoc[CLI-Optionen] - Kommandozeilen-Parameter
+* link:../../examples/output-configs/[Output-Beispiele] - Fertige Konfigurationen
+* link:../troubleshooting.adoc#output-probleme[Troubleshooting] - Output-Probleme lösen

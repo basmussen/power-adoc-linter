@@ -1,0 +1,268 @@
+= Regel-Hierarchie im Power AsciiDoc Linter
+:toc:
+:toc-title: Inhalt
+:toclevels: 3
+:icons: font
+:source-highlighter: highlight.js
+
+[abstract]
+Visuelle Darstellung der hierarchischen Regelstruktur des Power AsciiDoc Linters. Diese interaktive Übersicht zeigt, wie Regeln aufgebaut sind und zusammenwirken.
+
+== 🏗️ Hierarchie-Übersicht
+
+[.text-center]
+....
+┌─────────────────────────────────────────────────────────────────┐
+│                         DOCUMENT                                 │
+│                    (Oberste Ebene)                              │
+└─────────────────┬───────────────────────────┬──────────────────┘
+                  │                           │
+        ┌─────────▼──────────┐      ┌────────▼──────────┐
+        │     METADATA       │      │     SECTIONS      │
+        │   (Kopfdaten)      │      │  (Gliederung)     │
+        └─────────┬──────────┘      └────────┬──────────┘
+                  │                           │
+        ┌─────────▼──────────┐      ┌────────▼──────────┐
+        │   ATTRIBUTES[]     │      │   Section Item    │
+        │ • name             │      │ • name/pattern    │
+        │ • required         │      │ • level           │
+        │ • pattern          │      │ • subsections     │
+        │ • min/maxLength    │      │ • blocks[]        │
+        │ • severity         │      └────────┬──────────┘
+        └────────────────────┘                │
+                                    ┌─────────▼──────────┐
+                                    │     BLOCKS[]       │
+                                    │ • paragraph        │
+                                    │ • listing          │
+                                    │ • table            │
+                                    │ • image            │
+                                    │ • admonition       │
+                                    └────────────────────┘
+....
+
+== 📊 Detaillierte Regel-Struktur
+
+=== Document-Ebene
+
+[plantuml, document-structure, svg]
+----
+@startmindmap
+* **DOCUMENT**
+** **metadata**
+*** attributes[]
+**** name
+**** required
+**** pattern
+**** minLength
+**** maxLength
+**** allowedValues
+**** severity ⚠️
+** **sections[]**
+*** name/pattern
+*** level
+*** min/max
+*** required
+*** severity ⚠️
+*** subsections[]
+*** blocks[]
+@endmindmap
+----
+
+=== Metadata-Attribute im Detail
+
+Jedes Metadata-Attribut kann folgende Validierungsregeln haben:
+
+[cols="20,20,60", options="header"]
+|===
+| Regel | Typ | Beschreibung
+
+| `name`
+| String
+| Name des Attributs (z.B. "title", "author")
+
+| `required`
+| Boolean
+| Ist das Attribut zwingend erforderlich?
+
+| `pattern`
+| RegEx
+| Muster für Inhaltsvalidierung
+
+| `minLength`
+| Integer
+| Minimale Zeichenanzahl
+
+| `maxLength`
+| Integer
+| Maximale Zeichenanzahl
+
+| `allowedValues`
+| Array
+| Liste erlaubter Werte
+
+| `severity`
+| Enum
+| ERROR, WARN oder INFO
+|===
+
+=== Block-Typen und ihre Regeln
+
+[.text-center]
+....
+                        ┌─────────────┐
+                        │   BLOCKS    │
+                        └──────┬──────┘
+                               │
+        ┌──────────────────────┼──────────────────────┐
+        │                      │                      │
+┌───────▼─────┐        ┌───────▼─────┐        ┌──────▼──────┐
+│  paragraph  │        │   listing   │        │    table    │
+├─────────────┤        ├─────────────┤        ├─────────────┤
+│ • lines     │        │ • language  │        │ • header    │
+│ • sentences │        │ • title     │        │ • caption   │
+│ • words     │        │ • callouts  │        │ • columns   │
+│ • severity  │        │ • severity  │        │ • rows      │
+└─────────────┘        └─────────────┘        └─────────────┘
+....
+
+== 🔄 Regel-Vererbung und Überschreibung
+
+=== Severity-Hierarchie
+
+Die Severity (Schweregrad) kann auf verschiedenen Ebenen definiert werden:
+
+[source,yaml]
+----
+document:
+  sections:
+    - name: "Beispiel"
+      severity: warn          # <1> Section-Level Default
+      blocks:
+        - paragraph:
+            severity: error   # <2> Block-Level (überschreibt Section)
+            lines:
+              min: 5
+              severity: info  # <3> Regel-Level (höchste Priorität)
+----
+
+<1> Standard-Severity für alle Regeln dieser Section
+<2> Überschreibt Section-Severity für diesen Block
+<3> Spezifische Severity für diese eine Regel
+
+=== Vererbungs-Diagramm
+
+[plantuml, severity-inheritance, svg]
+----
+@startuml
+!define RECTANGLE class
+
+RECTANGLE "Section" {
+  severity: warn
+}
+
+RECTANGLE "Block" {
+  severity: error
+}
+
+RECTANGLE "Specific Rule" {
+  severity: info
+}
+
+Section --> Block : erbt an
+Block --> "Specific Rule" : erbt an
+note right : Niedrigere Ebenen\nüberschreiben höhere
+@enduml
+----
+
+== 🎯 Anwendungsbeispiele
+
+=== Beispiel 1: Einfache Metadaten-Regel
+
+[cols="a,a", grid=none, frame=none]
+|===
+| YAML-Konfiguration | Resultierende Validierung
+
+|
+[source,yaml]
+----
+document:
+  metadata:
+    attributes:
+      - name: title
+        required: true
+        minLength: 10
+        pattern: "^[A-Z]"
+        severity: error
+----
+
+|
+✓ Titel ist Pflichtfeld +
+✓ Mindestens 10 Zeichen +
+✓ Muss mit Großbuchstabe beginnen +
+✓ Bei Verletzung: ERROR
+
+|===
+
+=== Beispiel 2: Verschachtelte Section-Regeln
+
+[cols="a,a", grid=none, frame=none]
+|===
+| YAML-Konfiguration | Struktur-Diagramm
+
+|
+[source,yaml]
+----
+sections:
+  - name: "Kapitel"
+    level: 1
+    subsections:
+      - name: "Unterkapitel"
+        level: 2
+        blocks:
+          - paragraph:
+              minLines: 5
+          - listing:
+              language:
+                required: true
+----
+
+|
+....
+== Kapitel
+│
+├─ === Unterkapitel
+│   ├─ Paragraph (min 5 Zeilen)
+│   └─ Code (Sprache erforderlich)
+│
+└─ === Weiteres Unterkapitel
+    └─ ...
+....
+
+|===
+
+== 🚀 Best Practices
+
+[TIP]
+====
+**Strukturieren Sie Ihre Regeln hierarchisch:**
+
+1. Definieren Sie globale Standards auf Document-Ebene
+2. Verfeinern Sie auf Section-Ebene
+3. Spezifizieren Sie Details auf Block-Ebene
+====
+
+[IMPORTANT]
+====
+**Severity-Level sinnvoll einsetzen:**
+
+* `ERROR` → Kritische Strukturfehler
+* `WARN` → Wichtige Stilrichtlinien
+* `INFO` → Empfehlungen und Hinweise
+====
+
+== 📚 Weiterführende Links
+
+* link:../reference/rules/index.adoc[Vollständige Regel-Referenz]
+* link:severity-inheritance-diagram.adoc[Severity-Vererbung im Detail]
+* link:../user-guide/configuration.adoc[Konfigurations-Guide]
+* link:../examples/[Beispiel-Konfigurationen]
